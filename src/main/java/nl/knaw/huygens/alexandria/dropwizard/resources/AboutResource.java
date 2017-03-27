@@ -14,10 +14,10 @@ import com.codahale.metrics.annotation.Timed;
 public class AboutResource {
 
   AboutInfo about = new AboutInfo();
-  private Instant startedAt;
+  private static Instant startedAt;
 
   public AboutResource(String appName) {
-    about.setName(appName);
+    about.setAppName(appName);
     startedAt = Instant.now();
   }
 
@@ -27,10 +27,10 @@ public class AboutResource {
     return about;
   }
 
-  class AboutInfo {
+  public static class AboutInfo {
     String appName;
 
-    public void setName(String appName) {
+    public void setAppName(String appName) {
       this.appName = appName;
     }
 
