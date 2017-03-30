@@ -32,7 +32,7 @@ import nl.knaw.huygens.alexandria.markup.api.UTF8MediaType;
 
 /*
  * #%L
- * alexandria-java-client
+ * alexandria-markup-lmnl-client
  * =======
  * Copyright (C) 2015 - 2017 Huygens ING (KNAW)
  * =======

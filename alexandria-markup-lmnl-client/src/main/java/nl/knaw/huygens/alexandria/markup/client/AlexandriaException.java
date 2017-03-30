@@ -2,7 +2,7 @@ package nl.knaw.huygens.alexandria.markup.client;
 
 /*
  * #%L
- * alexandria-java-client
+ * alexandria-markup-lmnl-client
  * =======
  * Copyright (C) 2015 - 2017 Huygens ING (KNAW)
  * =======
