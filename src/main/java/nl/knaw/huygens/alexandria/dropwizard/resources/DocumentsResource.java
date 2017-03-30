@@ -23,6 +23,7 @@ import com.codahale.metrics.annotation.Timed;
 import nl.knaw.huygens.alexandria.dropwizard.ServerConfiguration;
 import nl.knaw.huygens.alexandria.dropwizard.api.DocumentInfo;
 import nl.knaw.huygens.alexandria.dropwizard.api.DocumentService;
+import nl.knaw.huygens.alexandria.dropwizard.api.RootPaths;
 import nl.knaw.huygens.alexandria.lmnl.data_model.Document;
 import nl.knaw.huygens.alexandria.lmnl.exporter.LMNLExporter;
 import nl.knaw.huygens.alexandria.lmnl.exporter.LaTeXExporter;

@@ -20,7 +20,7 @@
 
     <maven-jar.version>2.6</maven-jar.version>
     <maven-shade.version>2.4.3</maven-shade.version>
-
+    <wagon-ssh.version>2.7</wagon-ssh.version>
   </properties>
 
   <dependencies>
@@ -153,6 +153,44 @@
         </configuration>
       </plugin>
     </plugins>
+
+    <extensions>
+      <extension>
+        <groupId>org.apache.maven.wagon</groupId>
+        <artifactId>wagon-ssh</artifactId>
+        <version>${wagon-ssh.version}</version>
+      </extension>
+    </extensions>
   </build>
+  <distributionManagement>
+    <repository>
+      <id>maven.huygens</id>
+      <name>Huygens Maven Repository</name>
+      <url>${huygens-repo}</url>
+    </repository>
+    <snapshotRepository>
+      <id>maven.huygens.snapshot</id>
+      <name>Huygens Maven Snapshot Repository</name>
+      <url>${huygens-repo}</url>
+      <uniqueVersion>false</uniqueVersion>
+    </snapshotRepository>
+  </distributionManagement>
+
+  <repositories>
+    <repository>
+      <id>huygens</id>
+      <url>http://maven.huygens.knaw.nl/repository/</url>
+      <releases>
+        <enabled>true</enabled>
+        <updatePolicy>always</updatePolicy>
+        <checksumPolicy>warn</checksumPolicy>
+      </releases>
+      <snapshots>
+        <enabled>true</enabled>
+        <updatePolicy>always</updatePolicy>
+        <checksumPolicy>fail</checksumPolicy>
+      </snapshots>
+    </repository>
+  </repositories>
 
 </project>

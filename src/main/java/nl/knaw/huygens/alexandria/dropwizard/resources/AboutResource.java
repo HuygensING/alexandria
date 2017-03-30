@@ -9,6 +9,8 @@ import javax.ws.rs.core.MediaType;
 
 import com.codahale.metrics.annotation.Timed;
 
+import nl.knaw.huygens.alexandria.dropwizard.api.RootPaths;
+
 @Path(RootPaths.ABOUT)
 @Produces(MediaType.APPLICATION_JSON)
 public class AboutResource {

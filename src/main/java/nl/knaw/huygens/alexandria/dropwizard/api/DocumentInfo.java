@@ -7,7 +7,6 @@ import java.util.UUID;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import nl.knaw.huygens.alexandria.dropwizard.resources.DocumentsResource;
-import nl.knaw.huygens.alexandria.dropwizard.resources.RootPaths;
 
 public class DocumentInfo {
   Instant created;
