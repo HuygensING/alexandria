@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
+import javax.inject.Inject;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import javax.ws.rs.Consumes;
@@ -42,11 +43,12 @@ public class DocumentsResource {
     public static final String KDTREE = "kdtree";
   }
 
-  final DocumentService documentService;
-  private LMNLImporter lmnlImporter;
-  private LMNLExporter lmnlExporter;
-  private ServerConfiguration configuration;
+  private final DocumentService documentService;
+  private final LMNLImporter lmnlImporter;
+  private final LMNLExporter lmnlExporter;
+  private final ServerConfiguration configuration;
 
+  @Inject
   public DocumentsResource(DocumentService documentService, LMNLImporter lmnlImporter, LMNLExporter lmnlExporter, ServerConfiguration configuration) {
     this.documentService = documentService;
     this.lmnlImporter = lmnlImporter;
@@ -85,7 +87,7 @@ public class DocumentsResource {
   @Consumes(UTF8MediaType.TEXT_PLAIN)
   @Path("{uuid}")
   @Timed
-  public Response setDocument(@PathParam("uuid") final UUID uuid, @NotNull @Valid String lmnl) {
+  public Response setDocument(@PathParam("uuid") final UUID uuid, @NotNull String lmnl) {
     processAndStore(lmnl, uuid);
     return Response.created(documentURI(uuid)).build();
   }

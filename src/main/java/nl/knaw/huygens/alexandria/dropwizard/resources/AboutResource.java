@@ -9,6 +9,7 @@ import javax.ws.rs.core.MediaType;
 
 import com.codahale.metrics.annotation.Timed;
 
+import nl.knaw.huygens.alexandria.dropwizard.api.AboutInfo;
 import nl.knaw.huygens.alexandria.dropwizard.api.RootPaths;
 
 @Path(RootPaths.ABOUT)
@@ -16,32 +17,20 @@ import nl.knaw.huygens.alexandria.dropwizard.api.RootPaths;
 public class AboutResource {
 
   AboutInfo about = new AboutInfo();
-  private static Instant startedAt;
+
+  public AboutResource() {
+    this("appName");
+  }
 
   public AboutResource(String appName) {
     about.setAppName(appName);
-    startedAt = Instant.now();
+    about.setStartedAt(Instant.now().toString());
+    about.setVersion("version");
   }
 
   @GET
   @Timed
   public AboutInfo getAbout() {
     return about;
-  }
-
-  public static class AboutInfo {
-    String appName;
-
-    public void setAppName(String appName) {
-      this.appName = appName;
-    }
-
-    public String getAppName() {
-      return appName;
-    }
-
-    public String getStartedAt() {
-      return startedAt.toString();
-    }
   }
 }
