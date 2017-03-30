@@ -17,7 +17,7 @@
 
     <dependency>
       <groupId>${project.groupId}</groupId>
-      <artifactId>alexandria-markup-api</artifactId>
+      <artifactId>alexandria-api</artifactId>
       <version>${project.version}</version>
     </dependency>
 
