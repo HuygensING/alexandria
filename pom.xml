@@ -2,8 +2,15 @@
   xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
   <groupId>nl.knaw.huygens.alexandria</groupId>
-  <artifactId>alexandria-markup-dropwizard</artifactId>
+  <artifactId>alexandria-markup-lmnl</artifactId>
   <version>2.0-SNAPSHOT</version>
+  <inceptionYear>2015</inceptionYear>
+  <packaging>pom</packaging>
+  <modules>
+    <module>alexandria-markup-lmnl-server</module>
+    <module>alexandria-markup-lmnl-client</module>
+    <module>alexandria-markup-lmnl-api</module>
+  </modules>
 
   <properties>
     <!-- Encoding: everything UTF-8, please -->
@@ -17,6 +24,8 @@
 
     <dropwizard.version>1.1.0</dropwizard.version>
     <jersey.version>2.25.1</jersey.version> <!-- Should be same version as used by dropwizard -->
+    <jackson-annotations.version>2.8.0</jackson-annotations.version><!-- Should be same version as used by dropwizard -->
+    <javax.ws.rs-api.version>2.0.1</javax.ws.rs-api.version><!-- Should be same version as used by dropwizard -->
 
     <commons-lang3.version>3.5</commons-lang3.version>
     <junit.version>4.12</junit.version>
@@ -28,76 +37,6 @@
     <maven-shade.version>2.4.3</maven-shade.version>
     <wagon-ssh.version>2.7</wagon-ssh.version>
   </properties>
-
-  <dependencies>
-    <dependency>
-      <groupId>${project.groupId}</groupId>
-      <artifactId>alexandria-lmnl</artifactId>
-      <version>1.0-SNAPSHOT</version>
-    </dependency>
-    <dependency>
-      <groupId>${project.groupId}</groupId>
-      <artifactId>alexandria-api</artifactId>
-      <version>2.0-SNAPSHOT</version>
-    </dependency>
-
-    <dependency>
-      <groupId>io.dropwizard</groupId>
-      <artifactId>dropwizard-core</artifactId>
-      <version>${dropwizard.version}</version>
-    </dependency>
-
-    <dependency>
-      <groupId>org.apache.commons</groupId>
-      <artifactId>commons-lang3</artifactId>
-      <version>${commons-lang3.version}</version>
-    </dependency>
-
-    <dependency>
-      <groupId>org.glassfish.jersey.containers</groupId>
-      <artifactId>jersey-container-grizzly2-http</artifactId>
-      <version>${jersey.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>org.glassfish.jersey.connectors</groupId>
-      <artifactId>jersey-apache-connector</artifactId>
-      <version>${jersey.version}</version>
-    </dependency>
-
-
-    <!-- test dependencies -->
-    <dependency>
-      <groupId>nl.knaw.huygens</groupId>
-      <artifactId>log</artifactId>
-      <version>${log.version}</version>
-      <scope>test</scope>
-    </dependency>
-
-    <dependency>
-      <groupId>junit</groupId>
-      <artifactId>junit</artifactId>
-      <version>${junit.version}</version>
-    </dependency>
-
-    <dependency>
-      <groupId>org.mockito</groupId>
-      <artifactId>mockito-core</artifactId>
-      <version>${mockito.version}</version>
-      <exclusions>
-        <exclusion>
-          <groupId>org.hamcrest</groupId>
-          <artifactId>hamcrest-core</artifactId>
-        </exclusion>
-      </exclusions>
-    </dependency>
-
-    <dependency>
-      <groupId>org.assertj</groupId>
-      <artifactId>assertj-core</artifactId>
-      <version>${assertj.version}</version>
-    </dependency>
-
-  </dependencies>
 
   <build>
     <sourceDirectory>src/main/java</sourceDirectory>
@@ -156,43 +95,6 @@
 
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-shade-plugin</artifactId>
-        <version>${maven-shade.version}</version>
-        <configuration>
-          <createDependencyReducedPom>true</createDependencyReducedPom>
-          <filters>
-            <filter>
-              <artifact>*:*</artifact>
-              <excludes>
-                <exclude>META-INF/*.SF</exclude>
-                <exclude>META-INF/*.DSA</exclude>
-                <exclude>META-INF/*.RSA</exclude>
-              </excludes>
-            </filter>
-          </filters>
-        </configuration>
-        <executions>
-          <execution>
-            <phase>package</phase>
-            <goals>
-              <goal>shade</goal>
-            </goals>
-            <configuration>
-              <transformers>
-                <transformer
-                  implementation="org.apache.maven.plugins.shade.resource.ServicesResourceTransformer" />
-                <transformer
-                  implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
-                  <mainClass>nl.knaw.huygens.alexandria.dropwizard.ServerApplication</mainClass>
-                </transformer>
-              </transformers>
-            </configuration>
-          </execution>
-        </executions>
-      </plugin>
-
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-jar-plugin</artifactId>
         <version>${maven-jar.version}</version>
         <configuration>
@@ -213,6 +115,7 @@
       </extension>
     </extensions>
   </build>
+
   <distributionManagement>
     <repository>
       <id>maven.huygens</id>
