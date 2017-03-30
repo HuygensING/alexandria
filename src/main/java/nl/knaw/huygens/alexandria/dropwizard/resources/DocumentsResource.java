@@ -24,6 +24,7 @@ import nl.knaw.huygens.alexandria.dropwizard.ServerConfiguration;
 import nl.knaw.huygens.alexandria.dropwizard.api.DocumentInfo;
 import nl.knaw.huygens.alexandria.dropwizard.api.DocumentService;
 import nl.knaw.huygens.alexandria.dropwizard.api.RootPaths;
+import nl.knaw.huygens.alexandria.dropwizard.api.UTF8MediaType;
 import nl.knaw.huygens.alexandria.lmnl.data_model.Document;
 import nl.knaw.huygens.alexandria.lmnl.exporter.LMNLExporter;
 import nl.knaw.huygens.alexandria.lmnl.exporter.LaTeXExporter;
@@ -63,7 +64,7 @@ public class DocumentsResource {
   }
 
   @POST
-  @Consumes(MediaType.TEXT_PLAIN + ";charset=UTF-8")
+  @Consumes(UTF8MediaType.TEXT_PLAIN)
   @Timed
   public Response addDocument(@NotNull @Valid String lmnl) {
     UUID documentId = UUID.randomUUID();
@@ -81,7 +82,7 @@ public class DocumentsResource {
   }
 
   @PUT
-  @Consumes(MediaType.TEXT_PLAIN + ";charset=UTF-8")
+  @Consumes(UTF8MediaType.TEXT_PLAIN)
   @Path("{uuid}")
   @Timed
   public Response setDocument(@PathParam("uuid") final UUID uuid, @NotNull @Valid String lmnl) {
@@ -101,7 +102,7 @@ public class DocumentsResource {
   @GET
   @Path("{uuid}/" + SubPaths.LMNL)
   @Timed
-  @Produces(MediaType.TEXT_PLAIN + ";charset=UTF-8")
+  @Produces(UTF8MediaType.TEXT_PLAIN)
   public Response getLMNL(@PathParam("uuid") final UUID uuid) {
     Document document = getExistingDocument(uuid);
     String lmnl = lmnlExporter.toLMNL(document);
@@ -111,7 +112,7 @@ public class DocumentsResource {
   @GET
   @Path("{uuid}/" + SubPaths.LATEX)
   @Timed
-  @Produces(MediaType.TEXT_PLAIN + ";charset=UTF-8")
+  @Produces(UTF8MediaType.TEXT_PLAIN)
   public Response getLaTeXVisualization(@PathParam("uuid") final UUID uuid) {
     Document document = getExistingDocument(uuid);
     LaTeXExporter latexExporter = new LaTeXExporter(document);
@@ -122,7 +123,7 @@ public class DocumentsResource {
   @GET
   @Path("{uuid}/" + SubPaths.MARKUPDEPTH)
   @Timed
-  @Produces(MediaType.TEXT_PLAIN + ";charset=UTF-8")
+  @Produces(UTF8MediaType.TEXT_PLAIN)
   public Response getRangeOverlapVisualization(@PathParam("uuid") final UUID uuid) {
     Document document = getExistingDocument(uuid);
     LaTeXExporter latexExporter = new LaTeXExporter(document);
@@ -133,7 +134,7 @@ public class DocumentsResource {
   @GET
   @Path("{uuid}/" + SubPaths.MATRIX)
   @Timed
-  @Produces(MediaType.TEXT_PLAIN + ";charset=UTF-8")
+  @Produces(UTF8MediaType.TEXT_PLAIN)
   public Response getMatrixVisualization(@PathParam("uuid") final UUID uuid) {
     Document document = getExistingDocument(uuid);
     LaTeXExporter latexExporter = new LaTeXExporter(document);
@@ -144,7 +145,7 @@ public class DocumentsResource {
   @GET
   @Path("{uuid}/" + SubPaths.KDTREE)
   @Timed
-  @Produces(MediaType.TEXT_PLAIN + ";charset=UTF-8")
+  @Produces(UTF8MediaType.TEXT_PLAIN)
   public Response getKdTreeVisualization(@PathParam("uuid") final UUID uuid) {
     Document document = getExistingDocument(uuid);
     LaTeXExporter latexExporter = new LaTeXExporter(document);
