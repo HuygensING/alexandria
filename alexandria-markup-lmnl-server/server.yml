@@ -1,1 +1,6 @@
-baseURI: http://localhost:8080
+baseURI: ${BASE_URI}
+
+logging:
+  level: INFO
+  loggers:
+    nl.knaw.huygens.alexandria: DEBUG

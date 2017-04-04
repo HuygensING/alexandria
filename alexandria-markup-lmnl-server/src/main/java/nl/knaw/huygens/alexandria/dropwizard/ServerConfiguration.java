@@ -31,7 +31,7 @@ public class ServerConfiguration extends Configuration {
   private String baseURI;
 
   public void setBaseURI(String baseURI) {
-    this.baseURI = baseURI;
+    this.baseURI = baseURI.replaceFirst("/$", "");
   }
 
   public String getBaseURI() {

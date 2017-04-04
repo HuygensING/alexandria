@@ -1,5 +1,13 @@
 package nl.knaw.huygens.alexandria.dropwizard;
 
+import java.util.SortedMap;
+import java.util.concurrent.atomic.AtomicBoolean;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.codahale.metrics.health.HealthCheck.Result;
+
 /*
  * #%L
  * alexandria-markup-lmnl-server
@@ -23,6 +31,8 @@ package nl.knaw.huygens.alexandria.dropwizard;
  */
 
 import io.dropwizard.Application;
+import io.dropwizard.configuration.EnvironmentVariableSubstitutor;
+import io.dropwizard.configuration.SubstitutingSourceProvider;
 import io.dropwizard.setup.Bootstrap;
 import io.dropwizard.setup.Environment;
 import nl.knaw.huygens.alexandria.dropwizard.api.DocumentService;
@@ -34,6 +44,7 @@ import nl.knaw.huygens.alexandria.lmnl.exporter.LMNLExporter;
 import nl.knaw.huygens.alexandria.lmnl.importer.LMNLImporter;
 
 public class ServerApplication extends Application<ServerConfiguration> {
+  Logger LOG = LoggerFactory.getLogger(getClass());
 
   public static void main(String[] args) throws Exception {
     new ServerApplication().run(args);
@@ -46,6 +57,11 @@ public class ServerApplication extends Application<ServerConfiguration> {
 
   @Override
   public void initialize(Bootstrap<ServerConfiguration> bootstrap) {
+    // Enable variable substitution with environment variables
+    bootstrap.setConfigurationSourceProvider(//
+        new SubstitutingSourceProvider(//
+            bootstrap.getConfigurationSourceProvider(), //
+            new EnvironmentVariableSubstitutor()));
   }
 
   @Override
@@ -59,5 +75,17 @@ public class ServerApplication extends Application<ServerConfiguration> {
     environment.jersey().register(new DocumentsResource(documentService, lmnlImporter, lmnlExporter, configuration));
 
     environment.healthChecks().register("server", new ServerHealthCheck());
+
+    SortedMap<String, Result> results = environment.healthChecks().runHealthChecks();
+    AtomicBoolean healthy = new AtomicBoolean(true);
+    LOG.info("Healthchecks:");
+    results.forEach((name, result) -> {
+      LOG.info("{}: {}, message='{}'", name, result.isHealthy() ? "healthy" : "unhealthy", result.getMessage());
+      healthy.set(healthy.get() && result.isHealthy());
+    });
+    if (!healthy.get()) {
+      throw new RuntimeException("Failing health check(s)");
+    }
+
   }
 }
