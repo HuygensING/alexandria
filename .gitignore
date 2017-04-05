@@ -16,3 +16,4 @@ hs_err_pid*
 /dependency-reduced-pom.xml
 .settings
 *.iml
+.idea
