@@ -1,34 +1,28 @@
 package nl.knaw.huygens.alexandria.markup.client;
 
-import java.net.URI;
-import java.util.UUID;
-import java.util.function.Function;
-import java.util.function.Supplier;
-
-import javax.net.ssl.SSLContext;
-import javax.ws.rs.client.Client;
-import javax.ws.rs.client.ClientBuilder;
-import javax.ws.rs.client.Entity;
-import javax.ws.rs.client.SyncInvoker;
-import javax.ws.rs.client.WebTarget;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
-import javax.ws.rs.core.Response.Status;
-
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import com.fasterxml.jackson.jaxrs.json.JacksonJaxbJsonProvider;
+import nl.knaw.huygens.alexandria.markup.api.AboutInfo;
+import nl.knaw.huygens.alexandria.markup.api.ResourcePaths;
+import nl.knaw.huygens.alexandria.markup.api.UTF8MediaType;
 import org.apache.http.impl.conn.PoolingHttpClientConnectionManager;
 import org.glassfish.jersey.apache.connector.ApacheClientProperties;
 import org.glassfish.jersey.apache.connector.ApacheConnectorProvider;
 import org.glassfish.jersey.client.ClientConfig;
 import org.glassfish.jersey.client.ClientProperties;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
-import com.fasterxml.jackson.jaxrs.json.JacksonJaxbJsonProvider;
-
-import nl.knaw.huygens.alexandria.markup.api.AboutInfo;
-import nl.knaw.huygens.alexandria.markup.api.ResourcePaths;
-import nl.knaw.huygens.alexandria.markup.api.UTF8MediaType;
+import javax.net.ssl.SSLContext;
+import javax.ws.rs.client.*;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
+import javax.ws.rs.core.Response.Status;
+import java.net.URI;
+import java.util.UUID;
+import java.util.function.Function;
+import java.util.function.Supplier;
 
 /*
  * #%L
@@ -174,6 +168,16 @@ public class AlexandriaMarkupClient implements AutoCloseable {
     return stringResult(path);
   }
 
+  public RestResult<JsonNode> postLQLQuery(UUID documentUUID, String query) {
+    WebTarget path = documentTarget(documentUUID).path(ResourcePaths.DOCUMENTS_QUERY);
+    final Entity<String> entity = Entity.entity(query, UTF8MediaType.TEXT_PLAIN);
+    final Supplier<Response> responseSupplier = anonymousPost(path, entity);
+    final RestRequester<JsonNode> requester = RestRequester.withResponseSupplier(responseSupplier);
+    return requester//
+        .onStatus(Status.OK, this::toJsonObjectRestResult)//
+        .getResult();
+  }
+
   // private methods
   private WebTarget documentTarget(UUID documentUUID) {
     return documentsTarget()//
@@ -191,6 +195,10 @@ public class AlexandriaMarkupClient implements AutoCloseable {
 
   private RestResult<AboutInfo> toAboutInfoRestResult(final Response response) {
     return toEntityRestResult(response, AboutInfo.class);
+  }
+
+  private RestResult<JsonNode> toJsonObjectRestResult(final Response response) {
+    return toEntityRestResult(response, JsonNode.class);
   }
 
   private <E> RestResult<E> toEntityRestResult(final Response response, final Class<E> entityClass) {

@@ -1,7 +1,12 @@
 package nl.knaw.huygens.alexandria.markup.client;
 
-import static java.util.stream.Collectors.joining;
-import static org.assertj.core.api.Assertions.assertThat;
+import com.fasterxml.jackson.databind.JsonNode;
+import nl.knaw.huygens.Log;
+import nl.knaw.huygens.alexandria.markup.api.AboutInfo;
+import org.junit.AfterClass;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.Test;
 
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
@@ -11,10 +16,8 @@ import java.text.MessageFormat;
 import java.util.Arrays;
 import java.util.UUID;
 
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import static java.util.stream.Collectors.joining;
+import static org.assertj.core.api.Assertions.assertThat;
 
 /*
  * #%L
@@ -26,20 +29,17 @@ import org.junit.Test;
  * it under the terms of the GNU General Public License as
  * published by the Free Software Foundation, either version 3 of the
  * License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public
  * License along with this program.  If not, see
  * <http://www.gnu.org/licenses/gpl-3.0.html>.
  * #L%
  */
-
-import nl.knaw.huygens.Log;
-import nl.knaw.huygens.alexandria.markup.api.AboutInfo;
 
 public class OptimisticAlexandriaMarkupClientTest extends AlexandriaTestWithTestMarkupServer {
 
@@ -100,6 +100,14 @@ public class OptimisticAlexandriaMarkupClientTest extends AlexandriaTestWithTest
 
     String latex4 = client.getMatrixLaTex(documentUUID);
     assertThat(latex4).isNotEmpty();
+
+    JsonNode queryResult = client.postLQLQuery(documentUUID, "select text from markup('text')");
+    assertThat(queryResult).isNotNull();
+    JsonNode values = queryResult.get("values");
+    assertThat(values).isNotNull();
+    JsonNode value = values.get(0);
+    assertThat(value).isNotNull();
+    assertThat(value.asText()).isEqualTo("This is a simple paragraph.");
 
   }
 

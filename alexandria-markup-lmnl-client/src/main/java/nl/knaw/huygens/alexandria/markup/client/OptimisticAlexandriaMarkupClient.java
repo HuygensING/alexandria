@@ -22,15 +22,15 @@ package nl.knaw.huygens.alexandria.markup.client;
  * #L%
  */
 
-import java.net.URI;
-import java.util.Optional;
-import java.util.UUID;
+import com.fasterxml.jackson.databind.JsonNode;
+import nl.knaw.huygens.alexandria.markup.api.AboutInfo;
 
 import javax.net.ssl.SSLContext;
 import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.Response;
-
-import nl.knaw.huygens.alexandria.markup.api.AboutInfo;
+import java.net.URI;
+import java.util.Optional;
+import java.util.UUID;
 
 public class OptimisticAlexandriaMarkupClient {
   AlexandriaMarkupClient delegate;
@@ -101,6 +101,9 @@ public class OptimisticAlexandriaMarkupClient {
     return unwrap(delegate.getKdTreeLaTex(uuid));
   }
 
+  public JsonNode postLQLQuery(UUID uuid, String string) {
+    return unwrap(delegate.postLQLQuery(uuid, string));
+  }
   /////// end delegated methods
 
   private <T> T unwrap(RestResult<T> restResult) {
