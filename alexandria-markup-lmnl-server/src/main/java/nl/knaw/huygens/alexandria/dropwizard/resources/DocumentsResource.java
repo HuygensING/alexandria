@@ -23,35 +23,28 @@ package nl.knaw.huygens.alexandria.dropwizard.resources;
  */
 
 
-import java.net.URI;
-import java.util.List;
-import java.util.UUID;
-import java.util.stream.Collectors;
-
-import javax.validation.Valid;
-import javax.validation.constraints.NotNull;
-import javax.ws.rs.Consumes;
-import javax.ws.rs.GET;
-import javax.ws.rs.NotFoundException;
-import javax.ws.rs.POST;
-import javax.ws.rs.PUT;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.Produces;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
-
 import com.codahale.metrics.annotation.Timed;
-
 import nl.knaw.huygens.alexandria.dropwizard.ServerConfiguration;
 import nl.knaw.huygens.alexandria.dropwizard.api.DocumentService;
 import nl.knaw.huygens.alexandria.lmnl.data_model.Document;
 import nl.knaw.huygens.alexandria.lmnl.exporter.LMNLExporter;
 import nl.knaw.huygens.alexandria.lmnl.exporter.LaTeXExporter;
 import nl.knaw.huygens.alexandria.lmnl.importer.LMNLImporter;
+import nl.knaw.huygens.alexandria.lmnl.query.LQLQueryHandler;
+import nl.knaw.huygens.alexandria.lmnl.query.LQLResult;
 import nl.knaw.huygens.alexandria.markup.api.DocumentInfo;
 import nl.knaw.huygens.alexandria.markup.api.ResourcePaths;
 import nl.knaw.huygens.alexandria.markup.api.UTF8MediaType;
+
+import javax.validation.Valid;
+import javax.validation.constraints.NotNull;
+import javax.ws.rs.*;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
+import java.net.URI;
+import java.util.List;
+import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Path(ResourcePaths.DOCUMENTS)
 @Produces(MediaType.APPLICATION_JSON)
@@ -166,6 +159,17 @@ public class DocumentsResource {
     LaTeXExporter latexExporter = new LaTeXExporter(document);
     String latex = latexExporter.exportKdTree();
     return Response.ok(latex).build();
+  }
+
+  @POST
+  @Path("{uuid}/" + ResourcePaths.DOCUMENTS_QUERY)
+  @Timed
+  @Produces(UTF8MediaType.APPLICATION_JSON)
+  public Response postLQLQuery(@PathParam("uuid") final UUID uuid, String lqlQuery) {
+    Document document = getExistingDocument(uuid);
+    LQLQueryHandler h = new LQLQueryHandler(document);
+    LQLResult result = h.execute(lqlQuery);
+    return Response.ok(result).build();
   }
 
   private Document getExistingDocument(final UUID uuid) {

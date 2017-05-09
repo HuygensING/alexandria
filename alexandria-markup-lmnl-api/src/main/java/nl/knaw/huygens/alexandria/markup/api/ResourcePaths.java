@@ -32,5 +32,5 @@ public class ResourcePaths {
   public static final String DOCUMENTS_MARKUPDEPTH = "markupdepth";
   public static final String DOCUMENTS_MATRIX = "matrix";
   public static final String DOCUMENTS_KDTREE = "kdtree";
-
+  public static final String DOCUMENTS_QUERY = "query";
 }
