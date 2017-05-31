@@ -168,7 +168,7 @@ public class AlexandriaMarkupClient implements AutoCloseable {
     return stringResult(path);
   }
 
-  public RestResult<JsonNode> postLQLQuery(UUID documentUUID, String query) {
+  public RestResult<JsonNode> postTAGQLQuery(UUID documentUUID, String query) {
     WebTarget path = documentTarget(documentUUID).path(ResourcePaths.DOCUMENTS_QUERY);
     final Entity<String> entity = Entity.entity(query, UTF8MediaType.TEXT_PLAIN);
     final Supplier<Response> responseSupplier = anonymousPost(path, entity);

@@ -101,8 +101,8 @@ public class OptimisticAlexandriaMarkupClient {
     return unwrap(delegate.getKdTreeLaTex(uuid));
   }
 
-  public JsonNode postLQLQuery(UUID uuid, String string) {
-    return unwrap(delegate.postLQLQuery(uuid, string));
+  public JsonNode postTAGQLQuery(UUID uuid, String string) {
+    return unwrap(delegate.postTAGQLQuery(uuid, string));
   }
   /////// end delegated methods
 

@@ -173,10 +173,10 @@ public class DocumentsResource {
   @Path("{uuid}/" + ResourcePaths.DOCUMENTS_QUERY)
   @Timed
   @Produces(UTF8MediaType.APPLICATION_JSON)
-  public Response postLQLQuery(@PathParam("uuid") final UUID uuid, String lqlQuery) {
+  public Response postTAGQLQuery(@PathParam("uuid") final UUID uuid, String tagqlQuery) {
     Document document = getExistingDocument(uuid);
     TAGQLQueryHandler h = new TAGQLQueryHandler(document);
-    TAGQLResult result = h.execute(lqlQuery);
+    TAGQLResult result = h.execute(tagqlQuery);
     return Response.ok(result).build();
   }
 

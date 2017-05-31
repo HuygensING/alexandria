@@ -101,7 +101,7 @@ public class OptimisticAlexandriaMarkupClientTest extends AlexandriaTestWithTest
     String latex4 = client.getMatrixLaTex(documentUUID);
     assertThat(latex4).isNotEmpty();
 
-    JsonNode queryResult = client.postLQLQuery(documentUUID, "select text from markup('text')");
+    JsonNode queryResult = client.postTAGQLQuery(documentUUID, "select text from markup('text')");
     assertThat(queryResult).isNotNull();
     JsonNode values = queryResult.get("values");
     assertThat(values).isNotNull();
