@@ -143,7 +143,7 @@ public class DocumentsResource {
   public Response getRangeOverlapVisualization(@PathParam("uuid") final UUID uuid) {
     Document document = getExistingDocument(uuid);
     LaTeXExporter latexExporter = new LaTeXExporter(document);
-    String latex = latexExporter.exportTextRangeOverlap();
+    String latex = latexExporter.exportMarkupOverlap();
     return Response.ok(latex).build();
   }
 
