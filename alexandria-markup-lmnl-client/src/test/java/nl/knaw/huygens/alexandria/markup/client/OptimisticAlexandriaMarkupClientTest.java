@@ -1,12 +1,7 @@
 package nl.knaw.huygens.alexandria.markup.client;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import nl.knaw.huygens.Log;
-import nl.knaw.huygens.alexandria.markup.api.AboutInfo;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import static java.util.stream.Collectors.joining;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
@@ -16,8 +11,15 @@ import java.text.MessageFormat;
 import java.util.Arrays;
 import java.util.UUID;
 
-import static java.util.stream.Collectors.joining;
-import static org.assertj.core.api.Assertions.assertThat;
+import org.junit.AfterClass;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.Test;
+
+import com.fasterxml.jackson.databind.JsonNode;
+
+import nl.knaw.huygens.Log;
+import nl.knaw.huygens.alexandria.markup.api.AboutInfo;
 
 /*
  * #%L
@@ -82,7 +84,7 @@ public class OptimisticAlexandriaMarkupClientTest extends AlexandriaTestWithTest
   @Test
   public void test() {
     String lmnlIn = "[text}[p=p-1}This is a simple paragraph.{p=p-1]{text]";
-    UUID documentUUID = client.addDocument(lmnlIn);
+    UUID documentUUID = client.addDocumentFromLMNL(lmnlIn);
     assertThat(documentUUID).isNotNull();
 
     String lmnlOut = client.getLMNL(documentUUID);

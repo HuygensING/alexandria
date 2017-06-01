@@ -53,6 +53,7 @@ import nl.knaw.huygens.alexandria.lmnl.query.TAGQLResult;
 import nl.knaw.huygens.alexandria.markup.api.DocumentInfo;
 import nl.knaw.huygens.alexandria.markup.api.ResourcePaths;
 import nl.knaw.huygens.alexandria.markup.api.UTF8MediaType;
+import nl.knaw.huygens.alexandria.texmecs.importer.TexMECSImporter;
 
 @Path(ResourcePaths.DOCUMENTS)
 @Produces(MediaType.APPLICATION_JSON)
@@ -62,10 +63,12 @@ public class DocumentsResource {
   private final LMNLImporter lmnlImporter;
   private final LMNLExporter lmnlExporter;
   private final ServerConfiguration configuration;
+  private final TexMECSImporter texMECSImporter;
 
-  public DocumentsResource(DocumentService documentService, LMNLImporter lmnlImporter, LMNLExporter lmnlExporter, ServerConfiguration configuration) {
+  public DocumentsResource(DocumentService documentService, LMNLImporter lmnlImporter, TexMECSImporter texMECSImporter, LMNLExporter lmnlExporter, ServerConfiguration configuration) {
     this.documentService = documentService;
     this.lmnlImporter = lmnlImporter;
+    this.texMECSImporter = texMECSImporter;
     this.lmnlExporter = lmnlExporter;
     this.configuration = configuration;
   }
@@ -81,28 +84,39 @@ public class DocumentsResource {
 
   @POST
   @Consumes(UTF8MediaType.TEXT_PLAIN)
+  @Path("lmnl")
   @Timed
-  public Response addDocument(@NotNull @Valid String lmnl) {
+  public Response addDocumentFromLMNL(@NotNull @Valid String lmnl) {
     UUID documentId = UUID.randomUUID();
-    processAndStore(lmnl, documentId);
+    processAndStoreLMNL(lmnl, documentId);
     return Response.created(documentURI(documentId)).build();
   }
 
-  private URI documentURI(UUID documentId) {
-    return URI.create(configuration.getBaseURI() + "/documents/" + documentId);
-  }
-
-  private void processAndStore(String lmnl, UUID documentId) {
-    Document document = lmnlImporter.importLMNL(lmnl);
-    documentService.setDocument(documentId, document);
+  @POST
+  @Consumes(UTF8MediaType.TEXT_PLAIN)
+  @Path("texmecs")
+  @Timed
+  public Response addDocumentFromTexMECS(@NotNull @Valid String texmecs) {
+    UUID documentId = UUID.randomUUID();
+    processAndStoreTexMECS(texmecs, documentId);
+    return Response.created(documentURI(documentId)).build();
   }
 
   @PUT
   @Consumes(UTF8MediaType.TEXT_PLAIN)
-  @Path("{uuid}")
+  @Path("{uuid}/lmnl")
   @Timed
-  public Response setDocument(@PathParam("uuid") final UUID uuid, @NotNull String lmnl) {
-    processAndStore(lmnl, uuid);
+  public Response setDocumentFromLMNL(@PathParam("uuid") final UUID uuid, @NotNull String lmnl) {
+    processAndStoreLMNL(lmnl, uuid);
+    return Response.created(documentURI(uuid)).build();
+  }
+
+  @PUT
+  @Consumes(UTF8MediaType.TEXT_PLAIN)
+  @Path("{uuid}/texmecs")
+  @Timed
+  public Response setDocumentFromTexMECS(@PathParam("uuid") final UUID uuid, @NotNull String texMECS) {
+    processAndStoreTexMECS(texMECS, uuid);
     return Response.created(documentURI(uuid)).build();
   }
 
@@ -178,6 +192,20 @@ public class DocumentsResource {
     TAGQLQueryHandler h = new TAGQLQueryHandler(document);
     TAGQLResult result = h.execute(tagqlQuery);
     return Response.ok(result).build();
+  }
+
+  private URI documentURI(UUID documentId) {
+    return URI.create(configuration.getBaseURI() + "/documents/" + documentId);
+  }
+
+  private void processAndStoreLMNL(String lmnl, UUID documentId) {
+    Document document = lmnlImporter.importLMNL(lmnl);
+    documentService.setDocument(documentId, document);
+  }
+
+  private void processAndStoreTexMECS(String texMECS, UUID documentId) {
+    Document document = texMECSImporter.importTexMECS(texMECS);
+    documentService.setDocument(documentId, document);
   }
 
   private Document getExistingDocument(final UUID uuid) {

@@ -1,5 +1,13 @@
 package nl.knaw.huygens.alexandria.markup.client;
 
+import java.net.URI;
+import java.util.Optional;
+import java.util.UUID;
+
+import javax.net.ssl.SSLContext;
+import javax.ws.rs.client.WebTarget;
+import javax.ws.rs.core.Response;
+
 /*
  * #%L
  * alexandria-markup-lmnl-client
@@ -23,14 +31,8 @@ package nl.knaw.huygens.alexandria.markup.client;
  */
 
 import com.fasterxml.jackson.databind.JsonNode;
-import nl.knaw.huygens.alexandria.markup.api.AboutInfo;
 
-import javax.net.ssl.SSLContext;
-import javax.ws.rs.client.WebTarget;
-import javax.ws.rs.core.Response;
-import java.net.URI;
-import java.util.Optional;
-import java.util.UUID;
+import nl.knaw.huygens.alexandria.markup.api.AboutInfo;
 
 public class OptimisticAlexandriaMarkupClient {
   AlexandriaMarkupClient delegate;
@@ -73,16 +75,8 @@ public class OptimisticAlexandriaMarkupClient {
     return unwrap(delegate.getAbout());
   }
 
-  public UUID addDocument(String lmnl) {
-    return unwrap(delegate.addDocument(lmnl));
-  }
-
   public String getLMNL(UUID uuid) {
     return unwrap(delegate.getLMNL(uuid));
-  }
-
-  public void setDocument(UUID uuid, String string) {
-    unwrap(delegate.setDocument(uuid, string));
   }
 
   public String getMarkupDepthLaTex(UUID uuid) {
@@ -104,6 +98,23 @@ public class OptimisticAlexandriaMarkupClient {
   public JsonNode postTAGQLQuery(UUID uuid, String string) {
     return unwrap(delegate.postTAGQLQuery(uuid, string));
   }
+
+  public UUID addDocumentFromTexMECS(String string) {
+    return unwrap(delegate.addDocumentFromTexMECS(string));
+  }
+
+  public void setDocumentFromTexMECS(UUID uuid, String string) {
+    unwrap(delegate.setDocumentFromTexMECS(uuid, string));
+  }
+
+  public UUID addDocumentFromLMNL(String string) {
+    return unwrap(delegate.addDocumentFromLMNL(string));
+  }
+
+  public void setDocumentFromLMNL(UUID uuid, String string) {
+    unwrap(delegate.setDocumentFromLMNL(uuid, string));
+  }
+
   /////// end delegated methods
 
   private <T> T unwrap(RestResult<T> restResult) {

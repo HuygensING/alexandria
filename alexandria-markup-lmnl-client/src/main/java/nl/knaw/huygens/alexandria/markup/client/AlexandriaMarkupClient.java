@@ -1,28 +1,35 @@
 package nl.knaw.huygens.alexandria.markup.client;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
-import com.fasterxml.jackson.jaxrs.json.JacksonJaxbJsonProvider;
-import nl.knaw.huygens.alexandria.markup.api.AboutInfo;
-import nl.knaw.huygens.alexandria.markup.api.ResourcePaths;
-import nl.knaw.huygens.alexandria.markup.api.UTF8MediaType;
+import java.net.URI;
+import java.util.UUID;
+import java.util.function.Function;
+import java.util.function.Supplier;
+
+import javax.net.ssl.SSLContext;
+import javax.ws.rs.client.Client;
+import javax.ws.rs.client.ClientBuilder;
+import javax.ws.rs.client.Entity;
+import javax.ws.rs.client.SyncInvoker;
+import javax.ws.rs.client.WebTarget;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
+import javax.ws.rs.core.Response.Status;
+
 import org.apache.http.impl.conn.PoolingHttpClientConnectionManager;
 import org.glassfish.jersey.apache.connector.ApacheClientProperties;
 import org.glassfish.jersey.apache.connector.ApacheConnectorProvider;
 import org.glassfish.jersey.client.ClientConfig;
 import org.glassfish.jersey.client.ClientProperties;
 
-import javax.net.ssl.SSLContext;
-import javax.ws.rs.client.*;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
-import javax.ws.rs.core.Response.Status;
-import java.net.URI;
-import java.util.UUID;
-import java.util.function.Function;
-import java.util.function.Supplier;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import com.fasterxml.jackson.jaxrs.json.JacksonJaxbJsonProvider;
+
+import nl.knaw.huygens.alexandria.markup.api.AboutInfo;
+import nl.knaw.huygens.alexandria.markup.api.ResourcePaths;
+import nl.knaw.huygens.alexandria.markup.api.UTF8MediaType;
 
 /*
  * #%L
@@ -122,9 +129,18 @@ public class AlexandriaMarkupClient implements AutoCloseable {
         .getResult();
   }
 
-  public RestResult<Void> setDocument(UUID documentUUID, String lmnl) {
-    final WebTarget path = documentTarget(documentUUID);
-    final Entity<String> entity = Entity.entity(lmnl, MediaType.TEXT_PLAIN);
+  public RestResult<Void> setDocumentFromLMNL(UUID documentUUID, String lmnl) {
+    final WebTarget path = documentTarget(documentUUID).path("lmnl");
+    return setDocument(lmnl, path);
+  }
+
+  public RestResult<Void> setDocumentFromTexMECS(UUID documentUUID, String texMECS) {
+    final WebTarget path = documentTarget(documentUUID).path("lmnl");
+    return setDocument(texMECS, path);
+  }
+
+  private RestResult<Void> setDocument(String serializedDocument, final WebTarget path) {
+    final Entity<String> entity = Entity.entity(serializedDocument, MediaType.TEXT_PLAIN);
     final Supplier<Response> responseSupplier = anonymousPut(path, entity);
     final RestRequester<Void> requester = RestRequester.withResponseSupplier(responseSupplier);
     return requester//
@@ -133,9 +149,18 @@ public class AlexandriaMarkupClient implements AutoCloseable {
         .getResult();
   }
 
-  public RestResult<UUID> addDocument(String lmnl) {
-    final WebTarget path = documentsTarget();
-    final Entity<String> entity = Entity.entity(lmnl, UTF8MediaType.TEXT_PLAIN);
+  public RestResult<UUID> addDocumentFromLMNL(String lmnl) {
+    final WebTarget path = documentsTarget().path("lmnl");
+    return addDocument(lmnl, path);
+  }
+
+  public RestResult<UUID> addDocumentFromTexMECS(String texMECS) {
+    final WebTarget path = documentsTarget().path("texmecs");
+    return addDocument(texMECS, path);
+  }
+
+  private RestResult<UUID> addDocument(String serializedDocument, final WebTarget path) {
+    final Entity<String> entity = Entity.entity(serializedDocument, UTF8MediaType.TEXT_PLAIN);
     final Supplier<Response> responseSupplier = anonymousPost(path, entity);
     final RestRequester<UUID> requester = RestRequester.withResponseSupplier(responseSupplier);
     return requester//

@@ -45,6 +45,7 @@ import nl.knaw.huygens.alexandria.dropwizard.resources.AboutResource;
 import nl.knaw.huygens.alexandria.dropwizard.resources.DocumentsResource;
 import nl.knaw.huygens.alexandria.lmnl.exporter.LMNLExporter;
 import nl.knaw.huygens.alexandria.lmnl.importer.LMNLImporter;
+import nl.knaw.huygens.alexandria.texmecs.importer.TexMECSImporter;
 
 public abstract class AlexandriaTestWithTestMarkupServer {
 
@@ -59,7 +60,7 @@ public abstract class AlexandriaTestWithTestMarkupServer {
 
     ResourceConfig resourceConfig = new ResourceConfig();
     resourceConfig.register(new AboutResource("appName"));
-    resourceConfig.register(new DocumentsResource(new DocumentService(config), new LMNLImporter(), new LMNLExporter(), config));
+    resourceConfig.register(new DocumentsResource(new DocumentService(config), new LMNLImporter(), new TexMECSImporter(), new LMNLExporter(), config));
 
     testServer = GrizzlyHttpServerFactory.createHttpServer(testURI, resourceConfig, true);
   }
