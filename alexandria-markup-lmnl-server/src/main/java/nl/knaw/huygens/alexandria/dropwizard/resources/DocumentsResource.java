@@ -17,6 +17,7 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import javax.ws.rs.core.Response.Status;
 
 /*
  * #%L
@@ -54,6 +55,7 @@ import nl.knaw.huygens.alexandria.markup.api.DocumentInfo;
 import nl.knaw.huygens.alexandria.markup.api.ResourcePaths;
 import nl.knaw.huygens.alexandria.markup.api.UTF8MediaType;
 import nl.knaw.huygens.alexandria.texmecs.importer.TexMECSImporter;
+import nl.knaw.huygens.alexandria.texmecs.importer.TexMECSSyntaxError;
 
 @Path(ResourcePaths.DOCUMENTS)
 @Produces(MediaType.APPLICATION_JSON)
@@ -98,8 +100,15 @@ public class DocumentsResource {
   @Timed
   public Response addDocumentFromTexMECS(@NotNull @Valid String texmecs) {
     UUID documentId = UUID.randomUUID();
-    processAndStoreTexMECS(texmecs, documentId);
-    return Response.created(documentURI(documentId)).build();
+    try {
+      processAndStoreTexMECS(texmecs, documentId);
+      return Response.created(documentURI(documentId)).build();
+
+    } catch (TexMECSSyntaxError se) {
+      return Response.status(Status.BAD_REQUEST)//
+          .entity(se.getMessage())//
+          .build();
+    }
   }
 
   @PUT
@@ -108,7 +117,7 @@ public class DocumentsResource {
   @Timed
   public Response setDocumentFromLMNL(@PathParam("uuid") final UUID uuid, @NotNull String lmnl) {
     processAndStoreLMNL(lmnl, uuid);
-    return Response.created(documentURI(uuid)).build();
+    return Response.noContent().build();
   }
 
   @PUT
@@ -116,8 +125,15 @@ public class DocumentsResource {
   @Path("{uuid}/texmecs")
   @Timed
   public Response setDocumentFromTexMECS(@PathParam("uuid") final UUID uuid, @NotNull String texMECS) {
-    processAndStoreTexMECS(texMECS, uuid);
-    return Response.created(documentURI(uuid)).build();
+    try {
+      processAndStoreTexMECS(texMECS, uuid);
+      return Response.noContent().build();
+
+    } catch (TexMECSSyntaxError se) {
+      return Response.status(Status.BAD_REQUEST)//
+          .entity(se.getMessage())//
+          .build();
+    }
   }
 
   @GET
