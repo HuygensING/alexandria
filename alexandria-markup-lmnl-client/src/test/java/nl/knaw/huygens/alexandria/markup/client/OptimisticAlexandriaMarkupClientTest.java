@@ -18,7 +18,6 @@ import org.junit.Test;
 
 import com.fasterxml.jackson.databind.JsonNode;
 
-import nl.knaw.huygens.Log;
 import nl.knaw.huygens.alexandria.markup.api.AboutInfo;
 
 /*
@@ -44,7 +43,7 @@ import nl.knaw.huygens.alexandria.markup.api.AboutInfo;
  */
 
 public class OptimisticAlexandriaMarkupClientTest extends AlexandriaTestWithTestMarkupServer {
-
+  // private final Logger LOG = LoggerFactory.getLogger(getClass());
   private static final String EVERYTHING_UPTO_AND_INCLUDING_THE_LAST_PERIOD_REGEX = ".*\\.";
   private static OptimisticAlexandriaMarkupClient client;
 
@@ -77,7 +76,7 @@ public class OptimisticAlexandriaMarkupClientTest extends AlexandriaTestWithTest
         .filter(this::hasNoDelegatedMethodInOptimisticAlexandriaMarkupClient)//
         .map(this::toDelegatedMethodStub)//
         .collect(joining("\n"));
-    Log.info("Methods to add to OptimisticAlexandriaMarkupClient:\n{}", stubs);
+    // LOG.info("Methods to add to OptimisticAlexandriaMarkupClient:\n{}", stubs);
     assertThat(stubs).isEmpty();
   }
 

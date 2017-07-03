@@ -36,19 +36,17 @@
       <artifactId>javax.json-api</artifactId>
       <version>1.1.0-M2</version>
     </dependency>
+    <dependency>
+      <groupId>ch.qos.logback</groupId>
+      <artifactId>logback-classic</artifactId>
+      <version>${logback.version}</version>
+    </dependency>
 
     <!-- test dependencies -->
     <dependency>
       <groupId>${project.groupId}</groupId>
       <artifactId>alexandria-markup-lmnl-server</artifactId>
       <version>${project.version}</version>
-      <scope>test</scope>
-    </dependency>
-
-    <dependency>
-      <groupId>nl.knaw.huygens</groupId>
-      <artifactId>log</artifactId>
-      <version>${log.version}</version>
       <scope>test</scope>
     </dependency>
 
