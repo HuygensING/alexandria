@@ -18,8 +18,8 @@
     <encoding>UTF-8</encoding>
     <project.build.sourceEncoding>${encoding}</project.build.sourceEncoding>
     <project.reporting.outputEncoding>${encoding}</project.reporting.outputEncoding>
-    <project.license.name>GNU General Public License</project.license.name>
-    <project.license.url>http://www.gnu.org/licenses/gpl.txt</project.license.url>
+    <project.license.name>Apache License version 2.0</project.license.name>
+    <project.license.url>http://www.apache.org/licenses/LICENSE-2.0</project.license.url>
 
     <!-- Timestamp settings for use in properties file -->
     <maven.build.timestamp.format>yyyy-MM-dd'T'HH:mm:ss'Z'</maven.build.timestamp.format>
@@ -125,7 +125,7 @@
           </execution>
         </executions>
         <configuration>
-          <licenseName>gpl_v3</licenseName>
+          <licenseName>apache_v2</licenseName>
           <excludes>
             <exclude>**/*.json</exclude>
             <exclude>**/*.jsonld</exclude>
