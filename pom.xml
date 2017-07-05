@@ -18,8 +18,8 @@
     <encoding>UTF-8</encoding>
     <project.build.sourceEncoding>${encoding}</project.build.sourceEncoding>
     <project.reporting.outputEncoding>${encoding}</project.reporting.outputEncoding>
-    <project.license.name>GNU General Public License</project.license.name>
-    <project.license.url>http://www.gnu.org/licenses/gpl.txt</project.license.url>
+    <project.license.name>Apache License version 2.0</project.license.name>
+    <project.license.url>http://www.apache.org/licenses/LICENSE-2.0</project.license.url>
 
     <!-- Timestamp settings for use in properties file -->
     <maven.build.timestamp.format>yyyy-MM-dd'T'HH:mm:ss'Z'</maven.build.timestamp.format>
@@ -29,6 +29,7 @@
     <javax.ws.rs-api.version>2.0.1</javax.ws.rs-api.version><!-- Should be same version as used by dropwizard -->
     <jersey.version>2.25.1</jersey.version> <!-- Should be same version as used by dropwizard -->
     <logback.version>1.2.1</logback.version> <!-- Should be same version as used by dropwizard -->
+    <slf4j-api.version>1.7.24</slf4j-api.version><!-- Should be same version as used by dropwizard -->
 
     <commons-lang3.version>3.5</commons-lang3.version> <!-- 3.6: The type org.apache.commons.lang3.text.StrSubstitutor cannot be resolved... -->
     <junit.version>4.12</junit.version>
@@ -124,7 +125,7 @@
           </execution>
         </executions>
         <configuration>
-          <licenseName>gpl_v3</licenseName>
+          <licenseName>apache_v2</licenseName>
           <excludes>
             <exclude>**/*.json</exclude>
             <exclude>**/*.jsonld</exclude>
