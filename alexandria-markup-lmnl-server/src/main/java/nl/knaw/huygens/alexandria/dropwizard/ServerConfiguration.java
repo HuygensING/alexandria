@@ -20,9 +20,10 @@ package nl.knaw.huygens.alexandria.dropwizard;
  * #L%
  */
 
-import org.hibernate.validator.constraints.NotEmpty;
-
+import com.fasterxml.jackson.annotation.JsonProperty;
 import io.dropwizard.Configuration;
+import io.federecio.dropwizard.swagger.SwaggerBundleConfiguration;
+import org.hibernate.validator.constraints.NotEmpty;
 
 public class ServerConfiguration extends Configuration {
   @NotEmpty
@@ -36,4 +37,6 @@ public class ServerConfiguration extends Configuration {
     return baseURI;
   }
 
+  @JsonProperty("swagger")
+  public SwaggerBundleConfiguration swaggerBundleConfiguration;
 }

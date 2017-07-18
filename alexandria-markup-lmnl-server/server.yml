@@ -4,3 +4,6 @@ logging:
   level: INFO
   loggers:
     nl.knaw.huygens.alexandria: DEBUG
+
+swagger:
+ resourcePackage: nl.knaw.huygens.alexandria.dropwizard.resources

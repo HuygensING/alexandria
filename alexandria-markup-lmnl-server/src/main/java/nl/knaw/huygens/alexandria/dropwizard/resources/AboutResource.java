@@ -20,18 +20,18 @@ package nl.knaw.huygens.alexandria.dropwizard.resources;
  * #L%
  */
 
-import java.time.Instant;
+import com.codahale.metrics.annotation.Timed;
+import io.swagger.annotations.Api;
+import nl.knaw.huygens.alexandria.markup.api.AboutInfo;
+import nl.knaw.huygens.alexandria.markup.api.ResourcePaths;
 
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
+import java.time.Instant;
 
-import com.codahale.metrics.annotation.Timed;
-
-import nl.knaw.huygens.alexandria.markup.api.AboutInfo;
-import nl.knaw.huygens.alexandria.markup.api.ResourcePaths;
-
+@Api(ResourcePaths.ABOUT)
 @Path(ResourcePaths.ABOUT)
 @Produces(MediaType.APPLICATION_JSON)
 public class AboutResource {

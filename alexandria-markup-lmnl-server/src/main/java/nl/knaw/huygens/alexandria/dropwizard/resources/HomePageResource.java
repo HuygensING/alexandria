@@ -20,17 +20,18 @@ package nl.knaw.huygens.alexandria.dropwizard.resources;
  * #L%
  */
 
-import java.io.IOException;
-import java.io.InputStream;
+import com.codahale.metrics.annotation.Timed;
+import io.swagger.annotations.Api;
 
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import java.io.IOException;
+import java.io.InputStream;
 
-import com.codahale.metrics.annotation.Timed;
-
+@Api("/")
 @Path("/")
 public class HomePageResource {
 

@@ -1,12 +1,14 @@
 package nl.knaw.huygens.alexandria.markup.client;
 
-import java.net.URI;
-import java.util.Optional;
-import java.util.UUID;
+import com.fasterxml.jackson.databind.JsonNode;
+import nl.knaw.huygens.alexandria.markup.api.AboutInfo;
 
 import javax.net.ssl.SSLContext;
 import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.Response;
+import java.net.URI;
+import java.util.Optional;
+import java.util.UUID;
 
 /*
  * #%L
@@ -17,9 +19,9 @@ import javax.ws.rs.core.Response;
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -27,10 +29,6 @@ import javax.ws.rs.core.Response;
  * limitations under the License.
  * #L%
  */
-
-import com.fasterxml.jackson.databind.JsonNode;
-
-import nl.knaw.huygens.alexandria.markup.api.AboutInfo;
 
 public class OptimisticAlexandriaMarkupClient {
   AlexandriaMarkupClient delegate;
@@ -118,7 +116,7 @@ public class OptimisticAlexandriaMarkupClient {
   private <T> T unwrap(RestResult<T> restResult) {
     if (restResult.hasFailed()) {
       Optional<Response> response = restResult.getResponse();
-      String status = response.isPresent() ? response.get().getStatus() + ": " : "";
+      String status = response.map(response1 -> response1.getStatus() + ": ").orElse("");
       String message = status + restResult.getFailureCause().orElse("Unspecified error");
       throw new AlexandriaException(message);
     }
