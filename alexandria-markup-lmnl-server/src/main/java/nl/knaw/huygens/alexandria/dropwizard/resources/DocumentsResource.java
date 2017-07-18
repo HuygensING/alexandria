@@ -1,32 +1,5 @@
 package nl.knaw.huygens.alexandria.dropwizard.resources;
 
-import com.codahale.metrics.annotation.Timed;
-import io.swagger.annotations.Api;
-import nl.knaw.huygens.alexandria.dropwizard.ServerConfiguration;
-import nl.knaw.huygens.alexandria.dropwizard.api.DocumentService;
-import nl.knaw.huygens.alexandria.lmnl.data_model.Document;
-import nl.knaw.huygens.alexandria.lmnl.exporter.LMNLExporter;
-import nl.knaw.huygens.alexandria.lmnl.exporter.LaTeXExporter;
-import nl.knaw.huygens.alexandria.lmnl.importer.LMNLImporter;
-import nl.knaw.huygens.alexandria.lmnl.query.TAGQLQueryHandler;
-import nl.knaw.huygens.alexandria.lmnl.query.TAGQLResult;
-import nl.knaw.huygens.alexandria.markup.api.DocumentInfo;
-import nl.knaw.huygens.alexandria.markup.api.ResourcePaths;
-import nl.knaw.huygens.alexandria.markup.api.UTF8MediaType;
-import nl.knaw.huygens.alexandria.texmecs.importer.TexMECSImporter;
-import nl.knaw.huygens.alexandria.texmecs.importer.TexMECSSyntaxError;
-
-import javax.validation.Valid;
-import javax.validation.constraints.NotNull;
-import javax.ws.rs.*;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
-import javax.ws.rs.core.Response.Status;
-import java.net.URI;
-import java.util.List;
-import java.util.UUID;
-import java.util.stream.Collectors;
-
 /*
  * #%L
  * alexandria-markup-lmnl-server
@@ -46,6 +19,33 @@ import java.util.stream.Collectors;
  * limitations under the License.
  * #L%
  */
+
+import com.codahale.metrics.annotation.Timed;
+import io.swagger.annotations.Api;
+import nl.knaw.huygens.alexandria.dropwizard.ServerConfiguration;
+import nl.knaw.huygens.alexandria.dropwizard.api.DocumentService;
+import nl.knaw.huygens.alexandria.lmnl.data_model.Document;
+import nl.knaw.huygens.alexandria.lmnl.exporter.LMNLExporter;
+import nl.knaw.huygens.alexandria.lmnl.exporter.LaTeXExporter;
+import nl.knaw.huygens.alexandria.lmnl.importer.LMNLImporter;
+import nl.knaw.huygens.alexandria.lmnl.importer.LMNLSyntaxError;
+import nl.knaw.huygens.alexandria.lmnl.query.TAGQLQueryHandler;
+import nl.knaw.huygens.alexandria.lmnl.query.TAGQLResult;
+import nl.knaw.huygens.alexandria.markup.api.DocumentInfo;
+import nl.knaw.huygens.alexandria.markup.api.ResourcePaths;
+import nl.knaw.huygens.alexandria.markup.api.UTF8MediaType;
+import nl.knaw.huygens.alexandria.texmecs.importer.TexMECSImporter;
+import nl.knaw.huygens.alexandria.texmecs.importer.TexMECSSyntaxError;
+
+import javax.validation.Valid;
+import javax.validation.constraints.NotNull;
+import javax.ws.rs.*;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
+import java.net.URI;
+import java.util.List;
+import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Api(ResourcePaths.DOCUMENTS)
 @Path(ResourcePaths.DOCUMENTS)
@@ -81,8 +81,14 @@ public class DocumentsResource {
   @Timed
   public Response addDocumentFromLMNL(@NotNull @Valid String lmnl) {
     UUID documentId = UUID.randomUUID();
-    processAndStoreLMNL(lmnl, documentId);
-    return Response.created(documentURI(documentId)).build();
+    try {
+      processAndStoreLMNL(lmnl, documentId);
+      return Response.created(documentURI(documentId)).build();
+
+    } catch (LMNLSyntaxError e) {
+      e.printStackTrace();
+      throw new BadRequestException(e.getMessage());
+    }
   }
 
   @POST
@@ -96,9 +102,8 @@ public class DocumentsResource {
       return Response.created(documentURI(documentId)).build();
 
     } catch (TexMECSSyntaxError se) {
-      return Response.status(Status.BAD_REQUEST)//
-          .entity(se.getMessage())//
-          .build();
+      se.printStackTrace();
+      throw new BadRequestException(se.getMessage());
     }
   }
 
@@ -107,8 +112,12 @@ public class DocumentsResource {
   @Path("{uuid}/lmnl")
   @Timed
   public Response setDocumentFromLMNL(@PathParam("uuid") final UUID uuid, @NotNull String lmnl) {
-    processAndStoreLMNL(lmnl, uuid);
-    return Response.noContent().build();
+    try {
+      processAndStoreLMNL(lmnl, uuid);
+      return Response.noContent().build();
+    } catch (LMNLSyntaxError se) {
+      throw new BadRequestException(se.getMessage());
+    }
   }
 
   @PUT
@@ -121,9 +130,7 @@ public class DocumentsResource {
       return Response.noContent().build();
 
     } catch (TexMECSSyntaxError se) {
-      return Response.status(Status.BAD_REQUEST)//
-          .entity(se.getMessage())//
-          .build();
+      throw new BadRequestException(se.getMessage());
     }
   }
 
@@ -205,12 +212,12 @@ public class DocumentsResource {
     return URI.create(configuration.getBaseURI() + "/documents/" + documentId);
   }
 
-  private void processAndStoreLMNL(String lmnl, UUID documentId) {
+  private void processAndStoreLMNL(String lmnl, UUID documentId) throws LMNLSyntaxError {
     Document document = lmnlImporter.importLMNL(lmnl);
     documentService.setDocument(documentId, document);
   }
 
-  private void processAndStoreTexMECS(String texMECS, UUID documentId) {
+  private void processAndStoreTexMECS(String texMECS, UUID documentId) throws TexMECSSyntaxError {
     Document document = texMECSImporter.importTexMECS(texMECS);
     documentService.setDocument(documentId, document);
   }
