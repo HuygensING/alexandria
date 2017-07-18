@@ -22,6 +22,7 @@ package nl.knaw.huygens.alexandria.dropwizard.resources;
 
 import com.codahale.metrics.annotation.Timed;
 import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
 
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
@@ -45,6 +46,7 @@ public class HomePageResource {
   @GET
   @Timed
   @Produces(MediaType.TEXT_HTML)
+  @ApiOperation(value = "Show the server homepage")
   public Response getHomePage() throws IOException {
     InputStream resourceAsStream = Thread.currentThread()//
         .getContextClassLoader().getResourceAsStream("index.html");
@@ -58,12 +60,14 @@ public class HomePageResource {
 
   @GET
   @Path("favicon.ico")
+  @ApiOperation(value = "Placeholder for favicon.ico")
   public Response getFavIcon() {
     return Response.noContent().build();
   }
 
   @GET
   @Path("robots.txt")
+  @ApiOperation(value = "Placeholder for robots.txt")
   public String noRobots() {
     return "User-agent: *\nDisallow: /\n";
   }

@@ -22,6 +22,8 @@ package nl.knaw.huygens.alexandria.dropwizard.resources;
 
 import com.codahale.metrics.annotation.Timed;
 import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
 import nl.knaw.huygens.alexandria.dropwizard.ServerConfiguration;
 import nl.knaw.huygens.alexandria.dropwizard.api.DocumentService;
 import nl.knaw.huygens.alexandria.lmnl.data_model.Document;
@@ -52,6 +54,10 @@ import java.util.stream.Collectors;
 @Produces(MediaType.APPLICATION_JSON)
 public class DocumentsResource {
 
+  public static final String APIPARAM_UUID = "document UUID";
+  public static final String APIPARAM_TEXMECS = "TexMECS text";
+  public static final String APIPARAM_LMNL = "LMNL text";
+
   private final DocumentService documentService;
   private final LMNLImporter lmnlImporter;
   private final LMNLExporter lmnlExporter;
@@ -68,6 +74,7 @@ public class DocumentsResource {
 
   @GET
   @Timed
+  @ApiOperation(value = "List all document URIs")
   public List<URI> getDocumentURIs() {
     return documentService.getDocumentUUIDs()//
         .stream()//
@@ -79,7 +86,9 @@ public class DocumentsResource {
   @Consumes(UTF8MediaType.TEXT_PLAIN)
   @Path("lmnl")
   @Timed
-  public Response addDocumentFromLMNL(@NotNull @Valid String lmnl) {
+  @ApiOperation(value = "Create a new document from a LMNL text")
+  public Response addDocumentFromLMNL(
+      @ApiParam(APIPARAM_LMNL) @NotNull @Valid String lmnl) {
     UUID documentId = UUID.randomUUID();
     try {
       processAndStoreLMNL(lmnl, documentId);
@@ -95,7 +104,9 @@ public class DocumentsResource {
   @Consumes(UTF8MediaType.TEXT_PLAIN)
   @Path("texmecs")
   @Timed
-  public Response addDocumentFromTexMECS(@NotNull @Valid String texmecs) {
+  @ApiOperation(value = "Create a new document from a TexMECS text")
+  public Response addDocumentFromTexMECS(
+      @ApiParam(APIPARAM_TEXMECS) @NotNull @Valid String texmecs) {
     UUID documentId = UUID.randomUUID();
     try {
       processAndStoreTexMECS(texmecs, documentId);
@@ -111,7 +122,10 @@ public class DocumentsResource {
   @Consumes(UTF8MediaType.TEXT_PLAIN)
   @Path("{uuid}/lmnl")
   @Timed
-  public Response setDocumentFromLMNL(@PathParam("uuid") final UUID uuid, @NotNull String lmnl) {
+  @ApiOperation(value = "Update an existing document from a LMNL text")
+  public Response setDocumentFromLMNL(
+      @ApiParam(APIPARAM_UUID) @PathParam("uuid") final UUID uuid,//
+      @ApiParam(APIPARAM_LMNL) @NotNull String lmnl) {
     try {
       processAndStoreLMNL(lmnl, uuid);
       return Response.noContent().build();
@@ -124,7 +138,10 @@ public class DocumentsResource {
   @Consumes(UTF8MediaType.TEXT_PLAIN)
   @Path("{uuid}/texmecs")
   @Timed
-  public Response setDocumentFromTexMECS(@PathParam("uuid") final UUID uuid, @NotNull String texMECS) {
+  @ApiOperation(value = "Update an existing document from a TexMECS text")
+  public Response setDocumentFromTexMECS(
+      @ApiParam(APIPARAM_UUID) @PathParam("uuid") final UUID uuid,//
+      @ApiParam(APIPARAM_TEXMECS) @NotNull String texMECS) {
     try {
       processAndStoreTexMECS(texMECS, uuid);
       return Response.noContent().build();
@@ -137,7 +154,9 @@ public class DocumentsResource {
   @GET
   @Path("{uuid}")
   @Timed
-  public Response getDocumentInfo(@PathParam("uuid") final UUID uuid) {
+  @ApiOperation(value = "Get info about a document")
+  public Response getDocumentInfo(
+      @ApiParam(APIPARAM_UUID) @PathParam("uuid") final UUID uuid) {
     DocumentInfo documentInfo = documentService.getDocumentInfo(uuid)//
         .orElseThrow(NotFoundException::new);
     return Response.ok(documentInfo).build();
@@ -147,7 +166,9 @@ public class DocumentsResource {
   @Path("{uuid}/" + ResourcePaths.DOCUMENTS_LMNL)
   @Timed
   @Produces(UTF8MediaType.TEXT_PLAIN)
-  public Response getLMNL(@PathParam("uuid") final UUID uuid) {
+  @ApiOperation(value = "Get a LMNL representation of the document")
+  public Response getLMNL(
+      @ApiParam(APIPARAM_UUID) @PathParam("uuid") final UUID uuid) {
     Document document = getExistingDocument(uuid);
     String lmnl = lmnlExporter.toLMNL(document);
     return Response.ok(lmnl).build();
@@ -157,7 +178,9 @@ public class DocumentsResource {
   @Path("{uuid}/" + ResourcePaths.DOCUMENTS_LATEX)
   @Timed
   @Produces(UTF8MediaType.TEXT_PLAIN)
-  public Response getLaTeXVisualization(@PathParam("uuid") final UUID uuid) {
+  @ApiOperation(value = "Get a LaTeX visualization of the main layer of a document as text nodes and markup nodes")
+  public Response getLaTeXVisualization(
+      @ApiParam(APIPARAM_UUID) @PathParam("uuid") final UUID uuid) {
     Document document = getExistingDocument(uuid);
     LaTeXExporter latexExporter = new LaTeXExporter(document);
     String latex = latexExporter.exportDocument();
@@ -168,7 +191,9 @@ public class DocumentsResource {
   @Path("{uuid}/" + ResourcePaths.DOCUMENTS_MARKUPDEPTH)
   @Timed
   @Produces(UTF8MediaType.TEXT_PLAIN)
-  public Response getRangeOverlapVisualization(@PathParam("uuid") final UUID uuid) {
+  @ApiOperation(value = "Get a LaTeX visualization of the main text nodes of a document, color-coded for the number of different markup nodes per text node")
+  public Response getRangeOverlapVisualization(
+      @ApiParam(APIPARAM_UUID) @PathParam("uuid") final UUID uuid) {
     Document document = getExistingDocument(uuid);
     LaTeXExporter latexExporter = new LaTeXExporter(document);
     String latex = latexExporter.exportMarkupOverlap();
@@ -179,7 +204,9 @@ public class DocumentsResource {
   @Path("{uuid}/" + ResourcePaths.DOCUMENTS_MATRIX)
   @Timed
   @Produces(UTF8MediaType.TEXT_PLAIN)
-  public Response getMatrixVisualization(@PathParam("uuid") final UUID uuid) {
+  @ApiOperation(value = "Get a LaTeX visualization of the optimized text node / markup matrix of a document")
+  public Response getMatrixVisualization(
+      @ApiParam(APIPARAM_UUID) @PathParam("uuid") final UUID uuid) {
     Document document = getExistingDocument(uuid);
     LaTeXExporter latexExporter = new LaTeXExporter(document);
     String latex = latexExporter.exportMatrix();
@@ -190,7 +217,9 @@ public class DocumentsResource {
   @Path("{uuid}/" + ResourcePaths.DOCUMENTS_KDTREE)
   @Timed
   @Produces(UTF8MediaType.TEXT_PLAIN)
-  public Response getKdTreeVisualization(@PathParam("uuid") final UUID uuid) {
+  @ApiOperation(value = "Get a LaTeX visualization of the kd-tree of a document")
+  public Response getKdTreeVisualization(
+      @ApiParam(APIPARAM_UUID) @PathParam("uuid") final UUID uuid) {
     Document document = getExistingDocument(uuid);
     LaTeXExporter latexExporter = new LaTeXExporter(document);
     String latex = latexExporter.exportKdTree();
@@ -201,7 +230,10 @@ public class DocumentsResource {
   @Path("{uuid}/" + ResourcePaths.DOCUMENTS_QUERY)
   @Timed
   @Produces(UTF8MediaType.APPLICATION_JSON)
-  public Response postTAGQLQuery(@PathParam("uuid") final UUID uuid, String tagqlQuery) {
+  @ApiOperation(value = "Run a TAGQL query on a document", response = TAGQLResult.class)
+  public Response postTAGQLQuery(
+      @ApiParam(APIPARAM_UUID) @PathParam("uuid") final UUID uuid,//
+      @ApiParam("TAGQL query") String tagqlQuery) {
     Document document = getExistingDocument(uuid);
     TAGQLQueryHandler h = new TAGQLQueryHandler(document);
     TAGQLResult result = h.execute(tagqlQuery);

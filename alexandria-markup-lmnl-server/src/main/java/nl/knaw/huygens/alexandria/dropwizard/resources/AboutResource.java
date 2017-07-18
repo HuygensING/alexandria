@@ -22,6 +22,7 @@ package nl.knaw.huygens.alexandria.dropwizard.resources;
 
 import com.codahale.metrics.annotation.Timed;
 import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
 import nl.knaw.huygens.alexandria.markup.api.AboutInfo;
 import nl.knaw.huygens.alexandria.markup.api.ResourcePaths;
 
@@ -50,6 +51,7 @@ public class AboutResource {
 
   @GET
   @Timed
+  @ApiOperation(value = "Get some info about the server", response = AboutInfo.class)
   public AboutInfo getAbout() {
     return about;
   }
