@@ -36,6 +36,7 @@ import nl.knaw.huygens.alexandria.dropwizard.resources.DocumentsResource;
 import nl.knaw.huygens.alexandria.dropwizard.resources.HomePageResource;
 import nl.knaw.huygens.alexandria.lmnl.exporter.LMNLExporter;
 import nl.knaw.huygens.alexandria.lmnl.importer.LMNLImporter;
+import nl.knaw.huygens.alexandria.storage.TAGStore;
 import nl.knaw.huygens.alexandria.texmecs.importer.TexMECSImporter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -79,9 +80,11 @@ public class ServerApplication extends Application<ServerConfiguration> {
   @Override
   public void run(ServerConfiguration configuration, Environment environment) {
     DocumentService documentService = new DocumentService(configuration);
-    LMNLImporter lmnlImporter = new LMNLImporter();
-    LMNLExporter lmnlExporter = new LMNLExporter();
-    TexMECSImporter texMECSImporter = new TexMECSImporter();
+    TAGStore store = new TAGStore(".",false);
+    configuration.setStore(store);
+    LMNLImporter lmnlImporter = new LMNLImporter(store);
+    LMNLExporter lmnlExporter = new LMNLExporter(store);
+    TexMECSImporter texMECSImporter = new TexMECSImporter(store);
 
     environment.jersey().register(new HomePageResource());
     environment.jersey().register(new AboutResource(getName()));

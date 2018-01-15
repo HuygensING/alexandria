@@ -25,7 +25,12 @@ import io.dropwizard.setup.Bootstrap;
 import net.sourceforge.argparse4j.inf.Namespace;
 import net.sourceforge.argparse4j.inf.Subparser;
 
+import java.io.File;
+
 public class InitCommand extends Command {
+
+  public static final String DIRNAME = ".alexandria";
+
   public InitCommand() {
     super("init", "Initializes current directory as an alexandria workspace");
   }
@@ -38,6 +43,17 @@ public class InitCommand extends Command {
   @Override
   public void run(Bootstrap<?> bootstrap, Namespace namespace) throws Exception {
     System.out.println("initializing...");
+    File dir = new File(DIRNAME);
+    if (dir.exists()) {
+      System.out.println(DIRNAME + " already exists.");
+    } else {
+      boolean success = dir.mkdir();
+      if (!success) {
+        System.out.println("Couldn't initialize: couldn't create directory " + DIRNAME);
+      }else{
+
+      }
+    }
     System.out.println("done!");
   }
 }

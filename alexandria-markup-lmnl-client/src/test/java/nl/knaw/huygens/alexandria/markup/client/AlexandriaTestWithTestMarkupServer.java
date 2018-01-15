@@ -20,9 +20,19 @@ package nl.knaw.huygens.alexandria.markup.client;
  * #L%
  */
 
-import java.io.StringReader;
-import java.io.StringWriter;
-import java.net.URI;
+import nl.knaw.huygens.alexandria.dropwizard.ServerConfiguration;
+import nl.knaw.huygens.alexandria.dropwizard.api.DocumentService;
+import nl.knaw.huygens.alexandria.dropwizard.resources.AboutResource;
+import nl.knaw.huygens.alexandria.dropwizard.resources.DocumentsResource;
+import nl.knaw.huygens.alexandria.lmnl.exporter.LMNLExporter;
+import nl.knaw.huygens.alexandria.lmnl.importer.LMNLImporter;
+import nl.knaw.huygens.alexandria.storage.TAGStore;
+import nl.knaw.huygens.alexandria.texmecs.importer.TexMECSImporter;
+import org.glassfish.grizzly.http.server.HttpServer;
+import org.glassfish.jersey.grizzly2.httpserver.GrizzlyHttpServerFactory;
+import org.glassfish.jersey.server.ResourceConfig;
+import org.junit.AfterClass;
+import org.junit.BeforeClass;
 
 import javax.xml.transform.OutputKeys;
 import javax.xml.transform.Source;
@@ -30,20 +40,9 @@ import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.stream.StreamResult;
 import javax.xml.transform.stream.StreamSource;
-
-import org.glassfish.grizzly.http.server.HttpServer;
-import org.glassfish.jersey.grizzly2.httpserver.GrizzlyHttpServerFactory;
-import org.glassfish.jersey.server.ResourceConfig;
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
-
-import nl.knaw.huygens.alexandria.dropwizard.ServerConfiguration;
-import nl.knaw.huygens.alexandria.dropwizard.api.DocumentService;
-import nl.knaw.huygens.alexandria.dropwizard.resources.AboutResource;
-import nl.knaw.huygens.alexandria.dropwizard.resources.DocumentsResource;
-import nl.knaw.huygens.alexandria.lmnl.exporter.LMNLExporter;
-import nl.knaw.huygens.alexandria.lmnl.importer.LMNLImporter;
-import nl.knaw.huygens.alexandria.texmecs.importer.TexMECSImporter;
+import java.io.StringReader;
+import java.io.StringWriter;
+import java.net.URI;
 
 public abstract class AlexandriaTestWithTestMarkupServer {
 
@@ -55,10 +54,12 @@ public abstract class AlexandriaTestWithTestMarkupServer {
   public static void startTestServer() {
     ServerConfiguration config = new ServerConfiguration();
     config.setBaseURI(BASEURI);
+    config.setStore(new TAGStore(".", false));
 
     ResourceConfig resourceConfig = new ResourceConfig();
     resourceConfig.register(new AboutResource("appName"));
-    resourceConfig.register(new DocumentsResource(new DocumentService(config), new LMNLImporter(), new TexMECSImporter(), new LMNLExporter(), config));
+    TAGStore store = config.getStore();
+    resourceConfig.register(new DocumentsResource(new DocumentService(config), new LMNLImporter(store), new TexMECSImporter(store), new LMNLExporter(store), config));
 
     testServer = GrizzlyHttpServerFactory.createHttpServer(testURI, resourceConfig, true);
   }
