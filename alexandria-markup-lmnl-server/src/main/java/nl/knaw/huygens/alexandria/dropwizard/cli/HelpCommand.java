@@ -35,7 +35,7 @@ public class HelpCommand extends AlexandriaCommand {
   }
 
   @Override
-  public void run(Bootstrap<?> bootstrap, Namespace namespace) throws Exception {
+  public void run(Bootstrap<?> bootstrap, Namespace namespace) {
     System.out.println("TODO");
   }
 }

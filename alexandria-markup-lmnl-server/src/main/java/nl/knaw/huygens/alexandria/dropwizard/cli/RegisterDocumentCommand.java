@@ -58,7 +58,7 @@ public class RegisterDocumentCommand extends AlexandriaCommand {
   }
 
   @Override
-  public void run(Bootstrap<?> bootstrap, Namespace namespace) throws Exception {
+  public void run(Bootstrap<?> bootstrap, Namespace namespace) {
     String filename = namespace.getString(FILE);
     String docName = namespace.getString(NAME);
     System.out.println("Parsing " + filename + " to document " + docName + "...");

@@ -40,7 +40,7 @@ public class InitCommand extends AlexandriaCommand {
   }
 
   @Override
-  public void run(Bootstrap<?> bootstrap, Namespace namespace) throws Exception {
+  public void run(Bootstrap<?> bootstrap, Namespace namespace) {
     System.out.println("initializing...");
 
     Map<String, TAGView> viewMap = new HashMap<>();

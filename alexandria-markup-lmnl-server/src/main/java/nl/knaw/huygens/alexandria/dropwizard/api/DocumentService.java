@@ -35,7 +35,7 @@ import java.util.concurrent.ExecutionException;
 
 public class DocumentService {
 
-  Set<UUID> uuids = new LinkedHashSet<>();
+  final Set<UUID> uuids = new LinkedHashSet<>();
   private static String baseURI;
   private final TAGStore store;
 
@@ -44,7 +44,7 @@ public class DocumentService {
     store = config.getStore();
   }
 
-  static Cache<UUID, TAGDocument> documentCache = CacheBuilder.newBuilder()//
+  static final Cache<UUID, TAGDocument> documentCache = CacheBuilder.newBuilder()//
       .maximumSize(100)//
       .build();
 
@@ -75,7 +75,7 @@ public class DocumentService {
     uuids.add(docId);
   }
 
-  static Cache<UUID, DocumentInfo> documentInfoCache = CacheBuilder.newBuilder()//
+  static final Cache<UUID, DocumentInfo> documentInfoCache = CacheBuilder.newBuilder()//
       .maximumSize(100)//
       .build();
 

@@ -40,7 +40,7 @@ public class CheckInCommand extends AlexandriaCommand {
   }
 
   @Override
-  public void run(Bootstrap<?> bootstrap, Namespace namespace) throws Exception {
+  public void run(Bootstrap<?> bootstrap, Namespace namespace) {
     System.out.println("Merging changes from " + namespace.getString(FILE) + "...");
     System.out.println("TODO");
   }

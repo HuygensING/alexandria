@@ -1,3 +1,4 @@
+#!/usr/bin/env bash
 function alexandria {
   java -jar c:/lib/alexandria.jar $* |sed -e "s/java -jar alexandria.jar/alexandria/";
 }

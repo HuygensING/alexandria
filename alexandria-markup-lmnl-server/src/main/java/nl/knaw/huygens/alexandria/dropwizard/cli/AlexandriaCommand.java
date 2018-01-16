@@ -40,8 +40,8 @@ import static java.util.stream.Collectors.toMap;
 public abstract class AlexandriaCommand extends Command {
   private static final Logger LOG = LoggerFactory.getLogger(AlexandriaCommand.class);
   static final String PROJECT_DIR = ".alexandria";
-  String NAME = "name";
-  String FILE = "file";
+  final String NAME = "name";
+  final String FILE = "file";
   final TAGStore store;
 
   public AlexandriaCommand(String name, String description) {
@@ -55,7 +55,7 @@ public abstract class AlexandriaCommand extends Command {
     dir.mkdir();
   }
 
-  File viewsFile = new File(PROJECT_DIR, "views.json");
+  final File viewsFile = new File(PROJECT_DIR, "views.json");
 
   Map<String, TAGView> readViewMap() {
     TAGViewFactory viewFactory = new TAGViewFactory(store);

@@ -45,7 +45,7 @@ import java.util.SortedMap;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 public class ServerApplication extends Application<ServerConfiguration> {
-  Logger LOG = LoggerFactory.getLogger(getClass());
+  final Logger LOG = LoggerFactory.getLogger(getClass());
 
   public static void main(String[] args) throws Exception {
     new ServerApplication().run(args);

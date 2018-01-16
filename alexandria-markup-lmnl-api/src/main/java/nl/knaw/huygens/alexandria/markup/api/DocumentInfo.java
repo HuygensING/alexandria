@@ -30,7 +30,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 public class DocumentInfo {
   Instant created;
   Instant modified;
-  private String uriBase;
+  private final String uriBase;
 
   public DocumentInfo(UUID documentId, String baseURL) {
     this.uriBase = baseURL + "/" + ResourcePaths.DOCUMENTS + "/" + documentId + "/";

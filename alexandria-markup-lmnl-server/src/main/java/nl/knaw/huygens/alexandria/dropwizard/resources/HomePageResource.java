@@ -47,7 +47,7 @@ public class HomePageResource {
   @Timed
   @Produces(MediaType.TEXT_HTML)
   @ApiOperation(value = "Show the server homepage")
-  public Response getHomePage() throws IOException {
+  public Response getHomePage() {
     InputStream resourceAsStream = Thread.currentThread()//
         .getContextClassLoader().getResourceAsStream("index.html");
     return Response//

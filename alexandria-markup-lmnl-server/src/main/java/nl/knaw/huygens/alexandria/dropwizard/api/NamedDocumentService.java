@@ -35,7 +35,7 @@ public class NamedDocumentService {
     this.store = store;
   }
 
-  static Cache<String, Long> documentIdCache = CacheBuilder.newBuilder()//
+  static final Cache<String, Long> documentIdCache = CacheBuilder.newBuilder()//
       .maximumSize(100)//
       .build();
 
@@ -53,7 +53,7 @@ public class NamedDocumentService {
         return Optional.empty();
       }
       DocumentWrapper documentWrapper = new DocumentWrapper(store, document);
-      return Optional.ofNullable(documentWrapper);
+      return Optional.of(documentWrapper);
     }
   }
 }

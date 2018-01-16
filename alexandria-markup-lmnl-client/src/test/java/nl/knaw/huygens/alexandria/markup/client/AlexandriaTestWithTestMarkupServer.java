@@ -49,10 +49,10 @@ import java.net.URI;
 
 public abstract class AlexandriaTestWithTestMarkupServer {
   @ClassRule
-  public static TemporaryFolder tmpFolder = new TemporaryFolder();
+  public static final TemporaryFolder tmpFolder = new TemporaryFolder();
 
   private static final String BASEURI = "http://localhost:2017/";
-  protected static URI testURI = URI.create(BASEURI);
+  protected static final URI testURI = URI.create(BASEURI);
   private static HttpServer testServer;
 
   @BeforeClass
