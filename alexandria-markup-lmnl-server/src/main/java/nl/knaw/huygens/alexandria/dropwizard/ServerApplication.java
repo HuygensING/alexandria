@@ -80,7 +80,7 @@ public class ServerApplication extends Application<ServerConfiguration> {
   @Override
   public void run(ServerConfiguration configuration, Environment environment) {
     DocumentService documentService = new DocumentService(configuration);
-    TAGStore store = new TAGStore(".",false);
+    TAGStore store = new TAGStore(configuration.getDbDir(),false);
     configuration.setStore(store);
     LMNLImporter lmnlImporter = new LMNLImporter(store);
     LMNLExporter lmnlExporter = new LMNLExporter(store);

@@ -33,6 +33,8 @@ import org.glassfish.jersey.grizzly2.httpserver.GrizzlyHttpServerFactory;
 import org.glassfish.jersey.server.ResourceConfig;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
+import org.junit.ClassRule;
+import org.junit.rules.TemporaryFolder;
 
 import javax.xml.transform.OutputKeys;
 import javax.xml.transform.Source;
@@ -40,21 +42,24 @@ import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.stream.StreamResult;
 import javax.xml.transform.stream.StreamSource;
+import java.io.IOException;
 import java.io.StringReader;
 import java.io.StringWriter;
 import java.net.URI;
 
 public abstract class AlexandriaTestWithTestMarkupServer {
+  @ClassRule
+  public static TemporaryFolder tmpFolder = new TemporaryFolder();
 
   private static final String BASEURI = "http://localhost:2017/";
   protected static URI testURI = URI.create(BASEURI);
   private static HttpServer testServer;
 
   @BeforeClass
-  public static void startTestServer() {
+  public static void startTestServer() throws IOException {
     ServerConfiguration config = new ServerConfiguration();
     config.setBaseURI(BASEURI);
-    config.setStore(new TAGStore(".", false));
+    config.setStore(new TAGStore(tmpFolder.newFolder("db").getPath(), false));
 
     ResourceConfig resourceConfig = new ResourceConfig();
     resourceConfig.register(new AboutResource("appName"));

@@ -1,4 +1,5 @@
 baseURI: ${BASE_URI}
+dbDir: ${DB_DIR}
 
 logging:
   level: INFO
@@ -6,4 +7,4 @@ logging:
     nl.knaw.huygens.alexandria: DEBUG
 
 swagger:
- resourcePackage: nl.knaw.huygens.alexandria.dropwizard.resources
+  resourcePackage: nl.knaw.huygens.alexandria.dropwizard.resources

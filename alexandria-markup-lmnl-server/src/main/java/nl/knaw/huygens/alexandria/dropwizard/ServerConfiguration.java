@@ -30,6 +30,7 @@ public class ServerConfiguration extends Configuration {
   @NotEmpty
   private String baseURI;
   private TAGStore store;
+  private String dbDir;
 
   public void setBaseURI(String baseURI) {
     this.baseURI = baseURI.replaceFirst("/$", "");
@@ -49,4 +50,13 @@ public class ServerConfiguration extends Configuration {
   public void setStore(TAGStore store) {
     this.store = store;
   }
+
+  public void setDbDir(String dbDir) {
+    this.dbDir = dbDir;
+  }
+
+  public String getDbDir() {
+    return dbDir;
+  }
+
 }

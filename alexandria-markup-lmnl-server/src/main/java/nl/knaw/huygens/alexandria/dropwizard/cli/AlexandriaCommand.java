@@ -67,7 +67,7 @@ public abstract class AlexandriaCommand extends Command {
       return stringTAGViewMap.entrySet()//
           .stream()//
           .collect(toMap(//
-              e -> e.getKey(),//
+              Map.Entry::getKey,//
               e -> viewFactory.fromDefinition(e.getValue())//
           ));
     } catch (IOException e) {
@@ -79,7 +79,7 @@ public abstract class AlexandriaCommand extends Command {
     Map<String, TAGViewDefinition> viewDefinitionMap = viewMap.entrySet()//
         .stream()//
         .collect(toMap(//
-            e -> e.getKey(),//
+            Map.Entry::getKey,//
             e -> e.getValue().getDefinition()//
         ));
     ObjectMapper objectMapper = new ObjectMapper();
