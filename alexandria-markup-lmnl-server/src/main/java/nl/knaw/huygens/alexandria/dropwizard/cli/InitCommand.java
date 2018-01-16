@@ -20,16 +20,15 @@ package nl.knaw.huygens.alexandria.dropwizard.cli;
  * #L%
  */
 
-import io.dropwizard.cli.Command;
 import io.dropwizard.setup.Bootstrap;
 import net.sourceforge.argparse4j.inf.Namespace;
 import net.sourceforge.argparse4j.inf.Subparser;
+import nl.knaw.huygens.alexandria.view.TAGView;
 
-import java.io.File;
+import java.util.HashMap;
+import java.util.Map;
 
-public class InitCommand extends Command {
-
-  public static final String DIRNAME = ".alexandria";
+public class InitCommand extends AlexandriaCommand {
 
   public InitCommand() {
     super("init", "Initializes current directory as an alexandria workspace");
@@ -43,17 +42,10 @@ public class InitCommand extends Command {
   @Override
   public void run(Bootstrap<?> bootstrap, Namespace namespace) throws Exception {
     System.out.println("initializing...");
-    File dir = new File(DIRNAME);
-    if (dir.exists()) {
-      System.out.println(DIRNAME + " already exists.");
-    } else {
-      boolean success = dir.mkdir();
-      if (!success) {
-        System.out.println("Couldn't initialize: couldn't create directory " + DIRNAME);
-      }else{
 
-      }
-    }
+    Map<String, TAGView> viewMap = new HashMap<>();
+    storeViewMap(viewMap);
+
     System.out.println("done!");
   }
 }

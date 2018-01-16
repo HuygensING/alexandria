@@ -20,14 +20,18 @@ package nl.knaw.huygens.alexandria.dropwizard.cli;
  * #L%
  */
 
-import io.dropwizard.cli.Command;
+import com.google.common.base.Charsets;
 import io.dropwizard.setup.Bootstrap;
 import net.sourceforge.argparse4j.inf.Namespace;
 import net.sourceforge.argparse4j.inf.Subparser;
+import nl.knaw.huygens.alexandria.view.TAGView;
+import nl.knaw.huygens.alexandria.view.TAGViewFactory;
+import org.apache.commons.io.FileUtils;
 
-public class DefineViewCommand extends Command {
-  private String NAME = "name";
-  private String FILE = "file";
+import java.io.File;
+import java.util.Map;
+
+public class DefineViewCommand extends AlexandriaCommand {
 
   public DefineViewCommand() {
     super("define-view", "Read in a view definition");
@@ -51,6 +55,16 @@ public class DefineViewCommand extends Command {
   @Override
   public void run(Bootstrap<?> bootstrap, Namespace namespace) throws Exception {
     System.out.println("Parsing " + namespace.getString(FILE) + " to view " + namespace.getString(NAME) + "...");
-    System.out.println("TODO");
+    Map<String, TAGView> viewMap = readViewMap();
+    String filename = namespace.getString(FILE);
+    File viewFile = new File(filename);
+    TAGViewFactory viewFactory = new TAGViewFactory(store);
+    String json = FileUtils.readFileToString(viewFile, Charsets.UTF_8);
+    TAGView view = viewFactory.fromJsonString(json);
+    String viewName = namespace.getString(NAME);
+    viewMap.put(viewName, view);
+    storeViewMap(viewMap);
+    System.out.println("done!");
   }
+
 }

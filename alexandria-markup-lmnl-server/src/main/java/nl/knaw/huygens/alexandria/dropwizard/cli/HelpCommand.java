@@ -20,12 +20,11 @@ package nl.knaw.huygens.alexandria.dropwizard.cli;
  * #L%
  */
 
-import io.dropwizard.cli.Command;
 import io.dropwizard.setup.Bootstrap;
 import net.sourceforge.argparse4j.inf.Namespace;
 import net.sourceforge.argparse4j.inf.Subparser;
 
-public class HelpCommand extends Command {
+public class HelpCommand extends AlexandriaCommand {
   public HelpCommand() {
     super("help", "Show helpful information about the available commands");
   }

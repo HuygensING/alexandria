@@ -20,12 +20,11 @@ package nl.knaw.huygens.alexandria.dropwizard.cli;
  * #L%
  */
 
-import io.dropwizard.cli.Command;
 import io.dropwizard.setup.Bootstrap;
 import net.sourceforge.argparse4j.inf.Namespace;
 import net.sourceforge.argparse4j.inf.Subparser;
 
-public class CheckOutCommand extends Command {
+public class CheckOutCommand extends AlexandriaCommand {
   private static final String VIEW = "view";
   private static final String DOCUMENT = "document";
 

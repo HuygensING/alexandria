@@ -20,13 +20,11 @@ package nl.knaw.huygens.alexandria.dropwizard.cli;
  * #L%
  */
 
-import io.dropwizard.cli.Command;
 import io.dropwizard.setup.Bootstrap;
 import net.sourceforge.argparse4j.inf.Namespace;
 import net.sourceforge.argparse4j.inf.Subparser;
 
-public class CheckInCommand extends Command {
-  private static final String FILE = "file";
+public class CheckInCommand extends AlexandriaCommand {
 
   public CheckInCommand() {
     super("checkin", "Merge the changes in the view into the TAG");
