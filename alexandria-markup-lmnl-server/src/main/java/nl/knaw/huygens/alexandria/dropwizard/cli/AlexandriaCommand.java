@@ -23,6 +23,7 @@ package nl.knaw.huygens.alexandria.dropwizard.cli;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.dropwizard.cli.Command;
+import static java.util.stream.Collectors.toMap;
 import nl.knaw.huygens.alexandria.storage.TAGStore;
 import nl.knaw.huygens.alexandria.view.TAGView;
 import nl.knaw.huygens.alexandria.view.TAGViewDefinition;
@@ -34,8 +35,6 @@ import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
-
-import static java.util.stream.Collectors.toMap;
 
 public abstract class AlexandriaCommand extends Command {
   private static final Logger LOG = LoggerFactory.getLogger(AlexandriaCommand.class);
@@ -56,6 +55,7 @@ public abstract class AlexandriaCommand extends Command {
   }
 
   final File viewsFile = new File(PROJECT_DIR, "views.json");
+  final File docmentIndexFile = new File(PROJECT_DIR, "document_index.json");
 
   Map<String, TAGView> readViewMap() {
     TAGViewFactory viewFactory = new TAGViewFactory(store);
@@ -85,6 +85,27 @@ public abstract class AlexandriaCommand extends Command {
     ObjectMapper objectMapper = new ObjectMapper();
     try {
       objectMapper.writeValue(viewsFile, viewDefinitionMap);
+    } catch (IOException e) {
+      throw new RuntimeException(e);
+    }
+  }
+
+  Map<String, Long> readDocumentIndex() {
+    try {
+      ObjectMapper objectMapper = new ObjectMapper();
+      TypeReference<HashMap<String, Long>> typeReference = new TypeReference<HashMap<String, Long>>() {
+      };
+      Map<String, Long> documentIndex = objectMapper.readValue(docmentIndexFile, typeReference);
+      return documentIndex;
+    } catch (IOException e) {
+      throw new RuntimeException(e);
+    }
+  }
+
+  void storeDocumentIndex(Map<String, Long> documentIndex) {
+    try {
+      ObjectMapper objectMapper = new ObjectMapper();
+      objectMapper.writeValue(docmentIndexFile, documentIndex);
     } catch (IOException e) {
       throw new RuntimeException(e);
     }

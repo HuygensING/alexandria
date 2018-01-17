@@ -34,6 +34,7 @@ import org.slf4j.LoggerFactory;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.util.Map;
 
 public class RegisterDocumentCommand extends AlexandriaCommand {
   private static final Logger LOG = LoggerFactory.getLogger(RegisterDocumentCommand.class);
@@ -59,6 +60,7 @@ public class RegisterDocumentCommand extends AlexandriaCommand {
 
   @Override
   public void run(Bootstrap<?> bootstrap, Namespace namespace) {
+    Map<String, Long> documentIndex = readDocumentIndex();
     String filename = namespace.getString(FILE);
     String docName = namespace.getString(NAME);
     System.out.println("Parsing " + filename + " to document " + docName + "...");
@@ -72,6 +74,8 @@ public class RegisterDocumentCommand extends AlexandriaCommand {
           DocumentWrapper document = lmnlImporter.importLMNL(fileInputStream);
           NamedDocumentService service = new NamedDocumentService(store);
           service.registerDocument(document, docName);
+          documentIndex.put(docName,document.getId());
+          storeDocumentIndex(documentIndex);
         } catch (IOException e) {
           throw new RuntimeException(e);
         }

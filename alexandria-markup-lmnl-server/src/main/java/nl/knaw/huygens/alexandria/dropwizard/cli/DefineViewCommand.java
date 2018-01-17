@@ -64,6 +64,7 @@ public class DefineViewCommand extends AlexandriaCommand {
     String viewName = namespace.getString(NAME);
     viewMap.put(viewName, view);
     storeViewMap(viewMap);
+    store.close();
     System.out.println("done!");
   }
 
