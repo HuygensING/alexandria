@@ -42,6 +42,10 @@
     <maven-license.version>1.8</maven-license.version>
     <maven-shade.version>2.4.3</maven-shade.version>
     <wagon-ssh.version>2.7</wagon-ssh.version>
+    <alexandria-markup.version>1.1-SNAPSHOT</alexandria-markup.version>
+    <dropwizard-swagger.version>1.1.1-1</dropwizard-swagger.version>
+    <jaxb-api.version>2.3.0-b170201.1204</jaxb-api.version>
+    <activation.version>1.1.1</activation.version>
   </properties>
 
   <build>
