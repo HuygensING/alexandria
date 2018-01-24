@@ -32,6 +32,11 @@
             <outputDirectory>/bin</outputDirectory>
             <fileMode>0755</fileMode>
         </fileSet>
+        <fileSet>
+            <directory>${project.basedir}/src/assembly/example</directory>
+            <outputDirectory>/example</outputDirectory>
+            <fileMode>0644</fileMode>
+        </fileSet>
     </fileSets>
     <files>
         <file>
