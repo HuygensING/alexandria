@@ -1,27 +1,23 @@
-# alexandria-markup-server
+# alexandria command-line app
 
-processes lmnl
-
-## Alexandria command-line app
-
-# download
+## download
 
 An up-to-date version can be downloaded from [https://cdn.huygens.knaw.nl/alexandria/alexandria-app.zip]
 
 Alternatively, you can build it yourself:
 
-# build
+## build
 - `mvn package`
 
 The .zip in `alexandria-markup-lmnl-server/target` contains a `lib` dir with the fat jar,
  a `bin` dir with the alexandria scripts for linux and windows,
  and an `example` dir.
 
-# install from zip
+## install from zip
 
 Unpack the zip to a new directory of your choice, and add the `bin` directory to your `PATH`
 
-# usage: example
+## usage: example
 
 Go to the directory that you unpacked the zip into, and enter:
 
@@ -54,5 +50,3 @@ Go to the directory that you unpacked the zip into, and enter:
   This will export a view of document `d` using view definition `s`.
 
   The view will be exported to file `d-s.lmnl`
-
-
