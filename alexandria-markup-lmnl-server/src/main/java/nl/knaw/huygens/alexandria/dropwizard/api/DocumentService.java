@@ -20,40 +20,38 @@ package nl.knaw.huygens.alexandria.dropwizard.api;
  * #L%
  */
 
+import com.google.common.cache.Cache;
+import com.google.common.cache.CacheBuilder;
+import nl.knaw.huygens.alexandria.dropwizard.ServerConfiguration;
+import nl.knaw.huygens.alexandria.markup.api.DocumentInfo;
+import nl.knaw.huygens.alexandria.storage.TAGDocument;
+import nl.knaw.huygens.alexandria.storage.TAGStore;
+import nl.knaw.huygens.alexandria.storage.wrappers.DocumentWrapper;
 
 import java.time.Instant;
-import java.util.Collection;
-import java.util.LinkedHashSet;
-import java.util.Optional;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 
-import com.google.common.cache.Cache;
-import com.google.common.cache.CacheBuilder;
-
-import nl.knaw.huygens.alexandria.dropwizard.ServerConfiguration;
-import nl.knaw.huygens.alexandria.lmnl.data_model.Document;
-import nl.knaw.huygens.alexandria.markup.api.DocumentInfo;
-
 public class DocumentService {
 
-  Set<UUID> uuids = new LinkedHashSet<>();
+  final Set<UUID> uuids = new LinkedHashSet<>();
   private static String baseURI;
+  private final TAGStore store;
 
   public DocumentService(ServerConfiguration config) {
     baseURI = config.getBaseURI();
+    store = config.getStore();
   }
 
-  static Cache<UUID, Document> documentCache = CacheBuilder.newBuilder()//
+  static final Cache<UUID, TAGDocument> documentCache = CacheBuilder.newBuilder()//
       .maximumSize(100)//
       .build();
 
-  public Optional<Document> getDocument(UUID uuid) {
+  public Optional<DocumentWrapper> getDocument(UUID uuid) {
     if (uuids.contains(uuid)) {
       try {
-        Document document = documentCache.get(uuid, readDocument(uuid));
+        DocumentWrapper document = new DocumentWrapper(store, documentCache.get(uuid, readDocument(uuid)));
         return Optional.of(document);
       } catch (ExecutionException e) {
         e.printStackTrace();
@@ -62,12 +60,12 @@ public class DocumentService {
     return Optional.empty();
   }
 
-  private static Callable<? extends Document> readDocument(UUID uuid) {
+  private static Callable<? extends TAGDocument> readDocument(UUID uuid) {
     return () -> null;
   }
 
-  public void setDocument(UUID docId, Document document) {
-    documentCache.put(docId, document);
+  public void setDocument(UUID docId, DocumentWrapper document) {
+    documentCache.put(docId, document.getDocument());
 
     DocumentInfo docInfo = getDocumentInfo(docId)//
         .orElseGet(() -> newDocumentInfo(docId));
@@ -77,7 +75,7 @@ public class DocumentService {
     uuids.add(docId);
   }
 
-  static Cache<UUID, DocumentInfo> documentInfoCache = CacheBuilder.newBuilder()//
+  static final Cache<UUID, DocumentInfo> documentInfoCache = CacheBuilder.newBuilder()//
       .maximumSize(100)//
       .build();
 

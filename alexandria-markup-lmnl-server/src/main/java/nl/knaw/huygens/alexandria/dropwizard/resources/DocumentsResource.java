@@ -26,7 +26,6 @@ import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import nl.knaw.huygens.alexandria.dropwizard.ServerConfiguration;
 import nl.knaw.huygens.alexandria.dropwizard.api.DocumentService;
-import nl.knaw.huygens.alexandria.lmnl.data_model.Document;
 import nl.knaw.huygens.alexandria.lmnl.exporter.LMNLExporter;
 import nl.knaw.huygens.alexandria.lmnl.exporter.LaTeXExporter;
 import nl.knaw.huygens.alexandria.lmnl.importer.LMNLImporter;
@@ -36,6 +35,8 @@ import nl.knaw.huygens.alexandria.lmnl.query.TAGQLResult;
 import nl.knaw.huygens.alexandria.markup.api.DocumentInfo;
 import nl.knaw.huygens.alexandria.markup.api.ResourcePaths;
 import nl.knaw.huygens.alexandria.markup.api.UTF8MediaType;
+import nl.knaw.huygens.alexandria.storage.TAGStore;
+import nl.knaw.huygens.alexandria.storage.wrappers.DocumentWrapper;
 import nl.knaw.huygens.alexandria.texmecs.importer.TexMECSImporter;
 import nl.knaw.huygens.alexandria.texmecs.importer.TexMECSSyntaxError;
 
@@ -63,6 +64,7 @@ public class DocumentsResource {
   private final LMNLExporter lmnlExporter;
   private final ServerConfiguration configuration;
   private final TexMECSImporter texMECSImporter;
+  private final TAGStore store;
 
   public DocumentsResource(DocumentService documentService, LMNLImporter lmnlImporter, TexMECSImporter texMECSImporter, LMNLExporter lmnlExporter, ServerConfiguration configuration) {
     this.documentService = documentService;
@@ -70,6 +72,7 @@ public class DocumentsResource {
     this.texMECSImporter = texMECSImporter;
     this.lmnlExporter = lmnlExporter;
     this.configuration = configuration;
+    this.store = configuration.getStore();
   }
 
   @GET
@@ -169,7 +172,7 @@ public class DocumentsResource {
   @ApiOperation(value = "Get a LMNL representation of the document")
   public Response getLMNL(
       @ApiParam(APIPARAM_UUID) @PathParam("uuid") final UUID uuid) {
-    Document document = getExistingDocument(uuid);
+    DocumentWrapper document = getExistingDocument(uuid);
     String lmnl = lmnlExporter.toLMNL(document);
     return Response.ok(lmnl).build();
   }
@@ -181,8 +184,8 @@ public class DocumentsResource {
   @ApiOperation(value = "Get a LaTeX visualization of the main layer of a document as text nodes and markup nodes")
   public Response getLaTeXVisualization(
       @ApiParam(APIPARAM_UUID) @PathParam("uuid") final UUID uuid) {
-    Document document = getExistingDocument(uuid);
-    LaTeXExporter latexExporter = new LaTeXExporter(document);
+    DocumentWrapper document = getExistingDocument(uuid);
+    LaTeXExporter latexExporter = new LaTeXExporter(store, document);
     String latex = latexExporter.exportDocument();
     return Response.ok(latex).build();
   }
@@ -194,8 +197,8 @@ public class DocumentsResource {
   @ApiOperation(value = "Get a LaTeX visualization of the main text nodes of a document, color-coded for the number of different markup nodes per text node")
   public Response getRangeOverlapVisualization(
       @ApiParam(APIPARAM_UUID) @PathParam("uuid") final UUID uuid) {
-    Document document = getExistingDocument(uuid);
-    LaTeXExporter latexExporter = new LaTeXExporter(document);
+    DocumentWrapper document = getExistingDocument(uuid);
+    LaTeXExporter latexExporter = new LaTeXExporter(store, document);
     String latex = latexExporter.exportMarkupOverlap();
     return Response.ok(latex).build();
   }
@@ -207,8 +210,8 @@ public class DocumentsResource {
   @ApiOperation(value = "Get a LaTeX visualization of the optimized text node / markup matrix of a document")
   public Response getMatrixVisualization(
       @ApiParam(APIPARAM_UUID) @PathParam("uuid") final UUID uuid) {
-    Document document = getExistingDocument(uuid);
-    LaTeXExporter latexExporter = new LaTeXExporter(document);
+    DocumentWrapper document = getExistingDocument(uuid);
+    LaTeXExporter latexExporter = new LaTeXExporter(store, document);
     String latex = latexExporter.exportMatrix();
     return Response.ok(latex).build();
   }
@@ -220,8 +223,8 @@ public class DocumentsResource {
   @ApiOperation(value = "Get a LaTeX visualization of the kd-tree of a document")
   public Response getKdTreeVisualization(
       @ApiParam(APIPARAM_UUID) @PathParam("uuid") final UUID uuid) {
-    Document document = getExistingDocument(uuid);
-    LaTeXExporter latexExporter = new LaTeXExporter(document);
+    DocumentWrapper document = getExistingDocument(uuid);
+    LaTeXExporter latexExporter = new LaTeXExporter(store, document);
     String latex = latexExporter.exportKdTree();
     return Response.ok(latex).build();
   }
@@ -234,8 +237,8 @@ public class DocumentsResource {
   public Response postTAGQLQuery(
       @ApiParam(APIPARAM_UUID) @PathParam("uuid") final UUID uuid,//
       @ApiParam("TAGQL query") String tagqlQuery) {
-    Document document = getExistingDocument(uuid);
-    TAGQLQueryHandler h = new TAGQLQueryHandler(document);
+    DocumentWrapper document = getExistingDocument(uuid);
+    TAGQLQueryHandler h = new TAGQLQueryHandler(null);
     TAGQLResult result = h.execute(tagqlQuery);
     return Response.ok(result).build();
   }
@@ -245,16 +248,16 @@ public class DocumentsResource {
   }
 
   private void processAndStoreLMNL(String lmnl, UUID documentId) throws LMNLSyntaxError {
-    Document document = lmnlImporter.importLMNL(lmnl);
+    DocumentWrapper document = lmnlImporter.importLMNL(lmnl);
     documentService.setDocument(documentId, document);
   }
 
   private void processAndStoreTexMECS(String texMECS, UUID documentId) throws TexMECSSyntaxError {
-    Document document = texMECSImporter.importTexMECS(texMECS);
+    DocumentWrapper document = texMECSImporter.importTexMECS(texMECS);
     documentService.setDocument(documentId, document);
   }
 
-  private Document getExistingDocument(final UUID uuid) {
+  private DocumentWrapper getExistingDocument(final UUID uuid) {
     return documentService.getDocument(uuid)//
         .orElseThrow(NotFoundException::new);
   }

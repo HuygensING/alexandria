@@ -17,3 +17,5 @@ hs_err_pid*
 .settings
 *.iml
 .idea
+/.metadata/
+/RemoteSystemsTempFiles/.project

@@ -1,4 +1,4 @@
-package nl.knaw.huygens.alexandria.dropwizard.health;
+package nl.knaw.huygens.alexandria.dropwizard.cli;
 
 /*
  * #%L
@@ -20,12 +20,22 @@ package nl.knaw.huygens.alexandria.dropwizard.health;
  * #L%
  */
 
-import com.codahale.metrics.health.HealthCheck;
+import io.dropwizard.setup.Bootstrap;
+import net.sourceforge.argparse4j.inf.Namespace;
+import net.sourceforge.argparse4j.inf.Subparser;
 
-public class ServerHealthCheck extends HealthCheck{
+public class HelpCommand extends AlexandriaCommand {
+  public HelpCommand() {
+    super("help", "Show helpful information about the available commands");
+  }
 
   @Override
-  protected Result check() {
-    return Result.healthy();
+  public void configure(Subparser subparser) {
+
+  }
+
+  @Override
+  public void run(Bootstrap<?> bootstrap, Namespace namespace) {
+    System.out.println("TODO");
   }
 }

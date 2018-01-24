@@ -23,11 +23,14 @@ package nl.knaw.huygens.alexandria.dropwizard;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import io.dropwizard.Configuration;
 import io.federecio.dropwizard.swagger.SwaggerBundleConfiguration;
+import nl.knaw.huygens.alexandria.storage.TAGStore;
 import org.hibernate.validator.constraints.NotEmpty;
 
 public class ServerConfiguration extends Configuration {
   @NotEmpty
   private String baseURI;
+  private TAGStore store;
+  private String dbDir;
 
   public void setBaseURI(String baseURI) {
     this.baseURI = baseURI.replaceFirst("/$", "");
@@ -39,4 +42,21 @@ public class ServerConfiguration extends Configuration {
 
   @JsonProperty("swagger")
   public SwaggerBundleConfiguration swaggerBundleConfiguration;
+
+  public TAGStore getStore() {
+    return store;
+  }
+
+  public void setStore(TAGStore store) {
+    this.store = store;
+  }
+
+  public void setDbDir(String dbDir) {
+    this.dbDir = dbDir;
+  }
+
+  public String getDbDir() {
+    return dbDir;
+  }
+
 }

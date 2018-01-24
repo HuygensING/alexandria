@@ -18,7 +18,7 @@
     <dependency>
       <groupId>${project.groupId}</groupId>
       <artifactId>alexandria-markup</artifactId>
-      <version>1.0-SNAPSHOT</version>
+      <version>${alexandria-markup.version}</version>
     </dependency>
 
     <dependency>
@@ -29,7 +29,7 @@
     <dependency>
       <groupId>com.smoketurner</groupId>
       <artifactId>dropwizard-swagger</artifactId>
-      <version>1.1.1-1</version>
+      <version>${dropwizard-swagger.version}</version>
     </dependency>
 
     <dependency>
@@ -56,12 +56,12 @@
     <dependency>
       <groupId>javax.xml.bind</groupId>
       <artifactId>jaxb-api</artifactId>
-      <version>2.3.0-b170201.1204</version>
+      <version>${jaxb-api.version}</version>
     </dependency>
     <dependency>
       <groupId>javax.activation</groupId>
       <artifactId>activation</artifactId>
-      <version>1.1.1</version>
+      <version>${activation.version}</version>
     </dependency>
   </dependencies>
 
@@ -104,6 +104,55 @@
         </executions>
       </plugin>
 
+      <plugin>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>appassembler-maven-plugin</artifactId>
+        <version>${appassembler-maven-plugin.version}</version>
+        <configuration>
+          <platforms>
+            <platform>windows</platform>
+            <platform>unix</platform>
+          </platforms>
+          <programs>
+            <program>
+              <mainClass>nl.knaw.huygens.alexandria.dropwizard.ServerApplication</mainClass>
+              <id>alexandria</id>
+            </program>
+          </programs>
+        </configuration>
+      </plugin>
+
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-assembly-plugin</artifactId>
+        <version>${maven-assembly-plugin.version}</version>
+        <executions>
+          <execution>
+            <id>create-fat-jar</id>
+            <phase>package</phase>
+            <goals>
+              <goal>single</goal>
+            </goals>
+            <configuration>
+              <descriptorRefs>
+                <descriptorRef>jar-with-dependencies</descriptorRef>
+              </descriptorRefs>
+            </configuration>
+          </execution>
+          <execution>
+            <id>assemble-all</id>
+            <phase>package</phase>
+            <goals>
+              <goal>single</goal>
+            </goals>
+            <configuration>
+              <descriptors>
+                <descriptor>src/assembly/assembly.xml</descriptor>
+              </descriptors>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
     </plugins>
   </build>
 

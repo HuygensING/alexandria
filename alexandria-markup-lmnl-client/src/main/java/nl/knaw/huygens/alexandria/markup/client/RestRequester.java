@@ -35,7 +35,7 @@ import javax.ws.rs.core.Response.Status;
 public class RestRequester<T> {
   private int retries = 5;
   private Supplier<Response> responseSupplier;
-  Map<Status, Function<Response, RestResult<T>>> statusMappers = new HashMap<>();
+  final Map<Status, Function<Response, RestResult<T>>> statusMappers = new HashMap<>();
   private Function<Response, RestResult<T>> defaultMapper = RestResult::failingResult;
 
   public static <T> RestRequester<T> withResponseSupplier(Supplier<Response> responseSupplier) {
