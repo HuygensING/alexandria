@@ -46,6 +46,8 @@
     <dropwizard-swagger.version>1.1.1-1</dropwizard-swagger.version>
     <jaxb-api.version>2.3.0-b170201.1204</jaxb-api.version>
     <activation.version>1.1.1</activation.version>
+    <maven-assembly-plugin.version>3.1.0</maven-assembly-plugin.version>
+    <appassembler-maven-plugin.version>1.10</appassembler-maven-plugin.version>
   </properties>
 
   <build>
