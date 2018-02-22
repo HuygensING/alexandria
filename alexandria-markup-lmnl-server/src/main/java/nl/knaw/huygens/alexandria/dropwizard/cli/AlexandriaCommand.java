@@ -55,15 +55,15 @@ public abstract class AlexandriaCommand extends Command {
   }
 
   final File viewsFile = new File(PROJECT_DIR, "views.json");
-  final File docmentIndexFile = new File(PROJECT_DIR, "document_index.json");
+  final File documentIndexFile = new File(PROJECT_DIR, "document_index.json");
+  final File contextFile = new File(PROJECT_DIR, "context.json");
 
   Map<String, TAGView> readViewMap() {
     TAGViewFactory viewFactory = new TAGViewFactory(store);
     try {
-      ObjectMapper objectMapper = new ObjectMapper();
       TypeReference<HashMap<String, TAGViewDefinition>> typeReference = new TypeReference<HashMap<String, TAGViewDefinition>>() {
       };
-      Map<String, TAGViewDefinition> stringTAGViewMap = objectMapper.readValue(viewsFile, typeReference);
+      Map<String, TAGViewDefinition> stringTAGViewMap = new ObjectMapper().readValue(viewsFile, typeReference);
       return stringTAGViewMap.entrySet()//
           .stream()//
           .collect(toMap(//
@@ -82,9 +82,8 @@ public abstract class AlexandriaCommand extends Command {
             Map.Entry::getKey,//
             e -> e.getValue().getDefinition()//
         ));
-    ObjectMapper objectMapper = new ObjectMapper();
     try {
-      objectMapper.writeValue(viewsFile, viewDefinitionMap);
+      new ObjectMapper().writeValue(viewsFile, viewDefinitionMap);
     } catch (IOException e) {
       throw new RuntimeException(e);
     }
@@ -92,10 +91,9 @@ public abstract class AlexandriaCommand extends Command {
 
   Map<String, Long> readDocumentIndex() {
     try {
-      ObjectMapper objectMapper = new ObjectMapper();
       TypeReference<HashMap<String, Long>> typeReference = new TypeReference<HashMap<String, Long>>() {
       };
-      Map<String, Long> documentIndex = objectMapper.readValue(docmentIndexFile, typeReference);
+      Map<String, Long> documentIndex = new ObjectMapper().readValue(documentIndexFile, typeReference);
       return documentIndex;
     } catch (IOException e) {
       throw new RuntimeException(e);
@@ -104,10 +102,28 @@ public abstract class AlexandriaCommand extends Command {
 
   void storeDocumentIndex(Map<String, Long> documentIndex) {
     try {
-      ObjectMapper objectMapper = new ObjectMapper();
-      objectMapper.writeValue(docmentIndexFile, documentIndex);
+      new ObjectMapper().writeValue(documentIndexFile, documentIndex);
     } catch (IOException e) {
       throw new RuntimeException(e);
     }
   }
+
+  CLIContext readContext() {
+    try {
+      CLIContext context = new ObjectMapper().readValue(contextFile, CLIContext.class);
+      return context;
+    } catch (IOException e) {
+      throw new RuntimeException(e);
+    }
+  }
+
+  void storeContext(CLIContext context) {
+    try {
+      new ObjectMapper().writeValue(contextFile, context);
+    } catch (IOException e) {
+      throw new RuntimeException(e);
+    }
+  }
+
+
 }

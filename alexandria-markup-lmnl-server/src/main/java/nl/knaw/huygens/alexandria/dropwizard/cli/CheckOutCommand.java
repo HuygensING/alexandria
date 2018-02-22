@@ -82,6 +82,10 @@ public class CheckOutCommand extends AlexandriaCommand {
       String lmnl = lmnlExporter.toLMNL(documentWrapper);
       try {
         FileUtils.writeStringToFile(new File(outFilename), lmnl, Charsets.UTF_8);
+        CLIContext context = readContext()//
+            .setDocumentName(outFilename, docName)//
+            .setViewName(outFilename, viewName);
+        storeContext(context);
       } catch (IOException e) {
         e.printStackTrace();
         throw new RuntimeException(e);
@@ -91,5 +95,6 @@ public class CheckOutCommand extends AlexandriaCommand {
 
     System.out.println("done!");
   }
+
 }
 
