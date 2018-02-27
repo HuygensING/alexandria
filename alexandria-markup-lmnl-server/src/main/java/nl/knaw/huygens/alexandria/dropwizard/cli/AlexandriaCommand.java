@@ -23,7 +23,6 @@ package nl.knaw.huygens.alexandria.dropwizard.cli;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.dropwizard.cli.Command;
-import static java.util.stream.Collectors.toMap;
 import nl.knaw.huygens.alexandria.storage.TAGStore;
 import nl.knaw.huygens.alexandria.view.TAGView;
 import nl.knaw.huygens.alexandria.view.TAGViewDefinition;
@@ -35,6 +34,8 @@ import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
+
+import static java.util.stream.Collectors.toMap;
 
 public abstract class AlexandriaCommand extends Command {
   private static final Logger LOG = LoggerFactory.getLogger(AlexandriaCommand.class);
@@ -54,9 +55,9 @@ public abstract class AlexandriaCommand extends Command {
     dir.mkdir();
   }
 
-  final File viewsFile = new File(PROJECT_DIR, "views.json");
-  final File documentIndexFile = new File(PROJECT_DIR, "document_index.json");
-  final File contextFile = new File(PROJECT_DIR, "context.json");
+  private final File viewsFile = new File(PROJECT_DIR, "views.json");
+  private final File documentIndexFile = new File(PROJECT_DIR, "document_index.json");
+  private final File contextFile = new File(PROJECT_DIR, "context.json");
 
   Map<String, TAGView> readViewMap() {
     TAGViewFactory viewFactory = new TAGViewFactory(store);
@@ -110,8 +111,7 @@ public abstract class AlexandriaCommand extends Command {
 
   CLIContext readContext() {
     try {
-      CLIContext context = new ObjectMapper().readValue(contextFile, CLIContext.class);
-      return context;
+      return new ObjectMapper().readValue(contextFile, CLIContext.class);
     } catch (IOException e) {
       throw new RuntimeException(e);
     }
@@ -125,5 +125,14 @@ public abstract class AlexandriaCommand extends Command {
     }
   }
 
+  void checkDirectoryIsInitialized() {
+    if (!viewsFile.exists()) {
+      System.out.println("This directory has not been initialized, run ");
+      System.out.println("  alexandria init");
+      System.out.println("first.");
+      System.exit(-1);
+    }
+
+  }
 
 }

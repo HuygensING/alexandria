@@ -22,7 +22,6 @@ package nl.knaw.huygens.alexandria.dropwizard.cli;
 
 import com.google.common.base.Charsets;
 import io.dropwizard.setup.Bootstrap;
-import static java.util.stream.Collectors.joining;
 import net.sourceforge.argparse4j.inf.Namespace;
 import net.sourceforge.argparse4j.inf.Subparser;
 import nl.knaw.huygens.alexandria.compare.TAGComparison;
@@ -33,6 +32,8 @@ import org.apache.commons.io.FileUtils;
 
 import java.io.File;
 import java.io.IOException;
+
+import static java.util.stream.Collectors.joining;
 
 public class DiffCommand extends AlexandriaCommand {
 
@@ -51,6 +52,7 @@ public class DiffCommand extends AlexandriaCommand {
 
   @Override
   public void run(Bootstrap<?> bootstrap, Namespace namespace) throws IOException {
+    checkDirectoryIsInitialized();
     store.runInTransaction(() -> {
       CLIContext context = readContext();
 
@@ -70,7 +72,7 @@ public class DiffCommand extends AlexandriaCommand {
 
         TAGComparison comparison = new TAGComparison(original, tagView, edited);
 
-        System.out.printf("diff for document %s, using view %s%n", documentName, viewId);
+        System.out.printf("diff for document %s, using view %s:%n", documentName, viewId);
         if (comparison.hasDifferences()) {
           System.out.printf("%s%n", comparison.getDiffLines().stream().collect(joining("\n")));
         } else {

@@ -1,8 +1,8 @@
-package nl.knaw.huygens.alexandria.markup.api;
+package nl.knaw.huygens.alexandria.dropwizard.cli;
 
-/*
+/*-
  * #%L
- * alexandria-markup-lmnl-api
+ * alexandria-markup-lmnl-server
  * =======
  * Copyright (C) 2015 - 2018 Huygens ING (KNAW)
  * =======
@@ -19,15 +19,23 @@ package nl.knaw.huygens.alexandria.markup.api;
  * limitations under the License.
  * #L%
  */
+class FileInfo {
+  private String documentName;
+  private String viewName;
 
-public class ResourcePaths {
-  public static final String ABOUT = "about";
+  public void setDocumentName(String documentName) {
+    this.documentName = documentName;
+  }
 
-  public static final String DOCUMENTS = "documents";
-  public static final String DOCUMENTS_LMNL = "lmnl";
-  public static final String DOCUMENTS_LATEX = "latex";
-  public static final String DOCUMENTS_MARKUPDEPTH = "markupdepth";
-  public static final String DOCUMENTS_MATRIX = "matrix";
-  public static final String DOCUMENTS_KDTREE = "kdtree";
-  public static final String DOCUMENTS_QUERY = "query";
+  public String getDocumentName() {
+    return documentName;
+  }
+
+  public void setViewName(String viewName) {
+    this.viewName = viewName;
+  }
+
+  public String getViewName() {
+    return viewName;
+  }
 }

@@ -59,12 +59,13 @@ public class CheckOutCommand extends AlexandriaCommand {
 
   @Override
   public void run(Bootstrap<?> bootstrap, Namespace namespace) {
+    checkDirectoryIsInitialized();
     Map<String, Long> documentIndex = readDocumentIndex();
     Map<String, TAGView> viewMap = readViewMap();
 
     String viewName = namespace.getString(VIEW);
     String docName = namespace.getString(DOCUMENT);
-    String outFilename = docName + "-" + viewName + ".lmnl";
+    String outFilename = String.format("%s-%s.lmnl", docName, viewName);
 
     System.out.printf("Exporting document %s using view %s to %s...%n", docName, viewName, outFilename);
     Long docId = documentIndex.get(docName);
@@ -79,7 +80,7 @@ public class CheckOutCommand extends AlexandriaCommand {
 
       System.out.printf("Exporting document view to %s%n", outFilename);
       LMNLExporter lmnlExporter = new LMNLExporter(store, tagView);
-      String lmnl = lmnlExporter.toLMNL(documentWrapper);
+      String lmnl = lmnlExporter.toLMNL(documentWrapper).trim();
       try {
         FileUtils.writeStringToFile(new File(outFilename), lmnl, Charsets.UTF_8);
         CLIContext context = readContext()//

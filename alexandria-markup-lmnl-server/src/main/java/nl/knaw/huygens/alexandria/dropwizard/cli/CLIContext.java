@@ -20,50 +20,37 @@ package nl.knaw.huygens.alexandria.dropwizard.cli;
  * #L%
  */
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import java.util.HashMap;
 import java.util.Map;
 
 public class CLIContext {
 
-  static class FileInfo {
-    String documentName;
-    String viewName;
-
-    void setDocumentName(String documentName) {
-      this.documentName = documentName;
-    }
-
-    String getDocumentName() {
-      return documentName;
-    }
-
-    void setViewName(String viewName) {
-      this.viewName = viewName;
-    }
-
-    String getViewName() {
-      return viewName;
-    }
-  }
-
+  @JsonProperty("fileContextMap")
   private Map<String, FileInfo> fileContextMap = new HashMap<>();
 
+  @JsonIgnore
   public CLIContext setDocumentName(String filename, String docName) {
     fileContextMap.putIfAbsent(filename, new FileInfo());
     fileContextMap.get(filename).setDocumentName(docName);
     return this;
   }
 
+  @JsonIgnore
   public String getDocumentName(String filename) {
     return fileContextMap.get(filename).getDocumentName();
   }
 
+  @JsonIgnore
   public CLIContext setViewName(String filename, String viewName) {
     fileContextMap.putIfAbsent(filename, new FileInfo());
     fileContextMap.get(filename).setViewName(viewName);
     return this;
   }
 
+  @JsonIgnore
   public String getViewName(String filename) {
     return fileContextMap.get(filename).getViewName();
   }

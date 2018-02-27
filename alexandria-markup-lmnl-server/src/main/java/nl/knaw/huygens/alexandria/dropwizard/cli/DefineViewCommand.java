@@ -54,6 +54,7 @@ public class DefineViewCommand extends AlexandriaCommand {
 
   @Override
   public void run(Bootstrap<?> bootstrap, Namespace namespace) throws Exception {
+    checkDirectoryIsInitialized();
     System.out.println("Parsing " + namespace.getString(FILE) + " to view " + namespace.getString(NAME) + "...");
     Map<String, TAGView> viewMap = readViewMap();
     String filename = namespace.getString(FILE);

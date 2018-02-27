@@ -60,6 +60,7 @@ public class RegisterDocumentCommand extends AlexandriaCommand {
 
   @Override
   public void run(Bootstrap<?> bootstrap, Namespace namespace) {
+    checkDirectoryIsInitialized();
     Map<String, Long> documentIndex = readDocumentIndex();
     String filename = namespace.getString(FILE);
     String docName = namespace.getString(NAME);
