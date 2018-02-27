@@ -75,6 +75,7 @@ public class ServerApplication extends Application<ServerConfiguration> {
     bootstrap.addCommand(new DefineViewCommand());
     bootstrap.addCommand(new CheckOutCommand());
     bootstrap.addCommand(new CheckInCommand());
+    bootstrap.addCommand(new DiffCommand());
   }
 
   @Override

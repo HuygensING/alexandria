@@ -46,8 +46,11 @@ public class InitCommand extends AlexandriaCommand {
     Map<String, TAGView> viewMap = new HashMap<>();
     storeViewMap(viewMap);
 
-    Map<String, Long> documentIndex= new HashMap<>();
+    Map<String, Long> documentIndex = new HashMap<>();
     storeDocumentIndex(documentIndex);
+
+    CLIContext context = new CLIContext();
+    storeContext(context);
 
     System.out.println("done!");
   }
