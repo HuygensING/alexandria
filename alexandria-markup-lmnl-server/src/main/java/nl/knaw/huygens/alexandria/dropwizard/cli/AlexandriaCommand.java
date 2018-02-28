@@ -35,6 +35,7 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
+import static java.lang.System.exit;
 import static java.util.stream.Collectors.toMap;
 
 public abstract class AlexandriaCommand extends Command {
@@ -72,7 +73,8 @@ public abstract class AlexandriaCommand extends Command {
               e -> viewFactory.fromDefinition(e.getValue())//
           ));
     } catch (IOException e) {
-      throw new RuntimeException(e);
+      handleException(e);
+      return null;
     }
   }
 
@@ -86,7 +88,7 @@ public abstract class AlexandriaCommand extends Command {
     try {
       new ObjectMapper().writeValue(viewsFile, viewDefinitionMap);
     } catch (IOException e) {
-      throw new RuntimeException(e);
+      handleException(e);
     }
   }
 
@@ -94,10 +96,10 @@ public abstract class AlexandriaCommand extends Command {
     try {
       TypeReference<HashMap<String, Long>> typeReference = new TypeReference<HashMap<String, Long>>() {
       };
-      Map<String, Long> documentIndex = new ObjectMapper().readValue(documentIndexFile, typeReference);
-      return documentIndex;
+      return new ObjectMapper().readValue(documentIndexFile, typeReference);
     } catch (IOException e) {
-      throw new RuntimeException(e);
+      handleException(e);
+      return null;
     }
   }
 
@@ -105,7 +107,7 @@ public abstract class AlexandriaCommand extends Command {
     try {
       new ObjectMapper().writeValue(documentIndexFile, documentIndex);
     } catch (IOException e) {
-      throw new RuntimeException(e);
+      handleException(e);
     }
   }
 
@@ -113,26 +115,37 @@ public abstract class AlexandriaCommand extends Command {
     try {
       return new ObjectMapper().readValue(contextFile, CLIContext.class);
     } catch (IOException e) {
-      throw new RuntimeException(e);
+      return handleException(e);
     }
+  }
+
+  CLIContext handleException(final IOException e) throws RuntimeException {
+    System.err.println(e.getMessage());
+    throw new RuntimeException(e);
   }
 
   void storeContext(CLIContext context) {
     try {
       new ObjectMapper().writeValue(contextFile, context);
     } catch (IOException e) {
-      throw new RuntimeException(e);
+      handleException(e);
     }
   }
 
   void checkDirectoryIsInitialized() {
     if (!viewsFile.exists()) {
-      System.out.println("This directory has not been initialized, run ");
-      System.out.println("  alexandria init");
-      System.out.println("first.");
-      System.exit(-1);
+      System.err.println("This directory has not been initialized, run ");
+      System.err.println("  alexandria init");
+      System.err.println("first.");
+      exit(-1);
     }
+  }
 
+  void checkFileExists(final String filename) {
+    if (!new File(filename).exists()) {
+      System.err.printf("file not found: %s%n", filename);
+      exit(-1);
+    }
   }
 
 }

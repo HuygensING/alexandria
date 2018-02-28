@@ -51,12 +51,13 @@ public class DiffCommand extends AlexandriaCommand {
   }
 
   @Override
-  public void run(Bootstrap<?> bootstrap, Namespace namespace) throws IOException {
+  public void run(Bootstrap<?> bootstrap, Namespace namespace) {
     checkDirectoryIsInitialized();
     store.runInTransaction(() -> {
       CLIContext context = readContext();
 
       String filename = namespace.getString(FILE);
+      checkFileExists(filename);
       String documentName = context.getDocumentName(filename);
       Long documentId = readDocumentIndex().get(documentName);
       DocumentWrapper original = store.getDocumentWrapper(documentId);
@@ -80,8 +81,7 @@ public class DiffCommand extends AlexandriaCommand {
         }
 
       } catch (IOException e) {
-        e.printStackTrace();
-        throw new RuntimeException(e);
+        handleException(e);
       }
     });
 

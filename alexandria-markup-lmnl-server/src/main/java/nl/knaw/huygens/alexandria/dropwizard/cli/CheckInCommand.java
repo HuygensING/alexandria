@@ -20,15 +20,29 @@ package nl.knaw.huygens.alexandria.dropwizard.cli;
  * #L%
  */
 
+import com.google.common.base.Charsets;
 import io.dropwizard.setup.Bootstrap;
 import net.sourceforge.argparse4j.inf.Namespace;
 import net.sourceforge.argparse4j.inf.Subparser;
+import nl.knaw.huygens.alexandria.compare.Segment;
+import nl.knaw.huygens.alexandria.compare.TAGComparison;
+import nl.knaw.huygens.alexandria.lmnl.importer.LMNLImporter;
+import nl.knaw.huygens.alexandria.storage.wrappers.DocumentWrapper;
+import nl.knaw.huygens.alexandria.storage.wrappers.TextNodeWrapper;
 import nl.knaw.huygens.alexandria.view.TAGView;
+import org.apache.commons.io.FileUtils;
+
+import java.io.File;
+import java.io.IOException;
+
+import static nl.knaw.huygens.alexandria.compare.Segment.Type.aligned;
 
 public class CheckInCommand extends AlexandriaCommand {
-
+  // TODO: committing changes invalidates any current views on the document.
+  // we need a last-modified for documents and a created for views
+  // if view.created < document.last-modified then commit rejected.
   public CheckInCommand() {
-    super("checkin", "Merge the changes in the view into the TAG");
+    super("commit", "Merge the changes in the view into the TAG");
   }
 
   @Override
@@ -42,7 +56,36 @@ public class CheckInCommand extends AlexandriaCommand {
 
   @Override
   public void run(Bootstrap<?> bootstrap, Namespace namespace) {
-    System.out.println("Merging changes from " + namespace.getString(FILE) + "...");
-    System.out.println("TODO");
+    checkDirectoryIsInitialized();
+    CLIContext context = readContext();
+    String filename = namespace.getString(FILE);
+    System.out.println("Merging changes from " + filename + "...");
+    checkFileExists(filename);
+    store.runInTransaction(() -> {
+      String documentName = context.getDocumentName(filename);
+      Long documentId = readDocumentIndex().get(documentName);
+      DocumentWrapper original = store.getDocumentWrapper(documentId);
+
+      String viewId = context.getViewName(filename);
+      TAGView tagView = readViewMap().get(viewId);
+
+      File editedFile = new File(filename);
+      try {
+        String newLMNL = FileUtils.readFileToString(editedFile, Charsets.UTF_8);
+        LMNLImporter importer = new LMNLImporter(store);
+        DocumentWrapper edited = importer.importLMNL(newLMNL);
+
+        TAGComparison comparison = new TAGComparison(original, tagView, edited);
+        if (comparison.hasDifferences()) {
+          comparison.mergeChanges();
+        } else {
+          System.out.println("no changes");
+        }
+
+      } catch (IOException e) {
+        handleException(e);
+      }
+    });
   }
+
 }
