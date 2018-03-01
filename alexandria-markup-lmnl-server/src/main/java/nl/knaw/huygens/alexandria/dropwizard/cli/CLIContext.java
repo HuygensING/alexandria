@@ -26,6 +26,8 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.HashMap;
 import java.util.Map;
 
+import static java.lang.String.format;
+
 public class CLIContext {
 
   @JsonProperty("fileContextMap")
@@ -40,7 +42,11 @@ public class CLIContext {
 
   @JsonIgnore
   public String getDocumentName(String filename) {
-    return fileContextMap.get(filename).getDocumentName();
+    FileInfo fileInfo = fileContextMap.get(filename);
+    if (fileInfo == null) {
+      throw new AlexandriaCommandException(format("file %s is not registered.", filename));
+    }
+    return fileInfo.getDocumentName();
   }
 
   @JsonIgnore

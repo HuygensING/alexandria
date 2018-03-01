@@ -22,7 +22,9 @@ package nl.knaw.huygens.alexandria.dropwizard.cli;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import io.dropwizard.cli.Cli;
 import io.dropwizard.cli.Command;
+import net.sourceforge.argparse4j.inf.Namespace;
 import nl.knaw.huygens.alexandria.storage.TAGStore;
 import nl.knaw.huygens.alexandria.view.TAGView;
 import nl.knaw.huygens.alexandria.view.TAGViewDefinition;
@@ -35,7 +37,7 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
-import static java.lang.System.exit;
+import static java.lang.String.format;
 import static java.util.stream.Collectors.toMap;
 
 public abstract class AlexandriaCommand extends Command {
@@ -51,6 +53,17 @@ public abstract class AlexandriaCommand extends Command {
     store = new TAGStore(PROJECT_DIR, false);
   }
 
+  @Override
+  public void onError(final Cli cli, final Namespace namespace, final Throwable e) {
+    if ((e instanceof AlexandriaCommandException)) {
+      cli.getStdErr().println(format("error: %s", e.getMessage()));
+    } else {
+      // unexpected error
+      super.onError(cli, namespace, e);
+    }
+    System.exit(-1);
+  }
+
   private void initProjectDir() {
     File dir = new File(PROJECT_DIR);
     dir.mkdir();
@@ -61,6 +74,9 @@ public abstract class AlexandriaCommand extends Command {
   private final File contextFile = new File(PROJECT_DIR, "context.json");
 
   Map<String, TAGView> readViewMap() {
+    if (!viewsFile.exists()) {
+      return new HashMap<>();
+    }
     TAGViewFactory viewFactory = new TAGViewFactory(store);
     try {
       TypeReference<HashMap<String, TAGViewDefinition>> typeReference = new TypeReference<HashMap<String, TAGViewDefinition>>() {
@@ -93,6 +109,9 @@ public abstract class AlexandriaCommand extends Command {
   }
 
   Map<String, Long> readDocumentIndex() {
+    if (!documentIndexFile.exists()) {
+      return new HashMap<>();
+    }
     try {
       TypeReference<HashMap<String, Long>> typeReference = new TypeReference<HashMap<String, Long>>() {
       };
@@ -112,6 +131,10 @@ public abstract class AlexandriaCommand extends Command {
   }
 
   CLIContext readContext() {
+    if (!contextFile.exists()) {
+      return new CLIContext();
+    }
+
     try {
       return new ObjectMapper().readValue(contextFile, CLIContext.class);
     } catch (IOException e) {
@@ -134,17 +157,14 @@ public abstract class AlexandriaCommand extends Command {
 
   void checkDirectoryIsInitialized() {
     if (!viewsFile.exists()) {
-      System.err.println("This directory has not been initialized, run ");
-      System.err.println("  alexandria init");
-      System.err.println("first.");
-      exit(-1);
+      final String message = "This directory has not been initialized, run\n  alexandria init\nfirst.";
+      throw new AlexandriaCommandException(message);
     }
   }
 
   void checkFileExists(final String filename) {
     if (!new File(filename).exists()) {
-      System.err.printf("file not found: %s%n", filename);
-      exit(-1);
+      throw new AlexandriaCommandException("file not found: " + filename);
     }
   }
 

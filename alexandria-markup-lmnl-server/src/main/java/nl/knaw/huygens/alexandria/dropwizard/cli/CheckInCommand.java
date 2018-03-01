@@ -24,20 +24,16 @@ import com.google.common.base.Charsets;
 import io.dropwizard.setup.Bootstrap;
 import net.sourceforge.argparse4j.inf.Namespace;
 import net.sourceforge.argparse4j.inf.Subparser;
-import nl.knaw.huygens.alexandria.compare.Segment;
 import nl.knaw.huygens.alexandria.compare.TAGComparison;
 import nl.knaw.huygens.alexandria.lmnl.importer.LMNLImporter;
 import nl.knaw.huygens.alexandria.storage.wrappers.DocumentWrapper;
-import nl.knaw.huygens.alexandria.storage.wrappers.TextNodeWrapper;
 import nl.knaw.huygens.alexandria.view.TAGView;
 import org.apache.commons.io.FileUtils;
 
 import java.io.File;
 import java.io.IOException;
 
-import static nl.knaw.huygens.alexandria.compare.Segment.Type.aligned;
-
-public class CheckInCommand extends AlexandriaCommand {
+public class CheckInCommand extends AbstractCompareCommand {
   // TODO: committing changes invalidates any current views on the document.
   // we need a last-modified for documents and a created for views
   // if view.created < document.last-modified then commit rejected.
@@ -58,24 +54,17 @@ public class CheckInCommand extends AlexandriaCommand {
   public void run(Bootstrap<?> bootstrap, Namespace namespace) {
     checkDirectoryIsInitialized();
     CLIContext context = readContext();
-    String filename = namespace.getString(FILE);
-    System.out.println("Merging changes from " + filename + "...");
-    checkFileExists(filename);
+    String editedFileName = namespace.getString(FILE);
+    System.out.println("Merging changes from " + editedFileName + "...");
+    checkFileExists(editedFileName);
     store.runInTransaction(() -> {
-      String documentName = context.getDocumentName(filename);
-      Long documentId = readDocumentIndex().get(documentName);
-      DocumentWrapper original = store.getDocumentWrapper(documentId);
-
-      String viewId = context.getViewName(filename);
+      String documentName = getDocumentName(editedFileName, context);
+      DocumentWrapper original = getDocumentWrapper(documentName);
+      String viewId = context.getViewName(editedFileName);
       TAGView tagView = readViewMap().get(viewId);
 
-      File editedFile = new File(filename);
       try {
-        String newLMNL = FileUtils.readFileToString(editedFile, Charsets.UTF_8);
-        LMNLImporter importer = new LMNLImporter(store);
-        DocumentWrapper edited = importer.importLMNL(newLMNL);
-
-        TAGComparison comparison = new TAGComparison(original, tagView, edited);
+        TAGComparison comparison = getTAGComparison(original, tagView, editedFileName);
         if (comparison.hasDifferences()) {
           comparison.mergeChanges();
         } else {

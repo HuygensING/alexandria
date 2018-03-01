@@ -35,7 +35,7 @@ import java.io.IOException;
 
 import static java.util.stream.Collectors.joining;
 
-public class DiffCommand extends AlexandriaCommand {
+public class DiffCommand extends AbstractCompareCommand {
 
   public DiffCommand() {
     super("diff", "Show the changes made to the view.");
@@ -53,25 +53,17 @@ public class DiffCommand extends AlexandriaCommand {
   @Override
   public void run(Bootstrap<?> bootstrap, Namespace namespace) {
     checkDirectoryIsInitialized();
+    CLIContext context = readContext();
+    String editedFileName = namespace.getString(FILE);
+    checkFileExists(editedFileName);
     store.runInTransaction(() -> {
-      CLIContext context = readContext();
-
-      String filename = namespace.getString(FILE);
-      checkFileExists(filename);
-      String documentName = context.getDocumentName(filename);
-      Long documentId = readDocumentIndex().get(documentName);
-      DocumentWrapper original = store.getDocumentWrapper(documentId);
-
-      String viewId = context.getViewName(filename);
+      String documentName = getDocumentName(editedFileName, context);
+      DocumentWrapper original = getDocumentWrapper(documentName);
+      String viewId = context.getViewName(editedFileName);
       TAGView tagView = readViewMap().get(viewId);
 
-      File editedFile = new File(filename);
       try {
-        String newLMNL = FileUtils.readFileToString(editedFile, Charsets.UTF_8);
-        LMNLImporter importer = new LMNLImporter(store);
-        DocumentWrapper edited = importer.importLMNL(newLMNL);
-
-        TAGComparison comparison = new TAGComparison(original, tagView, edited);
+        TAGComparison comparison = getTAGComparison(original, tagView, editedFileName);
 
         System.out.printf("diff for document %s, using view %s:%n", documentName, viewId);
         if (comparison.hasDifferences()) {
@@ -86,4 +78,6 @@ public class DiffCommand extends AlexandriaCommand {
     });
 
   }
+
+
 }

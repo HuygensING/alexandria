@@ -2,7 +2,7 @@ package nl.knaw.huygens.alexandria.dropwizard.cli;
 
 /*-
  * #%L
- * alexandria-markup-lmnl-client
+ * alexandria-markup-lmnl-server
  * =======
  * Copyright (C) 2015 - 2018 Huygens ING (KNAW)
  * =======
@@ -19,6 +19,7 @@ package nl.knaw.huygens.alexandria.dropwizard.cli;
  * limitations under the License.
  * #L%
  */
+
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.Test;
 
@@ -31,12 +32,12 @@ public class CLIContextTest {
   @Test
   public void testSerialization() throws IOException {
     CLIContext cliContext = new CLIContext();
-    cliContext.setViewName("filename","viewname");
-    cliContext.setDocumentName("filename","docName");
+    cliContext.setViewName("filename", "viewname");
+    cliContext.setDocumentName("filename", "docName");
     String json = new ObjectMapper().writeValueAsString(cliContext);
     assertThat(json).isNotEmpty();
     System.out.println(json);
-    CLIContext cliContext1 = new ObjectMapper().readValue(json,CLIContext.class);
+    CLIContext cliContext1 = new ObjectMapper().readValue(json, CLIContext.class);
     assertThat(cliContext1).isEqualToComparingFieldByFieldRecursively(cliContext);
   }
 }
