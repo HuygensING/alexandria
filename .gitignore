@@ -19,3 +19,6 @@ hs_err_pid*
 .idea
 /.metadata/
 /RemoteSystemsTempFiles/.project
+
+alexandria-markup-lmnl-server/.alexandria/
+clips.txt

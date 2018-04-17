@@ -34,6 +34,7 @@ import org.slf4j.LoggerFactory;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.UncheckedIOException;
 import java.util.Map;
 
 public class RegisterDocumentCommand extends AlexandriaCommand {
@@ -78,7 +79,7 @@ public class RegisterDocumentCommand extends AlexandriaCommand {
           documentIndex.put(docName,document.getId());
           storeDocumentIndex(documentIndex);
         } catch (IOException e) {
-          throw new RuntimeException(e);
+          throw new UncheckedIOException(e);
         }
       });
     }

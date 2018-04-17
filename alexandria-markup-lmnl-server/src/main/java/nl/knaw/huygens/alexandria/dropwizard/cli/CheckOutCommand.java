@@ -32,6 +32,7 @@ import org.apache.commons.io.FileUtils;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.UncheckedIOException;
 import java.util.Map;
 
 public class CheckOutCommand extends AlexandriaCommand {
@@ -80,7 +81,9 @@ public class CheckOutCommand extends AlexandriaCommand {
 
       System.out.printf("Exporting document view to %s%n", outFilename);
       LMNLExporter lmnlExporter = new LMNLExporter(store, tagView);
-      String lmnl = lmnlExporter.toLMNL(documentWrapper).trim();
+      String lmnl = lmnlExporter.toLMNL(documentWrapper)
+          .replaceAll("\n\\s*\n", "\n")
+          .trim();
       try {
         FileUtils.writeStringToFile(new File(outFilename), lmnl, Charsets.UTF_8);
         CLIContext context = readContext()//
@@ -89,7 +92,7 @@ public class CheckOutCommand extends AlexandriaCommand {
         storeContext(context);
       } catch (IOException e) {
         e.printStackTrace();
-        throw new RuntimeException(e);
+        throw new UncheckedIOException(e);
       }
     });
     store.close();
