@@ -56,7 +56,7 @@ public class RevertCommand extends AlexandriaCommand {
 
       String filename = namespace.getString(FILE);
       String documentName = context.getDocumentName(filename);
-      System.out.printf("Reverting %n", filename);
+      System.out.printf("Reverting %s%n", filename);
 
       Long documentId = readDocumentIndex().get(documentName);
       DocumentWrapper documentWrapper = store.getDocumentWrapper(documentId);
