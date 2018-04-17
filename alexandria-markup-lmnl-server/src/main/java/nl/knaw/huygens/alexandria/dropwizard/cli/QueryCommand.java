@@ -29,6 +29,8 @@ import nl.knaw.huygens.alexandria.storage.wrappers.DocumentWrapper;
 
 import java.util.Map;
 
+import static java.util.stream.Collectors.joining;
+
 public class QueryCommand extends AlexandriaCommand {
   private static final String DOCUMENT = "document";
   private static final String QUERY = "query";
@@ -60,14 +62,16 @@ public class QueryCommand extends AlexandriaCommand {
     Long docId = documentIndex.get(docName);
     store.open();
     store.runInTransaction(() -> {
-      System.out.println("document: "+ docName);
-      System.out.println("query: "+ statement);
+      System.out.println("document: " + docName);
+      System.out.println("query: " + statement);
       DocumentWrapper document = store.getDocumentWrapper(docId);
       TAGQLQueryHandler h = new TAGQLQueryHandler(document);
       TAGQLResult result = h.execute(statement);
-      System.out.println("result: "+ result.getValues());
-      if (!result.isOk()){
-        System.out.println("errors: "+ result.getErrors());
+      System.out.println("result:\n" + result.getValues().stream()
+          .map(Object::toString)
+          .collect(joining("\n")));
+      if (!result.isOk()) {
+        System.out.println("errors: " + result.getErrors());
       }
     });
     store.close();
