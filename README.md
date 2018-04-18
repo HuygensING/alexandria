@@ -27,26 +27,44 @@ Go to the directory that you unpacked the zip into, and enter:
 
   This will prepare the directory for alexandria usage.
 
-* `alexandria register-document -n d -f frost-quote.lmnl`
+* `alexandria register-document -n d -f frost-quote.lmnl`  
+  `alexandria register-document --name d --file frost-quote.lmnl`
 
   This will set up a TAG document from the lmnl in the frost-quote file.
   
   This document can later be referred to by its name: `d`
 
-* `alexandria define-view --name l --file view-l.json`
-
+* `alexandria define-view -n l -f view-l.json`  
+  `alexandria define-view --name l --file view-l.json`
+  
   In `view-l.json` we've defined a view that only shows the `[l}` markup.
   
   The view definition registered by this command can later be referred to by its name: `l`
 
-* `alexandria define-view -n s -f view-s.json`
+* `alexandria define-view -n s -f view-s.json`  
+  `alexandria define-view --name s --file view-s.json`
 
   In `view-s.json` we've defined a view that only shows the `[s}` markup.
   
   The view definition registered by this command can later be referred to by its name: `s`
 
-* `alexandria checkout -v s -d d`
+* `alexandria checkout -v s -d d`  
+  `alexandria checkout --view s --document d`
 
   This will export a view of document `d` using view definition `s`.
   
   The view will be exported to file `d-s.lmnl`
+  
+* `alexandria diff d-s.lmnl`
+
+  This will show the changes made to the view in file `d-s.lmnl`.
+  
+* `alexandria revert d-s.lmnl`
+
+  This will revert the changes made to the view in file `d-s.lmnl`.
+
+* `alexandria query -d d -q "select text from markup('l')"`  
+  `alexandria query --document d --query "select text from markup('l')"`
+
+  This will run the query given after `-q` or `--query` against the document given after `-d` or `--document`, and show the results.
+
