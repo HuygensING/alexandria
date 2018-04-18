@@ -26,15 +26,15 @@ import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import nl.knaw.huygens.alexandria.dropwizard.ServerConfiguration;
 import nl.knaw.huygens.alexandria.dropwizard.api.DocumentService;
+import nl.knaw.huygens.alexandria.exporter.LaTeXExporter;
 import nl.knaw.huygens.alexandria.lmnl.exporter.LMNLExporter;
-import nl.knaw.huygens.alexandria.lmnl.exporter.LaTeXExporter;
 import nl.knaw.huygens.alexandria.lmnl.importer.LMNLImporter;
 import nl.knaw.huygens.alexandria.lmnl.importer.LMNLSyntaxError;
-import nl.knaw.huygens.alexandria.lmnl.query.TAGQLQueryHandler;
-import nl.knaw.huygens.alexandria.lmnl.query.TAGQLResult;
 import nl.knaw.huygens.alexandria.markup.api.DocumentInfo;
 import nl.knaw.huygens.alexandria.markup.api.ResourcePaths;
 import nl.knaw.huygens.alexandria.markup.api.UTF8MediaType;
+import nl.knaw.huygens.alexandria.query.TAGQLQueryHandler;
+import nl.knaw.huygens.alexandria.query.TAGQLResult;
 import nl.knaw.huygens.alexandria.storage.TAGStore;
 import nl.knaw.huygens.alexandria.storage.wrappers.DocumentWrapper;
 import nl.knaw.huygens.alexandria.texmecs.importer.TexMECSImporter;
@@ -238,7 +238,7 @@ public class DocumentsResource {
       @ApiParam(APIPARAM_UUID) @PathParam("uuid") final UUID uuid,//
       @ApiParam("TAGQL query") String tagqlQuery) {
     DocumentWrapper document = getExistingDocument(uuid);
-    TAGQLQueryHandler h = new TAGQLQueryHandler(null);
+    TAGQLQueryHandler h = new TAGQLQueryHandler(document);
     TAGQLResult result = h.execute(tagqlQuery);
     return Response.ok(result).build();
   }

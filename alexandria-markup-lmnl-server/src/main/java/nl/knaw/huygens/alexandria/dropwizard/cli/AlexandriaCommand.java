@@ -32,6 +32,7 @@ import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.UncheckedIOException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -72,7 +73,7 @@ public abstract class AlexandriaCommand extends Command {
               e -> viewFactory.fromDefinition(e.getValue())//
           ));
     } catch (IOException e) {
-      throw new RuntimeException(e);
+      throw new UncheckedIOException(e);
     }
   }
 
@@ -86,7 +87,7 @@ public abstract class AlexandriaCommand extends Command {
     try {
       new ObjectMapper().writeValue(viewsFile, viewDefinitionMap);
     } catch (IOException e) {
-      throw new RuntimeException(e);
+      throw new UncheckedIOException(e);
     }
   }
 
@@ -97,7 +98,7 @@ public abstract class AlexandriaCommand extends Command {
       Map<String, Long> documentIndex = new ObjectMapper().readValue(documentIndexFile, typeReference);
       return documentIndex;
     } catch (IOException e) {
-      throw new RuntimeException(e);
+      throw new UncheckedIOException(e);
     }
   }
 
@@ -105,7 +106,7 @@ public abstract class AlexandriaCommand extends Command {
     try {
       new ObjectMapper().writeValue(documentIndexFile, documentIndex);
     } catch (IOException e) {
-      throw new RuntimeException(e);
+      throw new UncheckedIOException(e);
     }
   }
 
@@ -113,7 +114,7 @@ public abstract class AlexandriaCommand extends Command {
     try {
       return new ObjectMapper().readValue(contextFile, CLIContext.class);
     } catch (IOException e) {
-      throw new RuntimeException(e);
+      throw new UncheckedIOException(e);
     }
   }
 
@@ -121,7 +122,7 @@ public abstract class AlexandriaCommand extends Command {
     try {
       new ObjectMapper().writeValue(contextFile, context);
     } catch (IOException e) {
-      throw new RuntimeException(e);
+      throw new UncheckedIOException(e);
     }
   }
 
