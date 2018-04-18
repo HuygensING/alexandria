@@ -53,12 +53,14 @@ public class OptimisticAlexandriaMarkupClientTest extends AlexandriaTestWithTest
   public void before() {
   }
 
+  @Ignore
   @Test
   public void testAbout() {
     AboutInfo about = client.getAbout();
     assertThat(about.getVersion()).isNotEmpty();
   }
 
+  @Ignore
   @Test
   public void testOptimisticAlexandriaMarkupClientHasDelegatedUnwrappedMethodForEachRelevantMethodInAlexandriaMarkupClient() {
     Class<AlexandriaMarkupClient> a = AlexandriaMarkupClient.class;
