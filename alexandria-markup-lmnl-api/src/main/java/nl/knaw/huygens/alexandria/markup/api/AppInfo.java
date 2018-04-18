@@ -21,12 +21,15 @@ package nl.knaw.huygens.alexandria.markup.api;
  */
 
 
-public class AboutInfo {
-  String appName;
-  String startedAt;
-  String version;
+public class AppInfo {
+  private String appName;
+  private String startedAt;
+  private String version;
+  private String buildDate;
+  private String commitId;
+  private String scmBranch;
 
-  public AboutInfo setAppName(String appName) {
+  public AppInfo setAppName(String appName) {
     this.appName = appName;
     return this;
   }
@@ -35,7 +38,7 @@ public class AboutInfo {
     return appName;
   }
 
-  public AboutInfo setStartedAt(String startedAt) {
+  public AppInfo setStartedAt(String startedAt) {
     this.startedAt = startedAt;
     return this;
   }
@@ -44,7 +47,7 @@ public class AboutInfo {
     return startedAt;
   }
 
-  public AboutInfo setVersion(String version) {
+  public AppInfo setVersion(String version) {
     this.version = version;
     return this;
   }
@@ -53,4 +56,30 @@ public class AboutInfo {
     return version;
   }
 
+  public AppInfo setBuildDate(final String buildDate) {
+    this.buildDate = buildDate;
+    return this;
+  }
+
+  public String getBuildDate() {
+    return buildDate;
+  }
+
+  public AppInfo setCommitId(final String commitId) {
+    this.commitId = commitId;
+    return this;
+  }
+
+  public String getCommitId() {
+    return commitId;
+  }
+
+  public AppInfo setScmBranch(final String scmBranch) {
+    this.scmBranch = scmBranch;
+    return this;
+  }
+
+  public String getScmBranch() {
+    return scmBranch;
+  }
 }

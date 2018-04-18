@@ -29,6 +29,7 @@ import io.dropwizard.setup.Environment;
 import io.federecio.dropwizard.swagger.SwaggerBundle;
 import io.federecio.dropwizard.swagger.SwaggerBundleConfiguration;
 import nl.knaw.huygens.alexandria.dropwizard.api.DocumentService;
+import nl.knaw.huygens.alexandria.dropwizard.api.PropertiesConfiguration;
 import nl.knaw.huygens.alexandria.dropwizard.cli.*;
 import nl.knaw.huygens.alexandria.dropwizard.health.ServerHealthCheck;
 import nl.knaw.huygens.alexandria.dropwizard.resources.AboutResource;
@@ -36,19 +37,36 @@ import nl.knaw.huygens.alexandria.dropwizard.resources.DocumentsResource;
 import nl.knaw.huygens.alexandria.dropwizard.resources.HomePageResource;
 import nl.knaw.huygens.alexandria.lmnl.exporter.LMNLExporter;
 import nl.knaw.huygens.alexandria.lmnl.importer.LMNLImporter;
+import nl.knaw.huygens.alexandria.markup.api.AppInfo;
 import nl.knaw.huygens.alexandria.storage.TAGStore;
 import nl.knaw.huygens.alexandria.texmecs.importer.TexMECSImporter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.time.Instant;
 import java.util.SortedMap;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 public class ServerApplication extends Application<ServerConfiguration> {
-  final Logger LOG = LoggerFactory.getLogger(getClass());
+  private static final String PROPERTIES_FILE = "about.properties";
+  private final Logger LOG = LoggerFactory.getLogger(getClass());
+
+  private AppInfo appInfo = getAppInfo();
 
   public static void main(String[] args) throws Exception {
     new ServerApplication().run(args);
+  }
+
+  private AppInfo getAppInfo() {
+    final PropertiesConfiguration properties = new PropertiesConfiguration(PROPERTIES_FILE, true);
+    AppInfo appInfo = new AppInfo()
+        .setAppName(getName())
+        .setStartedAt(Instant.now().toString())
+        .setBuildDate(properties.getProperty("buildDate").get())
+        .setCommitId(properties.getProperty("commitId").get())
+        .setScmBranch(properties.getProperty("scmBranch").get())
+        .setVersion(properties.getProperty("version").get());
+    return appInfo;
   }
 
   @Override
@@ -70,27 +88,27 @@ public class ServerApplication extends Application<ServerConfiguration> {
       }
     });
     bootstrap.addCommand(new InitCommand());
-    bootstrap.addCommand(new HelpCommand());
+    bootstrap.addCommand(new InfoCommand().withAppInfo(appInfo));
     bootstrap.addCommand(new RegisterDocumentCommand());
+    bootstrap.addCommand(new QueryCommand());
     bootstrap.addCommand(new DefineViewCommand());
     bootstrap.addCommand(new CheckOutCommand());
-    bootstrap.addCommand(new CheckInCommand());
     bootstrap.addCommand(new DiffCommand());
     bootstrap.addCommand(new RevertCommand());
-    bootstrap.addCommand(new QueryCommand());
+    bootstrap.addCommand(new CheckInCommand());
   }
 
   @Override
   public void run(ServerConfiguration configuration, Environment environment) {
     DocumentService documentService = new DocumentService(configuration);
-    TAGStore store = new TAGStore(configuration.getDbDir(),false);
+    TAGStore store = new TAGStore(configuration.getDbDir(), false);
     configuration.setStore(store);
     LMNLImporter lmnlImporter = new LMNLImporter(store);
     LMNLExporter lmnlExporter = new LMNLExporter(store);
     TexMECSImporter texMECSImporter = new TexMECSImporter(store);
 
     environment.jersey().register(new HomePageResource());
-    environment.jersey().register(new AboutResource(getName()));
+    environment.jersey().register(new AboutResource(appInfo));
     environment.jersey().register(new DocumentsResource(documentService, lmnlImporter, texMECSImporter, lmnlExporter, configuration));
 
     environment.healthChecks().register("server", new ServerHealthCheck());
