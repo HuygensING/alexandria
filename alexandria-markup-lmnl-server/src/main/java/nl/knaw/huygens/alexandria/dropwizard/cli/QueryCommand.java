@@ -62,16 +62,16 @@ public class QueryCommand extends AlexandriaCommand {
     Long docId = documentIndex.get(docName);
     store.open();
     store.runInTransaction(() -> {
-      System.out.println("document: " + docName);
-      System.out.println("query: " + statement);
+      System.out.printf("document: %s%n", docName);
+      System.out.printf("query: %s%n", statement);
       DocumentWrapper document = store.getDocumentWrapper(docId);
       TAGQLQueryHandler h = new TAGQLQueryHandler(document);
       TAGQLResult result = h.execute(statement);
-      System.out.println("result:\n" + result.getValues().stream()
+      System.out.printf("result:%n%s%n", result.getValues().stream()
           .map(Object::toString)
           .collect(joining("\n")));
       if (!result.isOk()) {
-        System.out.println("errors: " + result.getErrors());
+        System.out.printf("errors: %s%n", result.getErrors());
       }
     });
     store.close();

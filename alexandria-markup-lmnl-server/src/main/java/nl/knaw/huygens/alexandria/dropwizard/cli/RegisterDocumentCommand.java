@@ -65,7 +65,7 @@ public class RegisterDocumentCommand extends AlexandriaCommand {
     Map<String, Long> documentIndex = readDocumentIndex();
     String filename = namespace.getString(FILE);
     String docName = namespace.getString(NAME);
-    System.out.println("Parsing " + filename + " to document " + docName + "...");
+    System.out.printf("Parsing %s to document %s...%n", filename, docName);
 
     try (TAGStore store = new TAGStore(PROJECT_DIR, false)) {
       store.runInTransaction(() -> {
