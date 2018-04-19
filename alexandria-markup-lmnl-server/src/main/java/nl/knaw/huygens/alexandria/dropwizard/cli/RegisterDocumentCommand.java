@@ -28,13 +28,12 @@ import nl.knaw.huygens.alexandria.lmnl.importer.LMNLImporter;
 import nl.knaw.huygens.alexandria.storage.TAGStore;
 import nl.knaw.huygens.alexandria.storage.wrappers.DocumentWrapper;
 import org.apache.commons.io.FileUtils;
+import org.jooq.lambda.Unchecked;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.UncheckedIOException;
 import java.util.Map;
 
 public class RegisterDocumentCommand extends AlexandriaCommand {
@@ -68,20 +67,16 @@ public class RegisterDocumentCommand extends AlexandriaCommand {
     System.out.printf("Parsing %s to document %s...%n", filename, docName);
 
     try (TAGStore store = new TAGStore(PROJECT_DIR, false)) {
-      store.runInTransaction(() -> {
-        try {
-          LMNLImporter lmnlImporter = new LMNLImporter(store);
-          File file = new File(filename);
-          FileInputStream fileInputStream = FileUtils.openInputStream(file);
-          DocumentWrapper document = lmnlImporter.importLMNL(fileInputStream);
-          NamedDocumentService service = new NamedDocumentService(store);
-          service.registerDocument(document, docName);
-          documentIndex.put(docName,document.getId());
-          storeDocumentIndex(documentIndex);
-        } catch (IOException e) {
-          throw new UncheckedIOException(e);
-        }
-      });
+      store.runInTransaction(Unchecked.runnable(() -> {
+        LMNLImporter lmnlImporter = new LMNLImporter(store);
+        File file = new File(filename);
+        FileInputStream fileInputStream = FileUtils.openInputStream(file);
+        DocumentWrapper document = lmnlImporter.importLMNL(fileInputStream);
+        NamedDocumentService service = new NamedDocumentService(store);
+        service.registerDocument(document, docName);
+        documentIndex.put(docName, document.getId());
+        storeDocumentIndex(documentIndex);
+      }));
     }
     System.out.println("done!");
   }

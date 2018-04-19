@@ -52,6 +52,7 @@
     <appassembler-maven-plugin.version>2.0.0</appassembler-maven-plugin.version>
     <build-helper-maven.version>1.10</build-helper-maven.version>
     <buildnumber-maven.version>1.4</buildnumber-maven.version>
+    <jool-java-8.version>0.9.13</jool-java-8.version>
   </properties>
 
   <build>
