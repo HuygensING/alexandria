@@ -25,13 +25,24 @@ import io.dropwizard.setup.Bootstrap;
 import net.sourceforge.argparse4j.inf.Namespace;
 import net.sourceforge.argparse4j.inf.Subparser;
 import nl.knaw.huygens.alexandria.markup.api.AppInfo;
+import nl.knaw.huygens.alexandria.view.TAGView;
+
+import java.util.Map;
+import java.util.Set;
+
+import static java.lang.String.format;
+import static java.util.stream.Collectors.joining;
 
 public class InfoCommand extends AlexandriaCommand {
-  private static final String PROPERTIES_FILE = "about.properties";
   private AppInfo appInfo;
 
   public InfoCommand() {
     super("info", "Show info about the alexandria graph.");
+  }
+
+  public Command withAppInfo(final AppInfo appInfo) {
+    this.appInfo = appInfo;
+    return this;
   }
 
   @Override
@@ -41,11 +52,53 @@ public class InfoCommand extends AlexandriaCommand {
   @Override
   public void run(Bootstrap<?> bootstrap, Namespace namespace) {
     System.out.printf("alexandria version %s%n", appInfo.getVersion());
-    System.out.printf("build date: %s%n", appInfo.getBuildDate());
+    System.out.printf("build date: %s%n%n", appInfo.getBuildDate());
+    showDocuments();
+    showViews();
   }
 
-  public Command withAppInfo(final AppInfo appInfo) {
-    this.appInfo = appInfo;
-    return this;
+  private void showDocuments() {
+    String documents = readDocumentIndex()
+        .keySet()
+        .stream()
+        .sorted()
+        .collect(joining("\n  "));
+    if (documents.isEmpty()) {
+      System.out.println("no documents");
+    } else {
+      System.out.printf("documents:%n  %s%n%n", documents);
+    }
+  }
+
+  private void showViews() {
+    String views = readViewMap()
+        .entrySet()
+        .stream()
+        .map(this::toString)
+        .collect(joining("\n  "));
+    if (views.isEmpty()) {
+      System.out.println("no views");
+    } else {
+      System.out.printf("views:%n  %s%n%n", views);
+    }
+  }
+
+  private String toString(Map.Entry<String, TAGView> entry) {
+    String k = entry.getKey();
+    TAGView v = entry.getValue();
+    String inOrEx;
+    Set<String> relevantMarkup;
+    if (v.styleIsInclude()) {
+      inOrEx = "included";
+      relevantMarkup = v.getMarkupToInclude();
+
+    } else {
+      inOrEx = "excluded";
+      relevantMarkup = v.getMarkupToExclude();
+    }
+    String markup = relevantMarkup.stream()
+        .sorted()
+        .collect(joining(" "));
+    return format("%s: %s markup = %s", k, inOrEx, markup);
   }
 }
