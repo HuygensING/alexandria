@@ -23,7 +23,6 @@ package nl.knaw.huygens.alexandria.dropwizard.cli;
 import io.dropwizard.setup.Bootstrap;
 import net.sourceforge.argparse4j.inf.Namespace;
 import net.sourceforge.argparse4j.inf.Subparser;
-import nl.knaw.huygens.alexandria.view.TAGView;
 
 public class CheckInCommand extends AlexandriaCommand {
 

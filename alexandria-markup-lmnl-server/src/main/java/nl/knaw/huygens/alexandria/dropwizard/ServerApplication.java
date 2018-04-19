@@ -59,14 +59,13 @@ public class ServerApplication extends Application<ServerConfiguration> {
 
   private AppInfo getAppInfo() {
     final PropertiesConfiguration properties = new PropertiesConfiguration(PROPERTIES_FILE, true);
-    AppInfo appInfo = new AppInfo()
+    return new AppInfo()
         .setAppName(getName())
         .setStartedAt(Instant.now().toString())
         .setBuildDate(properties.getProperty("buildDate").get())
         .setCommitId(properties.getProperty("commitId").get())
         .setScmBranch(properties.getProperty("scmBranch").get())
         .setVersion(properties.getProperty("version").get());
-    return appInfo;
   }
 
   @Override
