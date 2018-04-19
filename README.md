@@ -68,3 +68,7 @@ Go to the directory that you unpacked the zip into, and enter:
 
   This will run the query given after `-q` or `--query` against the document given after `-d` or `--document`, and show the results.
 
+* `alexandria info`
+
+  This will show the version and build date of the app, and the names of the documents and views that are registered.
+
