@@ -25,6 +25,7 @@ import io.dropwizard.setup.Bootstrap;
 import net.sourceforge.argparse4j.inf.Namespace;
 import net.sourceforge.argparse4j.inf.Subparser;
 import nl.knaw.huygens.alexandria.markup.api.AppInfo;
+import nl.knaw.huygens.alexandria.storage.TAGDocument;
 import nl.knaw.huygens.alexandria.view.TAGView;
 
 import java.util.Map;
@@ -58,16 +59,29 @@ public class InfoCommand extends AlexandriaCommand {
   }
 
   private void showDocuments() {
-    String documents = readDocumentIndex()
+    Map<String, Long> documentIndex = readDocumentIndex();
+    String documents = documentIndex
         .keySet()
         .stream()
         .sorted()
+        .map(docName -> docInfo(docName, documentIndex))
         .collect(joining("\n  "));
     if (documents.isEmpty()) {
       System.out.println("no documents");
     } else {
       System.out.printf("documents:%n  %s%n%n", documents);
     }
+  }
+
+  private String docInfo(final String docName, final Map<String, Long> documentIndex) {
+    Long docId = documentIndex.get(docName);
+    store.open();
+    String docInfo = store.runInTransaction(() -> {
+      TAGDocument document = store.getDocument(docId);
+      return format("%s (created:%s, modified:%s)", docName, document.getCreationDate(), document.getModificationDate());
+    });
+    store.close();
+    return docInfo;
   }
 
   private void showViews() {
