@@ -21,7 +21,7 @@ package nl.knaw.huygens.alexandria.markup.client;
  */
 
 import com.fasterxml.jackson.databind.JsonNode;
-import nl.knaw.huygens.alexandria.markup.api.AboutInfo;
+import nl.knaw.huygens.alexandria.markup.api.AppInfo;
 
 import javax.net.ssl.SSLContext;
 import javax.ws.rs.client.WebTarget;
@@ -67,7 +67,7 @@ public class OptimisticAlexandriaMarkupClient {
     delegate.setProperty(jerseyClientProperty, value);
   }
 
-  public AboutInfo getAbout() {
+  public AppInfo getAbout() {
     return unwrap(delegate.getAbout());
   }
 

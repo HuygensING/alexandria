@@ -5,7 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.fasterxml.jackson.jaxrs.json.JacksonJaxbJsonProvider;
-import nl.knaw.huygens.alexandria.markup.api.AboutInfo;
+import nl.knaw.huygens.alexandria.markup.api.AppInfo;
 import nl.knaw.huygens.alexandria.markup.api.ResourcePaths;
 import nl.knaw.huygens.alexandria.markup.api.UTF8MediaType;
 import org.apache.http.impl.conn.PoolingHttpClientConnectionManager;
@@ -109,11 +109,11 @@ public class AlexandriaMarkupClient implements AutoCloseable {
 
   // Alexandria Markup API methods
 
-  public RestResult<AboutInfo> getAbout() {
+  public RestResult<AppInfo> getAbout() {
     WebTarget path = rootTarget//
         .path(ResourcePaths.ABOUT);
     Supplier<Response> responseSupplier = anonymousGet(path);
-    final RestRequester<AboutInfo> requester = RestRequester.withResponseSupplier(responseSupplier);
+    final RestRequester<AppInfo> requester = RestRequester.withResponseSupplier(responseSupplier);
     return requester//
         .onStatus(Status.OK, this::toAboutInfoRestResult)//
         .getResult();
@@ -208,8 +208,8 @@ public class AlexandriaMarkupClient implements AutoCloseable {
     return toEntityRestResult(response, String.class);
   }
 
-  private RestResult<AboutInfo> toAboutInfoRestResult(final Response response) {
-    return toEntityRestResult(response, AboutInfo.class);
+  private RestResult<AppInfo> toAboutInfoRestResult(final Response response) {
+    return toEntityRestResult(response, AppInfo.class);
   }
 
   private RestResult<JsonNode> toJsonObjectRestResult(final Response response) {

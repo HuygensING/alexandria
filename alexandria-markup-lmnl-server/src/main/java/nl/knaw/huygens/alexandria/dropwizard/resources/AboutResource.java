@@ -23,36 +23,33 @@ package nl.knaw.huygens.alexandria.dropwizard.resources;
 import com.codahale.metrics.annotation.Timed;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
-import nl.knaw.huygens.alexandria.markup.api.AboutInfo;
+import nl.knaw.huygens.alexandria.markup.api.AppInfo;
 import nl.knaw.huygens.alexandria.markup.api.ResourcePaths;
 
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
-import java.time.Instant;
 
 @Api(ResourcePaths.ABOUT)
 @Path(ResourcePaths.ABOUT)
 @Produces(MediaType.APPLICATION_JSON)
 public class AboutResource {
 
-  final AboutInfo about = new AboutInfo();
+  final AppInfo about;
 
   public AboutResource() {
-    this("appName");
+    this(new AppInfo());
   }
 
-  public AboutResource(String appName) {
-    about.setAppName(appName);
-    about.setStartedAt(Instant.now().toString());
-    about.setVersion("version");
+  public AboutResource(final AppInfo appInfo) {
+    this.about = appInfo;
   }
 
   @GET
   @Timed
-  @ApiOperation(value = "Get some info about the server", response = AboutInfo.class)
-  public AboutInfo getAbout() {
+  @ApiOperation(value = "Get some info about the server", response = AppInfo.class)
+  public AppInfo getAbout() {
     return about;
   }
 }

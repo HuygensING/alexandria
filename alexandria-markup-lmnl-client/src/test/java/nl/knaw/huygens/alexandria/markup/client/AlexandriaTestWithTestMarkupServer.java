@@ -62,7 +62,7 @@ public abstract class AlexandriaTestWithTestMarkupServer {
     config.setStore(new TAGStore(tmpFolder.newFolder("db").getPath(), false));
 
     ResourceConfig resourceConfig = new ResourceConfig();
-    resourceConfig.register(new AboutResource("appName"));
+    resourceConfig.register(new AboutResource());
     TAGStore store = config.getStore();
     resourceConfig.register(new DocumentsResource(new DocumentService(config), new LMNLImporter(store), new TexMECSImporter(store), new LMNLExporter(store), config));
 

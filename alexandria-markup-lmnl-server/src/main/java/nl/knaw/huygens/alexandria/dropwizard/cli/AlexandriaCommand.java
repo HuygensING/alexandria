@@ -62,19 +62,15 @@ public abstract class AlexandriaCommand extends Command {
 
   Map<String, TAGView> readViewMap() {
     TAGViewFactory viewFactory = new TAGViewFactory(store);
-    try {
-      TypeReference<HashMap<String, TAGViewDefinition>> typeReference = new TypeReference<HashMap<String, TAGViewDefinition>>() {
-      };
-      Map<String, TAGViewDefinition> stringTAGViewMap = new ObjectMapper().readValue(viewsFile, typeReference);
-      return stringTAGViewMap.entrySet()//
-          .stream()//
-          .collect(toMap(//
-              Map.Entry::getKey,//
-              e -> viewFactory.fromDefinition(e.getValue())//
-          ));
-    } catch (IOException e) {
-      throw new UncheckedIOException(e);
-    }
+    TypeReference<HashMap<String, TAGViewDefinition>> typeReference = new TypeReference<HashMap<String, TAGViewDefinition>>() {
+    };
+    Map<String, TAGViewDefinition> stringTAGViewMap = uncheckedRead(viewsFile, typeReference);
+    return stringTAGViewMap.entrySet()//
+        .stream()//
+        .collect(toMap(//
+            Map.Entry::getKey,//
+            e -> viewFactory.fromDefinition(e.getValue())//
+        ));
   }
 
   void storeViewMap(Map<String, TAGView> viewMap) {
@@ -84,46 +80,25 @@ public abstract class AlexandriaCommand extends Command {
             Map.Entry::getKey,//
             e -> e.getValue().getDefinition()//
         ));
-    try {
-      new ObjectMapper().writeValue(viewsFile, viewDefinitionMap);
-    } catch (IOException e) {
-      throw new UncheckedIOException(e);
-    }
+    uncheckedStore(viewsFile, viewDefinitionMap);
   }
 
   Map<String, Long> readDocumentIndex() {
-    try {
-      TypeReference<HashMap<String, Long>> typeReference = new TypeReference<HashMap<String, Long>>() {
-      };
-      Map<String, Long> documentIndex = new ObjectMapper().readValue(documentIndexFile, typeReference);
-      return documentIndex;
-    } catch (IOException e) {
-      throw new UncheckedIOException(e);
-    }
+    TypeReference<HashMap<String, Long>> typeReference = new TypeReference<HashMap<String, Long>>() {
+    };
+    return uncheckedRead(documentIndexFile, typeReference);
   }
 
   void storeDocumentIndex(Map<String, Long> documentIndex) {
-    try {
-      new ObjectMapper().writeValue(documentIndexFile, documentIndex);
-    } catch (IOException e) {
-      throw new UncheckedIOException(e);
-    }
+    uncheckedStore(documentIndexFile, documentIndex);
   }
 
   CLIContext readContext() {
-    try {
-      return new ObjectMapper().readValue(contextFile, CLIContext.class);
-    } catch (IOException e) {
-      throw new UncheckedIOException(e);
-    }
+    return uncheckedRead(contextFile, CLIContext.class);
   }
 
   void storeContext(CLIContext context) {
-    try {
-      new ObjectMapper().writeValue(contextFile, context);
-    } catch (IOException e) {
-      throw new UncheckedIOException(e);
-    }
+    uncheckedStore(contextFile, context);
   }
 
   void checkDirectoryIsInitialized() {
@@ -133,7 +108,30 @@ public abstract class AlexandriaCommand extends Command {
       System.out.println("first.");
       System.exit(-1);
     }
+  }
 
+  private void uncheckedStore(File file, Object object) {
+    try {
+      new ObjectMapper().writeValue(file, object);
+    } catch (IOException e) {
+      throw new UncheckedIOException(e);
+    }
+  }
+
+  private <T> T uncheckedRead(File file, Class<T> clazz) {
+    try {
+      return new ObjectMapper().readValue(file, clazz);
+    } catch (IOException e) {
+      throw new UncheckedIOException(e);
+    }
+  }
+
+  private <T> T uncheckedRead(File file, TypeReference<T> typeReference) {
+    try {
+      return new ObjectMapper().readValue(file, typeReference);
+    } catch (IOException e) {
+      throw new UncheckedIOException(e);
+    }
   }
 
 }

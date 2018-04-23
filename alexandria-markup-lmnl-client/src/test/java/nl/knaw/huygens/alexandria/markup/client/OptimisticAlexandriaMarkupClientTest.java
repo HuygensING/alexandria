@@ -22,7 +22,7 @@ package nl.knaw.huygens.alexandria.markup.client;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import static java.util.stream.Collectors.joining;
-import nl.knaw.huygens.alexandria.markup.api.AboutInfo;
+import nl.knaw.huygens.alexandria.markup.api.AppInfo;
 import static org.assertj.core.api.Assertions.assertThat;
 import org.junit.*;
 
@@ -56,7 +56,7 @@ public class OptimisticAlexandriaMarkupClientTest extends AlexandriaTestWithTest
   @Ignore
   @Test
   public void testAbout() {
-    AboutInfo about = client.getAbout();
+    AppInfo about = client.getAbout();
     assertThat(about.getVersion()).isNotEmpty();
   }
 
