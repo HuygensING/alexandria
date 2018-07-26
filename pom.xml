@@ -2,14 +2,14 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
   <groupId>nl.knaw.huygens.alexandria</groupId>
-  <artifactId>alexandria-markup-lmnl</artifactId>
+  <artifactId>alexandria-markup-server</artifactId>
   <version>2.0-SNAPSHOT</version>
   <inceptionYear>2015</inceptionYear>
   <packaging>pom</packaging>
   <modules>
-    <module>alexandria-markup-lmnl-server</module>
-    <module>alexandria-markup-lmnl-client</module>
-    <module>alexandria-markup-lmnl-api</module>
+    <module>alexandria-markup-api</module>
+    <module>alexandria-markup-server</module>
+    <module>alexandria-markup-client</module>
   </modules>
 
   <properties>
