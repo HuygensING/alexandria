@@ -24,8 +24,8 @@ import com.google.common.base.Charsets;
 import io.dropwizard.setup.Bootstrap;
 import net.sourceforge.argparse4j.inf.Namespace;
 import net.sourceforge.argparse4j.inf.Subparser;
-import nl.knaw.huygens.alexandria.lmnl.exporter.LMNLExporter;
-import nl.knaw.huygens.alexandria.storage.wrappers.DocumentWrapper;
+import nl.knaw.huc.di.tag.tagml.exporter.TAGMLExporter;
+import nl.knaw.huygens.alexandria.storage.TAGDocument;
 import nl.knaw.huygens.alexandria.view.TAGView;
 import org.apache.commons.io.FileUtils;
 
@@ -59,17 +59,17 @@ public class RevertCommand extends AlexandriaCommand {
       System.out.printf("Reverting %s%n", filename);
 
       Long documentId = readDocumentIndex().get(documentName);
-      DocumentWrapper documentWrapper = store.getDocumentWrapper(documentId);
+      TAGDocument tAGDocument = store.getDocument(documentId);
 
       String viewId = context.getViewName(filename);
       TAGView tagView = readViewMap().get(viewId);
 
-      LMNLExporter lmnlExporter = new LMNLExporter(store, tagView);
-      String lmnl = lmnlExporter.toLMNL(documentWrapper)
+      TAGMLExporter tagmlExporter = new TAGMLExporter(store, tagView);
+      String tagml = tagmlExporter.asTAGML(tAGDocument)
           .replaceAll("\n\\s*\n", "\n")
           .trim();
       try {
-        FileUtils.writeStringToFile(new File(filename), lmnl, Charsets.UTF_8);
+        FileUtils.writeStringToFile(new File(filename), tagml, Charsets.UTF_8);
         context = readContext()//
             .setDocumentName(filename, documentName)//
             .setViewName(filename, viewId);

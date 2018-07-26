@@ -28,6 +28,8 @@ import io.dropwizard.setup.Bootstrap;
 import io.dropwizard.setup.Environment;
 import io.federecio.dropwizard.swagger.SwaggerBundle;
 import io.federecio.dropwizard.swagger.SwaggerBundleConfiguration;
+import nl.knaw.huc.di.tag.tagml.exporter.TAGMLExporter;
+import nl.knaw.huc.di.tag.tagml.importer.TAGMLImporter;
 import nl.knaw.huygens.alexandria.dropwizard.api.DocumentService;
 import nl.knaw.huygens.alexandria.dropwizard.api.PropertiesConfiguration;
 import nl.knaw.huygens.alexandria.dropwizard.cli.*;
@@ -35,8 +37,6 @@ import nl.knaw.huygens.alexandria.dropwizard.health.ServerHealthCheck;
 import nl.knaw.huygens.alexandria.dropwizard.resources.AboutResource;
 import nl.knaw.huygens.alexandria.dropwizard.resources.DocumentsResource;
 import nl.knaw.huygens.alexandria.dropwizard.resources.HomePageResource;
-import nl.knaw.huygens.alexandria.lmnl.exporter.LMNLExporter;
-import nl.knaw.huygens.alexandria.lmnl.importer.LMNLImporter;
 import nl.knaw.huygens.alexandria.markup.api.AppInfo;
 import nl.knaw.huygens.alexandria.storage.TAGStore;
 import nl.knaw.huygens.alexandria.texmecs.importer.TexMECSImporter;
@@ -102,13 +102,13 @@ public class ServerApplication extends Application<ServerConfiguration> {
     DocumentService documentService = new DocumentService(configuration);
     TAGStore store = new TAGStore(configuration.getDbDir(), false);
     configuration.setStore(store);
-    LMNLImporter lmnlImporter = new LMNLImporter(store);
-    LMNLExporter lmnlExporter = new LMNLExporter(store);
+    TAGMLImporter tagmlImporter = new TAGMLImporter(store);
+    TAGMLExporter tagmlExporter = new TAGMLExporter(store);
     TexMECSImporter texMECSImporter = new TexMECSImporter(store);
 
     environment.jersey().register(new HomePageResource());
     environment.jersey().register(new AboutResource(appInfo));
-    environment.jersey().register(new DocumentsResource(documentService, lmnlImporter, texMECSImporter, lmnlExporter, configuration));
+    environment.jersey().register(new DocumentsResource(documentService, tagmlImporter, texMECSImporter, tagmlExporter, configuration));
 
     environment.healthChecks().register("server", new ServerHealthCheck());
 

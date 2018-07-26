@@ -71,8 +71,8 @@ public class OptimisticAlexandriaMarkupClient {
     return unwrap(delegate.getAbout());
   }
 
-  public String getLMNL(UUID uuid) {
-    return unwrap(delegate.getLMNL(uuid));
+  public String getTAGML(UUID uuid) {
+    return unwrap(delegate.getTAGML(uuid));
   }
 
   public String getMarkupDepthLaTex(UUID uuid) {
@@ -103,12 +103,12 @@ public class OptimisticAlexandriaMarkupClient {
     unwrap(delegate.setDocumentFromTexMECS(uuid, string));
   }
 
-  public UUID addDocumentFromLMNL(String string) {
-    return unwrap(delegate.addDocumentFromLMNL(string));
+  public UUID addDocumentFromTAGML(String string) {
+    return unwrap(delegate.addDocumentFromTAGML(string));
   }
 
-  public void setDocumentFromLMNL(UUID uuid, String string) {
-    unwrap(delegate.setDocumentFromLMNL(uuid, string));
+  public void setDocumentFromTAGML(UUID uuid, String string) {
+    unwrap(delegate.setDocumentFromTAGML(uuid, string));
   }
 
   /////// end delegated methods

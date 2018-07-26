@@ -21,9 +21,7 @@ package nl.knaw.huygens.alexandria.markup.client;
  */
 
 import com.fasterxml.jackson.databind.JsonNode;
-import static java.util.stream.Collectors.joining;
 import nl.knaw.huygens.alexandria.markup.api.AppInfo;
-import static org.assertj.core.api.Assertions.assertThat;
 import org.junit.*;
 
 import java.lang.reflect.Method;
@@ -33,6 +31,9 @@ import java.lang.reflect.Type;
 import java.text.MessageFormat;
 import java.util.Arrays;
 import java.util.UUID;
+
+import static java.util.stream.Collectors.joining;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class OptimisticAlexandriaMarkupClientTest extends AlexandriaTestWithTestMarkupServer {
   // private final Logger LOG = LoggerFactory.getLogger(getClass());
@@ -77,13 +78,13 @@ public class OptimisticAlexandriaMarkupClientTest extends AlexandriaTestWithTest
   @Ignore
   @Test
   public void test() {
-    String lmnlIn = "[text}[p=p-1}This is a simple paragraph.{p=p-1]{text]";
-    UUID documentUUID = client.addDocumentFromLMNL(lmnlIn);
+    String tagmlIn = "[text}[p=p-1}This is a simple paragraph.{p=p-1]{text]";
+    UUID documentUUID = client.addDocumentFromTAGML(tagmlIn);
     assertThat(documentUUID).isNotNull();
 
-    String lmnlOut = client.getLMNL(documentUUID);
-    assertThat(lmnlOut).isNotNull();
-    // assertThat(lmnlOut).isEqualTo(lmnlIn);
+    String tagmlOut = client.getTAGML(documentUUID);
+    assertThat(tagmlOut).isNotNull();
+    // assertThat(tagmlOut).isEqualTo(tagmlIn);
 
     String latex = client.getDocumentLaTeX(documentUUID);
     assertThat(latex).isNotEmpty();

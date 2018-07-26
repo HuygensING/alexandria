@@ -24,9 +24,9 @@ import com.google.common.base.Charsets;
 import io.dropwizard.setup.Bootstrap;
 import net.sourceforge.argparse4j.inf.Namespace;
 import net.sourceforge.argparse4j.inf.Subparser;
+import nl.knaw.huc.di.tag.tagml.importer.TAGMLImporter;
 import nl.knaw.huygens.alexandria.compare.TAGComparison;
-import nl.knaw.huygens.alexandria.lmnl.importer.LMNLImporter;
-import nl.knaw.huygens.alexandria.storage.wrappers.DocumentWrapper;
+import nl.knaw.huygens.alexandria.storage.TAGDocument;
 import nl.knaw.huygens.alexandria.view.TAGView;
 import org.apache.commons.io.FileUtils;
 
@@ -60,16 +60,16 @@ public class DiffCommand extends AlexandriaCommand {
       String filename = namespace.getString(FILE);
       String documentName = context.getDocumentName(filename);
       Long documentId = readDocumentIndex().get(documentName);
-      DocumentWrapper original = store.getDocumentWrapper(documentId);
+      TAGDocument original = store.getDocument(documentId);
 
       String viewId = context.getViewName(filename);
       TAGView tagView = readViewMap().get(viewId);
 
       File editedFile = new File(filename);
       try {
-        String newLMNL = FileUtils.readFileToString(editedFile, Charsets.UTF_8);
-        LMNLImporter importer = new LMNLImporter(store);
-        DocumentWrapper edited = importer.importLMNL(newLMNL);
+        String newTAGML = FileUtils.readFileToString(editedFile, Charsets.UTF_8);
+        TAGMLImporter importer = new TAGMLImporter(store);
+        TAGDocument edited = importer.importTAGML(newTAGML);
 
         TAGComparison comparison = new TAGComparison(original, tagView, edited);
 

@@ -24,7 +24,6 @@ import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import nl.knaw.huygens.alexandria.storage.TAGDocument;
 import nl.knaw.huygens.alexandria.storage.TAGStore;
-import nl.knaw.huygens.alexandria.storage.wrappers.DocumentWrapper;
 
 import java.util.Optional;
 
@@ -39,11 +38,11 @@ public class NamedDocumentService {
       .maximumSize(100)//
       .build();
 
-  public void registerDocument(DocumentWrapper document, String docName) {
-    documentIdCache.put(docName, document.getId());
+  public void registerDocument(TAGDocument document, String docName) {
+    documentIdCache.put(docName, document.getDbId());
   }
 
-  public Optional<DocumentWrapper> getDocumentByName(String docName) {
+  public Optional<TAGDocument> getDocumentByName(String docName) {
     Long docId = documentIdCache.getIfPresent(docName);
     if (docId == null) {
       return Optional.empty();
@@ -52,8 +51,7 @@ public class NamedDocumentService {
       if (document == null) {
         return Optional.empty();
       }
-      DocumentWrapper documentWrapper = new DocumentWrapper(store, document);
-      return Optional.of(documentWrapper);
+      return Optional.of(document);
     }
   }
 }

@@ -23,10 +23,10 @@ package nl.knaw.huygens.alexandria.dropwizard.cli;
 import io.dropwizard.setup.Bootstrap;
 import net.sourceforge.argparse4j.inf.Namespace;
 import net.sourceforge.argparse4j.inf.Subparser;
+import nl.knaw.huc.di.tag.tagml.importer.TAGMLImporter;
 import nl.knaw.huygens.alexandria.dropwizard.api.NamedDocumentService;
-import nl.knaw.huygens.alexandria.lmnl.importer.LMNLImporter;
+import nl.knaw.huygens.alexandria.storage.TAGDocument;
 import nl.knaw.huygens.alexandria.storage.TAGStore;
-import nl.knaw.huygens.alexandria.storage.wrappers.DocumentWrapper;
 import org.apache.commons.io.FileUtils;
 import org.jooq.lambda.Unchecked;
 import org.slf4j.Logger;
@@ -40,7 +40,7 @@ public class RegisterDocumentCommand extends AlexandriaCommand {
   private static final Logger LOG = LoggerFactory.getLogger(RegisterDocumentCommand.class);
 
   public RegisterDocumentCommand() {
-    super("register-document", "Parse a document and store it as TAG");
+    super("register-document", "Parse a TAGML document and store it as TAG");
   }
 
   @Override
@@ -55,7 +55,7 @@ public class RegisterDocumentCommand extends AlexandriaCommand {
         .dest(FILE)//
         .type(String.class)//
         .required(true)//
-        .help("The file containing the document source");
+        .help("The file containing the document TAGML source");
   }
 
   @Override
@@ -68,13 +68,13 @@ public class RegisterDocumentCommand extends AlexandriaCommand {
 
     try (TAGStore store = new TAGStore(PROJECT_DIR, false)) {
       store.runInTransaction(Unchecked.runnable(() -> {
-        LMNLImporter lmnlImporter = new LMNLImporter(store);
+        TAGMLImporter tagmlImporter = new TAGMLImporter(store);
         File file = new File(filename);
         FileInputStream fileInputStream = FileUtils.openInputStream(file);
-        DocumentWrapper document = lmnlImporter.importLMNL(fileInputStream);
+        TAGDocument document = tagmlImporter.importTAGML(fileInputStream);
         NamedDocumentService service = new NamedDocumentService(store);
         service.registerDocument(document, docName);
-        documentIndex.put(docName, document.getId());
+        documentIndex.put(docName, document.getDbId());
         storeDocumentIndex(documentIndex);
       }));
     }

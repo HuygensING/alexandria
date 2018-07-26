@@ -119,13 +119,13 @@ public class AlexandriaMarkupClient implements AutoCloseable {
         .getResult();
   }
 
-  public RestResult<Void> setDocumentFromLMNL(UUID documentUUID, String lmnl) {
-    final WebTarget path = documentTarget(documentUUID).path("lmnl");
-    return setDocument(lmnl, path);
+  public RestResult<Void> setDocumentFromTAGML(UUID documentUUID, String tagml) {
+    final WebTarget path = documentTarget(documentUUID).path("tagml");
+    return setDocument(tagml, path);
   }
 
   public RestResult<Void> setDocumentFromTexMECS(UUID documentUUID, String texMECS) {
-    final WebTarget path = documentTarget(documentUUID).path("lmnl");
+    final WebTarget path = documentTarget(documentUUID).path("tagml");
     return setDocument(texMECS, path);
   }
 
@@ -139,9 +139,9 @@ public class AlexandriaMarkupClient implements AutoCloseable {
         .getResult();
   }
 
-  public RestResult<UUID> addDocumentFromLMNL(String lmnl) {
-    final WebTarget path = documentsTarget().path("lmnl");
-    return addDocument(lmnl, path);
+  public RestResult<UUID> addDocumentFromTAGML(String tagml) {
+    final WebTarget path = documentsTarget().path("tagml");
+    return addDocument(tagml, path);
   }
 
   public RestResult<UUID> addDocumentFromTexMECS(String texMECS) {
@@ -158,8 +158,8 @@ public class AlexandriaMarkupClient implements AutoCloseable {
         .getResult();
   }
 
-  public RestResult<String> getLMNL(UUID documentUUID) {
-    WebTarget path = documentTarget(documentUUID).path(ResourcePaths.DOCUMENTS_LMNL);
+  public RestResult<String> getTAGML(UUID documentUUID) {
+    WebTarget path = documentTarget(documentUUID).path(ResourcePaths.DOCUMENTS_TAGML);
     return stringResult(path);
   }
 

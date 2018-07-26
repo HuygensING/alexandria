@@ -25,7 +25,7 @@ import net.sourceforge.argparse4j.inf.Namespace;
 import net.sourceforge.argparse4j.inf.Subparser;
 import nl.knaw.huygens.alexandria.query.TAGQLQueryHandler;
 import nl.knaw.huygens.alexandria.query.TAGQLResult;
-import nl.knaw.huygens.alexandria.storage.wrappers.DocumentWrapper;
+import nl.knaw.huygens.alexandria.storage.TAGDocument;
 
 import java.util.Map;
 
@@ -64,7 +64,7 @@ public class QueryCommand extends AlexandriaCommand {
     store.runInTransaction(() -> {
       System.out.printf("document: %s%n", docName);
       System.out.printf("query: %s%n", statement);
-      DocumentWrapper document = store.getDocumentWrapper(docId);
+      TAGDocument document = store.getDocument(docId);
       TAGQLQueryHandler h = new TAGQLQueryHandler(document);
       TAGQLResult result = h.execute(statement);
       System.out.printf("result:%n%s%n", result.getValues().stream()

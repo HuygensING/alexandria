@@ -20,12 +20,11 @@ package nl.knaw.huygens.alexandria.markup.api;
  * #L%
  */
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 import java.net.URI;
 import java.time.Instant;
 import java.util.UUID;
-
-import com.fasterxml.jackson.annotation.JsonProperty;
 
 public class DocumentInfo {
   Instant created;
@@ -54,9 +53,9 @@ public class DocumentInfo {
     return modified.toString();
   }
 
-  @JsonProperty("^lmnl")
-  public URI getLMNLURI() {
-    return URI.create(uriBase + ResourcePaths.DOCUMENTS_LMNL);
+  @JsonProperty("^tagml")
+  public URI getTAGMLURI() {
+    return URI.create(uriBase + ResourcePaths.DOCUMENTS_TAGML);
   }
 
   @JsonProperty("^overview")

@@ -26,7 +26,7 @@ import nl.knaw.huygens.alexandria.dropwizard.ServerConfiguration;
 import nl.knaw.huygens.alexandria.markup.api.DocumentInfo;
 import nl.knaw.huygens.alexandria.storage.TAGDocument;
 import nl.knaw.huygens.alexandria.storage.TAGStore;
-import nl.knaw.huygens.alexandria.storage.wrappers.DocumentWrapper;
+import nl.knaw.huygens.alexandria.storage.dto.TAGDocumentDTO;
 
 import java.time.Instant;
 import java.util.*;
@@ -44,14 +44,14 @@ public class DocumentService {
     store = config.getStore();
   }
 
-  static final Cache<UUID, TAGDocument> documentCache = CacheBuilder.newBuilder()//
+  static final Cache<UUID, TAGDocumentDTO> documentCache = CacheBuilder.newBuilder()//
       .maximumSize(100)//
       .build();
 
-  public Optional<DocumentWrapper> getDocument(UUID uuid) {
+  public Optional<TAGDocument> getDocument(UUID uuid) {
     if (uuids.contains(uuid)) {
       try {
-        DocumentWrapper document = new DocumentWrapper(store, documentCache.get(uuid, readDocument(uuid)));
+        TAGDocument document = new TAGDocument(store, documentCache.get(uuid, readDocument(uuid)));
         return Optional.of(document);
       } catch (ExecutionException e) {
         e.printStackTrace();
@@ -60,12 +60,12 @@ public class DocumentService {
     return Optional.empty();
   }
 
-  private static Callable<? extends TAGDocument> readDocument(UUID uuid) {
+  private static Callable<? extends TAGDocumentDTO> readDocument(UUID uuid) {
     return () -> null;
   }
 
-  public void setDocument(UUID docId, DocumentWrapper document) {
-    documentCache.put(docId, document.getDocument());
+  public void setDocument(UUID docId, TAGDocument document) {
+    documentCache.put(docId, document.getDTO());
 
     DocumentInfo docInfo = getDocumentInfo(docId)//
         .orElseGet(() -> newDocumentInfo(docId));

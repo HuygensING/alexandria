@@ -24,9 +24,8 @@ import com.google.common.base.Charsets;
 import io.dropwizard.setup.Bootstrap;
 import net.sourceforge.argparse4j.inf.Namespace;
 import net.sourceforge.argparse4j.inf.Subparser;
-import nl.knaw.huygens.alexandria.lmnl.exporter.LMNLExporter;
+import nl.knaw.huc.di.tag.tagml.exporter.TAGMLExporter;
 import nl.knaw.huygens.alexandria.storage.TAGDocument;
-import nl.knaw.huygens.alexandria.storage.wrappers.DocumentWrapper;
 import nl.knaw.huygens.alexandria.view.TAGView;
 import org.apache.commons.io.FileUtils;
 
@@ -66,7 +65,7 @@ public class CheckOutCommand extends AlexandriaCommand {
 
     String viewName = namespace.getString(VIEW);
     String docName = namespace.getString(DOCUMENT);
-    String outFilename = String.format("%s-%s.lmnl", docName, viewName);
+    String outFilename = String.format("%s-%s.tagml", docName, viewName);
 
     System.out.printf("Exporting document %s using view %s to %s...%n", docName, viewName, outFilename);
     Long docId = documentIndex.get(docName);
@@ -74,18 +73,17 @@ public class CheckOutCommand extends AlexandriaCommand {
     store.runInTransaction(() -> {
       System.out.printf("Retrieving document %s%n", docName);
       TAGDocument document = store.getDocument(docId);
-      DocumentWrapper documentWrapper = new DocumentWrapper(store, document);
 
       System.out.printf("Retrieving view %s%n", viewName);
       TAGView tagView = viewMap.get(viewName);
 
       System.out.printf("Exporting document view to %s%n", outFilename);
-      LMNLExporter lmnlExporter = new LMNLExporter(store, tagView);
-      String lmnl = lmnlExporter.toLMNL(documentWrapper)
+      TAGMLExporter tagmlExporter = new TAGMLExporter(store, tagView);
+      String tagml = tagmlExporter.asTAGML(document)
           .replaceAll("\n\\s*\n", "\n")
           .trim();
       try {
-        FileUtils.writeStringToFile(new File(outFilename), lmnl, Charsets.UTF_8);
+        FileUtils.writeStringToFile(new File(outFilename), tagml, Charsets.UTF_8);
         CLIContext context = readContext()//
             .setDocumentName(outFilename, docName)//
             .setViewName(outFilename, viewName);

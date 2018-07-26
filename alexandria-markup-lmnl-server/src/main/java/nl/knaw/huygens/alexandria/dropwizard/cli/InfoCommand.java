@@ -102,7 +102,7 @@ public class InfoCommand extends AlexandriaCommand {
     TAGView v = entry.getValue();
     String inOrEx;
     Set<String> relevantMarkup;
-    if (v.styleIsInclude()) {
+    if (v.markupStyleIsInclude()) {
       inOrEx = "included";
       relevantMarkup = v.getMarkupToInclude();
 

@@ -20,12 +20,12 @@ package nl.knaw.huygens.alexandria.markup.client;
  * #L%
  */
 
+import nl.knaw.huc.di.tag.tagml.exporter.TAGMLExporter;
+import nl.knaw.huc.di.tag.tagml.importer.TAGMLImporter;
 import nl.knaw.huygens.alexandria.dropwizard.ServerConfiguration;
 import nl.knaw.huygens.alexandria.dropwizard.api.DocumentService;
 import nl.knaw.huygens.alexandria.dropwizard.resources.AboutResource;
 import nl.knaw.huygens.alexandria.dropwizard.resources.DocumentsResource;
-import nl.knaw.huygens.alexandria.lmnl.exporter.LMNLExporter;
-import nl.knaw.huygens.alexandria.lmnl.importer.LMNLImporter;
 import nl.knaw.huygens.alexandria.storage.TAGStore;
 import nl.knaw.huygens.alexandria.texmecs.importer.TexMECSImporter;
 import org.glassfish.grizzly.http.server.HttpServer;
@@ -64,7 +64,7 @@ public abstract class AlexandriaTestWithTestMarkupServer {
     ResourceConfig resourceConfig = new ResourceConfig();
     resourceConfig.register(new AboutResource());
     TAGStore store = config.getStore();
-    resourceConfig.register(new DocumentsResource(new DocumentService(config), new LMNLImporter(store), new TexMECSImporter(store), new LMNLExporter(store), config));
+    resourceConfig.register(new DocumentsResource(new DocumentService(config), new TAGMLImporter(store), new TexMECSImporter(store), new TAGMLExporter(store), config));
 
     testServer = GrizzlyHttpServerFactory.createHttpServer(testURI, resourceConfig, true);
   }
