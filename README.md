@@ -34,17 +34,17 @@ Go to the directory that you unpacked the zip into, and enter:
   
   This document can later be referred to by its name: `d`
 
-* `alexandria define-view -n l -f view-l.json`  
-  `alexandria define-view --name l --file view-l.json`
+* `alexandria define-view -n l -f view-l-markup.json`  
+  `alexandria define-view --name l --file view-l-markup.json`
   
-  In `view-l.json` we've defined a view that only shows the `[l>` markup.
+  In `view-l-markup.json` we've defined a view that only shows the `[l>` markup.
   
   The view definition registered by this command can later be referred to by its name: `l`
 
-* `alexandria define-view -n s -f view-s.json`  
-  `alexandria define-view --name s --file view-s.json`
+* `alexandria define-view -n s -f view-s-layer.json`  
+  `alexandria define-view --name s --file view-s-layer.json`
 
-  In `view-s.json` we've defined a view that only shows the `[s>` markup.
+  In `view-s-layer.json` we've defined a view that only shows the `S` layer.
   
   The view definition registered by this command can later be referred to by its name: `s`
 
@@ -71,4 +71,3 @@ Go to the directory that you unpacked the zip into, and enter:
 * `alexandria info`
 
   This will show the version and build date of the app, and the names of the documents and views that are registered.
-

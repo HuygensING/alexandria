@@ -1,5 +1,5 @@
-[excerpt source="The Housekeeper" author="Robert Frost">
-[s>[l n=144>He manages to keep the upper hand<l]
-[l n=145>On his own farm.<s] [s>He's boss.<s] [s>But as to hens:<l]
-[l n=146>We fence our flowers in and the hens range.<l]<s]
+[excerpt|+S,+L source="The Housekeeper" author="Robert Frost">
+[s|S>[l|L n=144>He manages to keep the upper hand<l]
+[l|L n=145>On his own farm.<s] [s|S>He's boss.<s] [s|S>But as to hens:<l]
+[l|L n=146>We fence our flowers in and the hens range.<l]<s]
 <excerpt]
