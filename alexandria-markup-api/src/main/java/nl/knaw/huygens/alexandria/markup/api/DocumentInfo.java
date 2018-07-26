@@ -2,7 +2,7 @@ package nl.knaw.huygens.alexandria.markup.api;
 
 /*
  * #%L
- * alexandria-markup-lmnl-api
+ * alexandria-markup-api
  * =======
  * Copyright (C) 2015 - 2018 Huygens ING (KNAW)
  * =======

@@ -2,7 +2,7 @@ package nl.knaw.huygens.alexandria.dropwizard.cli;
 
 /*
  * #%L
- * alexandria-markup-lmnl-server
+ * alexandria-markup-server
  * =======
  * Copyright (C) 2015 - 2018 Huygens ING (KNAW)
  * =======

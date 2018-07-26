@@ -4,11 +4,8 @@
 
 Then go to http://{local_server_name}:{local_main_port} to see the site.
 
-## Upload a new [lmnl](http://lmnl-markup.org/specs/archive/LMNL_syntax.xhtml) file:
+## Upload a new [TAGML](https://github.com/HuygensING/TAG/tree/master/TAGML) file:
 
-    curl -i -H 'Content-type:text/plain' --data-binary @example.lmnl http://{local_server_name}:{local_main_port}/documents/lmnl
+    curl -i -H 'Content-type:text/plain' --data-binary @example.tagml http://{local_server_name}:{local_main_port}/documents/tagml
 
-## Upload a new [TexMECS](http://xml.coverpages.org/MLCD-texmecs20010510.html) file:
-
-    curl -i -H 'Content-type:text/plain' --data-binary @example.lmnl http://{local_server_name}:{local_main_port}/documents/texmecs
         

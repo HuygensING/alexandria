@@ -3,15 +3,15 @@
   <modelVersion>4.0.0</modelVersion>
   <parent>
     <groupId>nl.knaw.huygens.alexandria</groupId>
-    <artifactId>alexandria-markup-lmnl</artifactId>
+    <artifactId>alexandria-markup-app</artifactId>
     <version>2.0-SNAPSHOT</version>
   </parent>
-  <artifactId>alexandria-markup-lmnl-client</artifactId>
+  <artifactId>alexandria-markup-client</artifactId>
 
   <dependencies>
     <dependency>
       <groupId>${project.groupId}</groupId>
-      <artifactId>alexandria-markup-lmnl-api</artifactId>
+      <artifactId>alexandria-markup-api</artifactId>
       <version>${project.version}</version>
     </dependency>
 
@@ -45,7 +45,7 @@
     <!-- test dependencies -->
     <dependency>
       <groupId>${project.groupId}</groupId>
-      <artifactId>alexandria-markup-lmnl-server</artifactId>
+      <artifactId>alexandria-markup-server</artifactId>
       <version>${project.version}</version>
       <scope>test</scope>
     </dependency>
