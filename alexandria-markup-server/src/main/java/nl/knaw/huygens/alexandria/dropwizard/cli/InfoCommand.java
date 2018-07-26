@@ -28,8 +28,7 @@ import nl.knaw.huygens.alexandria.markup.api.AppInfo;
 import nl.knaw.huygens.alexandria.storage.TAGDocument;
 import nl.knaw.huygens.alexandria.view.TAGView;
 
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 import static java.lang.String.format;
 import static java.util.stream.Collectors.joining;
@@ -100,19 +99,44 @@ public class InfoCommand extends AlexandriaCommand {
   private String toString(Map.Entry<String, TAGView> entry) {
     String k = entry.getKey();
     TAGView v = entry.getValue();
-    String inOrEx;
-    Set<String> relevantMarkup;
-    if (v.markupStyleIsInclude()) {
-      inOrEx = "included";
-      relevantMarkup = v.getMarkupToInclude();
 
-    } else {
-      inOrEx = "excluded";
-      relevantMarkup = v.getMarkupToExclude();
+    List<String> info = new ArrayList<>();
+
+    String markupRelevance = "";
+    Set<String> relevantMarkup = new TreeSet<>();
+    if (v.markupStyleIsInclude()) {
+      markupRelevance = "included";
+      relevantMarkup.addAll(v.getMarkupToInclude());
+
+    } else if (v.markupStyleIsExclude()) {
+      markupRelevance = "excluded";
+      relevantMarkup.addAll(v.getMarkupToExclude());
     }
-    String markup = relevantMarkup.stream()
-        .sorted()
-        .collect(joining(" "));
-    return format("%s: %s markup = %s", k, inOrEx, markup);
+    if (!relevantMarkup.isEmpty()) {
+      String markup = relevantMarkup.stream()
+          .sorted()
+          .collect(joining(" "));
+      String markupInfo = format("%s markup = %s", markupRelevance, markup);
+      info.add(markupInfo);
+    }
+
+    String layerRelevance = "";
+    Set<String> relevantLayers = new TreeSet<>();
+    if (v.layerStyleIsInclude()) {
+      layerRelevance = "included";
+      relevantLayers.addAll(v.getLayersToInclude());
+
+    } else if (v.layerStyleIsExclude()) {
+      layerRelevance = "excluded";
+      relevantLayers.addAll(v.getLayersToExclude());
+    }
+    if (!relevantLayers.isEmpty()) {
+      String layers = relevantLayers.stream()
+          .sorted()
+          .collect(joining(" "));
+      String layerInfo = format("%s layers = %s", layerRelevance, layers);
+      info.add(layerInfo);
+    }
+    return format("%s:\n    %s", k, info.stream().collect(joining("\n    ")));
   }
 }

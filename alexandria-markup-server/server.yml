@@ -4,7 +4,7 @@ dbDir: ${DB_DIR}
 logging:
   level: INFO
   loggers:
-    nl.knaw.huygens.alexandria: DEBUG
+    nl.knaw.huygens.alexandria: INFO
 
 swagger:
   resourcePackage: nl.knaw.huygens.alexandria.dropwizard.resources
