@@ -2,14 +2,14 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
   <groupId>nl.knaw.huygens.alexandria</groupId>
-  <artifactId>alexandria-markup-lmnl</artifactId>
+  <artifactId>alexandria-markup-app</artifactId>
   <version>2.0-SNAPSHOT</version>
   <inceptionYear>2015</inceptionYear>
   <packaging>pom</packaging>
   <modules>
-    <module>alexandria-markup-lmnl-server</module>
-    <module>alexandria-markup-lmnl-client</module>
-    <module>alexandria-markup-lmnl-api</module>
+    <module>alexandria-markup-api</module>
+    <module>alexandria-markup-server</module>
+    <module>alexandria-markup-client</module>
   </modules>
 
   <properties>
@@ -24,35 +24,34 @@
     <!-- Timestamp settings for use in properties file -->
     <maven.build.timestamp.format>yyyy-MM-dd'T'HH:mm:ss'Z'</maven.build.timestamp.format>
 
-    <dropwizard.version>1.3.1</dropwizard.version>
+    <activation.version>1.1.1</activation.version>
+    <alexandria-markup.version>2.0</alexandria-markup.version>
+    <appassembler-maven-plugin.version>2.0.0</appassembler-maven-plugin.version>
+    <assertj.version>3.9.1</assertj.version>
+    <build-helper-maven.version>3.0.0</build-helper-maven.version>
+    <buildnumber-maven.version>1.4</buildnumber-maven.version>
+    <commons-lang3.version>3.7</commons-lang3.version>
     <dropwizard-swagger.version>1.3.0-1</dropwizard-swagger.version>
-    <jackson-annotations.version>2.9.5
-    </jackson-annotations.version><!-- Should be same version as used by dropwizard -->
+
+    <dropwizard.version>1.3.1</dropwizard.version>
+    <jackson-annotations.version>2.9.5</jackson-annotations.version> <!-- Should be same version as used by dropwizard -->
     <javax.ws.rs-api.version>2.1</javax.ws.rs-api.version><!-- Should be same version as used by dropwizard -->
     <jersey.version>2.27</jersey.version> <!-- Should be same version as used by dropwizard -->
     <logback.version>1.3.0-alpha4</logback.version> <!-- Should be same version as used by dropwizard -->
     <slf4j-api.version>1.8.0-beta2</slf4j-api.version><!-- Should be same version as used by dropwizard -->
 
-    <commons-lang3.version>3.7</commons-lang3.version>
+    <javax.json-api.version>1.1.2</javax.json-api.version>
+    <jaxb-api.version>2.3.0</jaxb-api.version>
+    <jool-java-8.version>0.9.13</jool-java-8.version>
     <junit.version>4.12</junit.version>
     <log.version>1.1.1</log.version>
-    <mockito.version>2.18.0</mockito.version>
-    <assertj.version>3.9.1</assertj.version>
-
+    <maven-assembly-plugin.version>3.1.0</maven-assembly-plugin.version>
     <maven-compiler.version>3.7.0</maven-compiler.version>
     <maven-jar.version>3.0.2</maven-jar.version>
     <maven-license.version>1.14</maven-license.version>
     <maven-shade.version>3.1.0</maven-shade.version>
+    <mockito.version>2.18.0</mockito.version>
     <wagon-ssh.version>2.7</wagon-ssh.version>
-    <alexandria-markup.version>1.2-SNAPSHOT</alexandria-markup.version>
-    <jaxb-api.version>2.3.0</jaxb-api.version>
-    <activation.version>1.1.1</activation.version>
-    <maven-assembly-plugin.version>3.1.0</maven-assembly-plugin.version>
-    <appassembler-maven-plugin.version>2.0.0</appassembler-maven-plugin.version>
-    <build-helper-maven.version>3.0.0</build-helper-maven.version>
-    <buildnumber-maven.version>1.4</buildnumber-maven.version>
-    <jool-java-8.version>0.9.13</jool-java-8.version>
-    <javax.json-api.version>1.1.2</javax.json-api.version>
   </properties>
 
   <build>
