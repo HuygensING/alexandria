@@ -25,7 +25,7 @@
     <maven.build.timestamp.format>yyyy-MM-dd'T'HH:mm:ss'Z'</maven.build.timestamp.format>
 
     <activation.version>1.1.1</activation.version>
-    <alexandria-markup.version>1.3-SNAPSHOT</alexandria-markup.version>
+    <alexandria-markup.version>2.0</alexandria-markup.version>
     <appassembler-maven-plugin.version>2.0.0</appassembler-maven-plugin.version>
     <assertj.version>3.9.1</assertj.version>
     <build-helper-maven.version>3.0.0</build-helper-maven.version>
