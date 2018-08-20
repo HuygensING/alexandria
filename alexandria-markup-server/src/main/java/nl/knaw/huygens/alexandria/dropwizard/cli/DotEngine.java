@@ -21,6 +21,7 @@ package nl.knaw.huygens.alexandria.dropwizard.cli;
  */
 import javax.ws.rs.WebApplicationException;
 import java.io.*;
+import java.nio.charset.StandardCharsets;
 import java.util.concurrent.*;
 
 public class DotEngine {
@@ -76,7 +77,7 @@ public class DotEngine {
 
   private CompletableFuture<Void> processOutputStream(Process dotProc, String dot) {
     return CompletableFuture.runAsync(() -> {
-      try (final Writer dotProcStream = new OutputStreamWriter(dotProc.getOutputStream(), "UTF-8")) {
+      try (final Writer dotProcStream = new OutputStreamWriter(dotProc.getOutputStream(), StandardCharsets.UTF_8)) {
         dotProcStream.write(dot);
       } catch (IOException e) {
         throw new CompletionException(e);
