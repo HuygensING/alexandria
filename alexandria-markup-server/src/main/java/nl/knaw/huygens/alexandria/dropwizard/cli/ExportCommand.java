@@ -36,7 +36,6 @@ import java.util.Map;
 public class ExportCommand extends AlexandriaCommand {
   private static final String DOCUMENT = "document";
   private static final String FORMAT = "format";
-  private final DotEngine dotEngine = new DotEngine(Util.detectDotPath());
 
   public ExportCommand() {
     super("export", "Export the document.");
@@ -48,12 +47,12 @@ public class ExportCommand extends AlexandriaCommand {
         .dest(DOCUMENT)//
         .type(String.class)//
         .required(true)//
-        .help("The name of the document to query.");
+        .help("The name of the document to export.");
     subparser.addArgument("-f", "--format")//
         .dest(FORMAT)
         .type(String.class)//
         .required(true)//
-        .help("The format to expot in.");
+        .help("The format to export in. (currently supported: dot, svg, png)");
   }
 
   @Override
@@ -71,6 +70,7 @@ public class ExportCommand extends AlexandriaCommand {
       DotFactory dotFactory = new DotFactory();
       String dot = dotFactory.toDot(document, "");
       String fileName = docName + "." + format;
+      System.out.print("exporting to file " + fileName + "...");
       try {
         switch (format) {
           case "dot":
@@ -90,12 +90,15 @@ public class ExportCommand extends AlexandriaCommand {
       } catch (IOException e) {
         e.printStackTrace();
       }
+      System.out.println();
+      System.out.println("done!");
 
     });
     store.close();
   }
 
   private void renderDotAs(String dot, String format, String fileName) {
+    DotEngine dotEngine = new DotEngine(Util.detectDotPath());
     File file = new File(fileName);
     try {
       file.createNewFile();
@@ -105,7 +108,6 @@ public class ExportCommand extends AlexandriaCommand {
     } catch (IOException e) {
       e.printStackTrace();
     }
-
   }
 
 }
