@@ -24,8 +24,11 @@ import com.google.common.base.Charsets;
 import io.dropwizard.setup.Bootstrap;
 import net.sourceforge.argparse4j.inf.Namespace;
 import net.sourceforge.argparse4j.inf.Subparser;
+import nl.knaw.huc.di.tag.TAGViews;
 import nl.knaw.huc.di.tag.model.graph.DotFactory;
+import nl.knaw.huc.di.tag.tagml.xml.exporter.XMLExporter;
 import nl.knaw.huygens.alexandria.storage.TAGDocument;
+import nl.knaw.huygens.alexandria.view.TAGView;
 import org.apache.commons.io.FileUtils;
 
 import java.io.File;
@@ -36,6 +39,7 @@ import java.util.Map;
 public class ExportCommand extends AlexandriaCommand {
   private static final String DOCUMENT = "document";
   private static final String FORMAT = "format";
+  private static final String VIEW = "view";
 
   public ExportCommand() {
     super("export", "Export the document.");
@@ -52,7 +56,12 @@ public class ExportCommand extends AlexandriaCommand {
         .dest(FORMAT)
         .type(String.class)//
         .required(true)//
-        .help("The format to export in. (currently supported: dot, svg, png)");
+        .help("The format to export in. (currently supported: dot, svg, png, xml)");
+    subparser.addArgument("-v", "--view")//
+        .dest(VIEW)
+        .type(String.class)//
+        .required(false)//
+        .help("The name of the view to use (only when format=xml)");
   }
 
   @Override
@@ -61,18 +70,40 @@ public class ExportCommand extends AlexandriaCommand {
     Map<String, Long> documentIndex = readDocumentIndex();
     String docName = namespace.getString(DOCUMENT);
     String format = namespace.getString(FORMAT);
+    String viewName = namespace.getString(VIEW);
+    boolean useView = viewName != null;
     Long docId = documentIndex.get(docName);
     store.open();
     store.runInTransaction(() -> {
       System.out.printf("document: %s%n", docName);
       System.out.printf("format: %s%n", format);
+
+      System.out.printf("Retrieving document %s%n", docName);
       TAGDocument document = store.getDocument(docId);
+
+      TAGView tagView;
+      if (useView) {
+        Map<String, TAGView> viewMap = readViewMap();
+        System.out.printf("Retrieving view %s%n", viewName);
+        tagView = viewMap.get(viewName);
+      } else {
+        tagView = TAGViews.getShowAllMarkupView(store);
+      }
+
       DotFactory dotFactory = new DotFactory();
       String dot = dotFactory.toDot(document, "");
-      String fileName = docName + "." + format;
-      System.out.print("exporting to file " + fileName + "...");
+
+      String sub = useView ? "-" + viewName : "";
+      String fileName = String.format("%s%s.%s", docName, sub, format);
+      System.out.printf("exporting to file %s...", fileName);
       try {
         switch (format) {
+          case "xml":
+            XMLExporter xmlExporter = new XMLExporter(store, tagView);
+            String xml = xmlExporter.asXML(document);
+            FileUtils.writeStringToFile(new File(fileName), xml, Charsets.UTF_8);
+            break;
+
           case "dot":
             FileUtils.writeStringToFile(new File(fileName), dot, Charsets.UTF_8);
             break;
