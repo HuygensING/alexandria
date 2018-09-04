@@ -70,3 +70,10 @@ Go to the directory that you unpacked the zip into, and enter:
 * `alexandria info`
 
   This will show the version and build date of the app, and the names of the documents and views that are registered.
+
+* `alexandria export -d d -f {dot|png|svg}`  
+  or  
+  `alexandria export --document d --format {dot|png|svg}`
+  
+  This will export the graph of document `d` using the chosen format (valid options: `dot`, `png`, `svg`).
+  
