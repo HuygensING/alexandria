@@ -2,7 +2,7 @@
 
 ## download
 
-An up-to-date version can be downloaded from [https://cdn.huygens.knaw.nl/alexandria/alexandria-app.zip]
+An up-to-date version can be downloaded from <https://cdn.huygens.knaw.nl/alexandria/alexandria-app.zip>
 
 Alternatively, you can build it yourself:
 
