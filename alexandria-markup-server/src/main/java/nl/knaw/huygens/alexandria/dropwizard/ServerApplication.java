@@ -96,6 +96,8 @@ public class ServerApplication extends Application<ServerConfiguration> {
     bootstrap.addCommand(new RevertCommand());
     bootstrap.addCommand(new CheckInCommand());
     bootstrap.addCommand(new ExportCommand());
+    bootstrap.addCommand(new ExportTagmlCommand());
+    bootstrap.addCommand(new ImportTagmlCommand());
   }
 
   @Override
