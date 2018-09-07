@@ -70,3 +70,17 @@ Go to the directory that you unpacked the zip into, and enter:
 * `alexandria info`
 
   This will show the version and build date of the app, and the names of the documents and views that are registered.
+
+* `alexandria export-tagml -d d [-f frost-quote.tagml]`  
+  or  
+  `alexandria export-tagml --document d [--file frost-quote.tagml]`
+
+  This will export document `d` as a TAGML.  
+  The `-f` / `--file` parameter is optional, when omitted the document will be exported to `{document name}.tagml`, so `d.tagml` in this case.
+
+* `alexandria import-tagml -d d [-f edited.tagml]`  
+  or  
+  `alexandria import-tagml --document d [--file edited.tagml]`
+
+  This will import the `edited.tagml` TAGML file into document `d`.  
+  The `-f` / `--file` parameter is optional, when omitted the document will be imported from `d.tagml`
