@@ -56,6 +56,7 @@ public class ExportCommand extends AlexandriaCommand {
         .dest(FORMAT)
         .type(String.class)//
         .required(true)//
+        .choices("dot", "svg", "png")
         .help("The format to export in. (currently supported: dot, svg, png, xml)");
     subparser.addArgument("-v", "--view")//
         .dest(VIEW)
