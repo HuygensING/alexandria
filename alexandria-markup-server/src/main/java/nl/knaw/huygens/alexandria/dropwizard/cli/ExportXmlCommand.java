@@ -25,14 +25,12 @@ import io.dropwizard.setup.Bootstrap;
 import net.sourceforge.argparse4j.inf.Namespace;
 import net.sourceforge.argparse4j.inf.Subparser;
 import nl.knaw.huc.di.tag.TAGViews;
-import nl.knaw.huc.di.tag.model.graph.DotFactory;
 import nl.knaw.huc.di.tag.tagml.xml.exporter.XMLExporter;
 import nl.knaw.huygens.alexandria.storage.TAGDocument;
 import nl.knaw.huygens.alexandria.view.TAGView;
 import org.apache.commons.io.FileUtils;
 
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.Map;
 
@@ -81,9 +79,6 @@ public class ExportXmlCommand extends AlexandriaCommand {
       } else {
         tagView = TAGViews.getShowAllMarkupView(store);
       }
-
-      DotFactory dotFactory = new DotFactory();
-      String dot = dotFactory.toDot(document, "");
 
       String sub = useView ? "-" + viewName : "";
       String fileName = String.format("%s%s.%s", docName, sub, format);
