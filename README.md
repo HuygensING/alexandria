@@ -2,7 +2,7 @@
 
 ## download
 
-An up-to-date version can be downloaded from <https://cdn.huygens.knaw.nl/alexandria/alexandria-app.zip>
+An up-to-date version can be downloaded from [https://cdn.huygens.knaw.nl/alexandria/alexandria-app.zip]
 
 Alternatively, you can build it yourself:
 
@@ -97,14 +97,16 @@ Go to the directory that you unpacked the zip into, and enter:
   
   This will export view `v` on document `d` as xml, to file d-v.xml.
   
-* `alexandria export-tagml -d d`  
+* `alexandria export-tagml -d d [-f frost-quote.tagml]`  
   or  
-  `alexandria export-tagml --document d`
-  
-  This will export document `d` as tagml to file d.tagml.
+  `alexandria export-tagml --document d [--file frost-quote.tagml]`
 
-* `alexandria import-tagml -d d -f d.tagml`  
+  This will export document `d` as a TAGML.  
+  The `-f` / `--file` parameter is optional, when omitted the document will be exported to `{document name}.tagml`, so `d.tagml` in this case.
+
+* `alexandria import-tagml -d d [-f edited.tagml]`  
   or  
-  `alexandria import-tagml --document d --file d.tagml`
-  
-  This will parse the file `d.tagml` and overwrite the current model of document `d` with the result.
+  `alexandria import-tagml --document d [--file edited.tagml]`
+
+  This will import the `edited.tagml` TAGML file into document `d`.  
+  The `-f` / `--file` parameter is optional, when omitted the document will be imported from `d.tagml`
