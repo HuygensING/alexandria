@@ -95,7 +95,12 @@ public class ServerApplication extends Application<ServerConfiguration> {
     bootstrap.addCommand(new DiffCommand());
     bootstrap.addCommand(new RevertCommand());
     bootstrap.addCommand(new CheckInCommand());
-    bootstrap.addCommand(new ExportCommand());
+    bootstrap.addCommand(new ExportDotCommand());
+    bootstrap.addCommand(new ExportRenderedDotCommand("svg"));
+    bootstrap.addCommand(new ExportRenderedDotCommand("png"));
+    bootstrap.addCommand(new ExportXmlCommand());
+    bootstrap.addCommand(new ExportTagmlCommand());
+    bootstrap.addCommand(new ImportTagmlCommand());
   }
 
   @Override

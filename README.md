@@ -2,7 +2,7 @@
 
 ## download
 
-An up-to-date version can be downloaded from <https://cdn.huygens.knaw.nl/alexandria/alexandria-app.zip>
+An up-to-date version can be downloaded from [https://cdn.huygens.knaw.nl/alexandria/alexandria-app.zip]
 
 Alternatively, you can build it yourself:
 
@@ -71,9 +71,42 @@ Go to the directory that you unpacked the zip into, and enter:
 
   This will show the version and build date of the app, and the names of the documents and views that are registered.
 
-* `alexandria export -d d -f {dot|png|svg}`  
+* `alexandria export-dot -d d`  
   or  
-  `alexandria export --document d --format {dot|png|svg}`
+  `alexandria export-dot --document d`
   
-  This will export the graph of document `d` using the chosen format (valid options: `dot`, `png`, `svg`).
+  This will export the graph of document `d` using the dot format, to file d.dot.
+
+* `alexandria export-svg -d d`  
+  or  
+  `alexandria export-svg --document d`
   
+  This will export the graph of document `d` as svg to file d.svg.
+  For this command, graphviz needs to be installed.
+
+* `alexandria export-png -d d`  
+  or  
+  `alexandria export-png --document d`
+  
+  This will export the graph of document `d` as png to file d.png.
+  For this command, graphviz needs to be installed.
+
+* `alexandria export-xml -d d -v v`  
+  or  
+  `alexandria export-xml --document d --view v`
+  
+  This will export view `v` on document `d` as xml, to file d-v.xml.
+  
+* `alexandria export-tagml -d d [-f frost-quote.tagml]`  
+  or  
+  `alexandria export-tagml --document d [--file frost-quote.tagml]`
+
+  This will export document `d` as a TAGML.  
+  The `-f` / `--file` parameter is optional, when omitted the document will be exported to `{document name}.tagml`, so `d.tagml` in this case.
+
+* `alexandria import-tagml -d d [-f edited.tagml]`  
+  or  
+  `alexandria import-tagml --document d [--file edited.tagml]`
+
+  This will import the `edited.tagml` TAGML file into document `d`.  
+  The `-f` / `--file` parameter is optional, when omitted the document will be imported from `d.tagml`
