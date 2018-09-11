@@ -71,6 +71,32 @@ Go to the directory that you unpacked the zip into, and enter:
 
   This will show the version and build date of the app, and the names of the documents and views that are registered.
 
+* `alexandria export-dot -d d`  
+  or  
+  `alexandria export-dot --document d`
+  
+  This will export the graph of document `d` using the dot format, to file d.dot.
+
+* `alexandria export-svg -d d`  
+  or  
+  `alexandria export-svg --document d`
+  
+  This will export the graph of document `d` as svg to file d.svg.
+  For this command, graphviz needs to be installed.
+
+* `alexandria export-png -d d`  
+  or  
+  `alexandria export-png --document d`
+  
+  This will export the graph of document `d` as png to file d.png.
+  For this command, graphviz needs to be installed.
+
+* `alexandria export-xml -d d -v v`  
+  or  
+  `alexandria export-xml --document d --view v`
+  
+  This will export view `v` on document `d` as xml, to file d-v.xml.
+  
 * `alexandria export-tagml -d d [-f frost-quote.tagml]`  
   or  
   `alexandria export-tagml --document d [--file frost-quote.tagml]`
