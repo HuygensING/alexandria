@@ -31,7 +31,6 @@ import org.apache.commons.lang3.StringUtils;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.Map;
 
 public class ExportTagmlCommand extends AlexandriaCommand {
   private static final String DOCUMENT = "document";
@@ -58,9 +57,8 @@ public class ExportTagmlCommand extends AlexandriaCommand {
   @Override
   public void run(Bootstrap<?> bootstrap, Namespace namespace) {
     checkDirectoryIsInitialized();
-    Map<String, Long> documentIndex = readDocumentIndex();
     String docName = namespace.getString(DOCUMENT);
-    Long docId = documentIndex.get(docName);
+    Long docId = getIdForExistingDocument(docName);
     store.open();
     store.runInTransaction(() -> {
       System.out.printf("document: %s%n", docName);

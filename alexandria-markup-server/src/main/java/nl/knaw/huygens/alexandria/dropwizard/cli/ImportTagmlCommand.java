@@ -65,7 +65,7 @@ public class ImportTagmlCommand extends AlexandriaCommand {
     checkDirectoryIsInitialized();
     Map<String, Long> documentIndex = readDocumentIndex();
     String docName = namespace.getString(DOCUMENT);
-    Long docId = documentIndex.get(docName);
+    Long docId = getIdForExistingDocument(docName);
 
     String filename = StringUtils.defaultIfBlank(namespace.getString(FILE), docName + ".tagml");
     System.out.printf("Parsing and importing %s into document %s...%n", filename, docName);

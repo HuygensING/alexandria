@@ -32,7 +32,6 @@ import org.apache.commons.io.FileUtils;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.Map;
 
 public class ExportXmlCommand extends AlexandriaCommand {
   private static final String DOCUMENT = "document";
@@ -59,11 +58,10 @@ public class ExportXmlCommand extends AlexandriaCommand {
   @Override
   public void run(Bootstrap<?> bootstrap, Namespace namespace) {
     checkDirectoryIsInitialized();
-    Map<String, Long> documentIndex = readDocumentIndex();
     String docName = namespace.getString(DOCUMENT);
     String viewName = namespace.getString(VIEW);
     boolean useView = viewName != null;
-    Long docId = documentIndex.get(docName);
+    Long docId = getIdForExistingDocument(docName);
     store.open();
     store.runInTransaction(() -> {
       System.out.printf("document: %s%n", docName);
@@ -73,9 +71,8 @@ public class ExportXmlCommand extends AlexandriaCommand {
 
       TAGView tagView;
       if (useView) {
-        Map<String, TAGView> viewMap = readViewMap();
         System.out.printf("Retrieving view %s%n", viewName);
-        tagView = viewMap.get(viewName);
+        tagView = getExistingView(viewName);
       } else {
         tagView = TAGViews.getShowAllMarkupView(store);
       }

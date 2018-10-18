@@ -27,8 +27,6 @@ import nl.knaw.huygens.alexandria.query.TAGQLQueryHandler;
 import nl.knaw.huygens.alexandria.query.TAGQLResult;
 import nl.knaw.huygens.alexandria.storage.TAGDocument;
 
-import java.util.Map;
-
 import static java.util.stream.Collectors.joining;
 
 public class QueryCommand extends AlexandriaCommand {
@@ -56,10 +54,9 @@ public class QueryCommand extends AlexandriaCommand {
   @Override
   public void run(Bootstrap<?> bootstrap, Namespace namespace) {
     checkDirectoryIsInitialized();
-    Map<String, Long> documentIndex = readDocumentIndex();
     String docName = namespace.getString(DOCUMENT);
     String statement = namespace.getString(QUERY);
-    Long docId = documentIndex.get(docName);
+    Long docId = getIdForExistingDocument(docName);
     store.open();
     store.runInTransaction(() -> {
       System.out.printf("document: %s%n", docName);

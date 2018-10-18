@@ -30,7 +30,6 @@ import org.apache.commons.io.FileUtils;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.Map;
 
 abstract class AbstractGraphvizCommand extends AlexandriaCommand {
   private static final String DOCUMENT = "document";
@@ -51,9 +50,8 @@ abstract class AbstractGraphvizCommand extends AlexandriaCommand {
   @Override
   public void run(Bootstrap<?> bootstrap, Namespace namespace) {
     checkDirectoryIsInitialized();
-    Map<String, Long> documentIndex = readDocumentIndex();
     String docName = namespace.getString(DOCUMENT);
-    Long docId = documentIndex.get(docName);
+    Long docId = getIdForExistingDocument(docName);
     store.open();
     store.runInTransaction(() -> {
       System.out.printf("document: %s%n", docName);
