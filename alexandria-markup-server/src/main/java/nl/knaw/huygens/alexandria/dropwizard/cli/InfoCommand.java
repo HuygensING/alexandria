@@ -137,6 +137,6 @@ public class InfoCommand extends AlexandriaCommand {
       String layerInfo = format("%s layers = %s", layerRelevance, layers);
       info.add(layerInfo);
     }
-    return format("%s:\n    %s", k, info.stream().collect(joining("\n    ")));
+    return format("%s:\n    %s", k, String.join("\n    ", info));
   }
 }

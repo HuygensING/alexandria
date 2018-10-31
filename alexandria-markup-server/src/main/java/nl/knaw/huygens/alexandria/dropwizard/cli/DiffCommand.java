@@ -75,7 +75,7 @@ public class DiffCommand extends AlexandriaCommand {
 
         System.out.printf("diff for document %s, using view %s:%n", documentName, viewId);
         if (comparison.hasDifferences()) {
-          System.out.printf("%s%n", comparison.getDiffLines().stream().collect(joining("\n")));
+          System.out.printf("%s%n", String.join("\n", comparison.getDiffLines()));
         } else {
           System.out.println("no changes");
         }
