@@ -34,8 +34,6 @@ import java.io.File;
 import java.io.IOException;
 import java.io.UncheckedIOException;
 
-import static java.util.stream.Collectors.joining;
-
 public class DiffCommand extends AlexandriaCommand {
 
   public DiffCommand() {
