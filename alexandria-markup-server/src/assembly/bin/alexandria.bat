@@ -70,7 +70,7 @@ set REPO=
 
 if "%JAVACMD%"=="" set JAVACMD=java
 
-if "%REPO%"=="" set REPO=%BASEDIR%\repo
+if "%REPO%"=="" set REPO=%BASEDIR%\lib
 
 set CLASSPATH="%BASEDIR%"\conf;"%REPO%"\alexandria.jar
 
