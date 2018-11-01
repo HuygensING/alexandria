@@ -53,6 +53,8 @@ public class InfoCommand extends AlexandriaCommand {
   public void run(Bootstrap<?> bootstrap, Namespace namespace) {
     System.out.printf("alexandria version %s%n", appInfo.getVersion());
     System.out.printf("build date: %s%n%n", appInfo.getBuildDate());
+    checkDirectoryIsInitialized();
+
     showDocuments();
     showViews();
   }
