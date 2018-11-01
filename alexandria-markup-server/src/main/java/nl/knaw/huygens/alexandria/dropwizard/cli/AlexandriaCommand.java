@@ -134,4 +134,22 @@ public abstract class AlexandriaCommand extends Command {
     }
   }
 
+  Long getIdForExistingDocument(String docName) {
+    Map<String, Long> documentIndex = readDocumentIndex();
+    if (!documentIndex.containsKey(docName)) {
+      System.err.println("ERROR: No document '" + docName + "' was registered.\n  alexandria info\nwill show you which documents and views have been registered.");
+      System.exit(-1);
+    }
+    return documentIndex.get(docName);
+  }
+
+  TAGView getExistingView(String viewName) {
+    Map<String, TAGView> viewMap = readViewMap();
+    if (!viewMap.containsKey(viewName)){
+      System.err.println("ERROR: No view '" + viewName + "' was registered.\n  alexandria info\nwill show you which documents and views have been registered.");
+      System.exit(-1);
+    }
+    return viewMap.get(viewName);
+  }
+
 }

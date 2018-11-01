@@ -57,7 +57,7 @@ public class DiffCommand extends AlexandriaCommand {
 
       String filename = namespace.getString(FILE);
       String documentName = context.getDocumentName(filename);
-      Long documentId = readDocumentIndex().get(documentName);
+      Long documentId = getIdForExistingDocument(documentName);
       TAGDocument original = store.getDocument(documentId);
 
       String viewId = context.getViewName(filename);

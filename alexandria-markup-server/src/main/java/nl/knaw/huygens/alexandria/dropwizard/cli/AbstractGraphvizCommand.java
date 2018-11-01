@@ -20,17 +20,13 @@ package nl.knaw.huygens.alexandria.dropwizard.cli;
  * #L%
  */
 
-import com.google.common.base.Charsets;
 import io.dropwizard.setup.Bootstrap;
 import net.sourceforge.argparse4j.inf.Namespace;
 import net.sourceforge.argparse4j.inf.Subparser;
 import nl.knaw.huc.di.tag.model.graph.DotFactory;
 import nl.knaw.huygens.alexandria.storage.TAGDocument;
-import org.apache.commons.io.FileUtils;
 
-import java.io.File;
 import java.io.IOException;
-import java.util.Map;
 
 abstract class AbstractGraphvizCommand extends AlexandriaCommand {
   private static final String DOCUMENT = "document";
@@ -51,9 +47,8 @@ abstract class AbstractGraphvizCommand extends AlexandriaCommand {
   @Override
   public void run(Bootstrap<?> bootstrap, Namespace namespace) {
     checkDirectoryIsInitialized();
-    Map<String, Long> documentIndex = readDocumentIndex();
     String docName = namespace.getString(DOCUMENT);
-    Long docId = documentIndex.get(docName);
+    Long docId = getIdForExistingDocument(docName);
     store.open();
     store.runInTransaction(() -> {
       System.out.printf("document: %s%n", docName);
@@ -67,7 +62,6 @@ abstract class AbstractGraphvizCommand extends AlexandriaCommand {
       System.out.printf("exporting to file %s...", fileName);
       try {
         render(dot, fileName);
-        FileUtils.writeStringToFile(new File(fileName), dot, Charsets.UTF_8);
       } catch (IOException e) {
         e.printStackTrace();
       }

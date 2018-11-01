@@ -58,11 +58,11 @@ public class RevertCommand extends AlexandriaCommand {
       String documentName = context.getDocumentName(filename);
       System.out.printf("Reverting %s%n", filename);
 
-      Long documentId = readDocumentIndex().get(documentName);
-      TAGDocument tAGDocument = store.getDocument(documentId);
+      Long docId = getIdForExistingDocument(documentName);
+      TAGDocument tAGDocument = store.getDocument(docId);
 
       String viewId = context.getViewName(filename);
-      TAGView tagView = readViewMap().get(viewId);
+      TAGView tagView = getExistingView(viewId);
 
       TAGMLExporter tagmlExporter = new TAGMLExporter(store, tagView);
       String tagml = tagmlExporter.asTAGML(tAGDocument)

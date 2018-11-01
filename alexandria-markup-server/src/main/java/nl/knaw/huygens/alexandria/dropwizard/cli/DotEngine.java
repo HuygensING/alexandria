@@ -19,6 +19,7 @@ package nl.knaw.huygens.alexandria.dropwizard.cli;
  * limitations under the License.
  * #L%
  */
+
 import javax.ws.rs.WebApplicationException;
 import java.io.*;
 import java.nio.charset.StandardCharsets;
@@ -47,12 +48,13 @@ public class DotEngine {
     } catch (InterruptedException | ExecutionException e) {
       throw new WebApplicationException(e);
     }
+    processThreads.shutdown();
   }
 
   private CompletableFuture<Void> waitForCompletion(Process dotProc, StringWriter errors) {
     return CompletableFuture.runAsync(() -> {
       try {
-        if (!dotProc.waitFor(2,TimeUnit.MINUTES)) {
+        if (!dotProc.waitFor(2, TimeUnit.MINUTES)) {
           throw new CompletionException(new IllegalStateException(errors.toString()));
         }
       } catch (InterruptedException e) {
@@ -96,6 +98,7 @@ public class DotEngine {
       } catch (IOException e) {
         throw new CompletionException(e);
       }
+
     }, processThreads);
   }
 

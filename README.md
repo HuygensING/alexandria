@@ -51,9 +51,9 @@ Go to the directory that you unpacked the zip into, and enter:
   
   The view definition registered by this command can later be referred to by its name: `s`
 
-* `alexandria checkout -v s -d d`  
+* `alexandria checkout -d d -v s`  
   or  
-  `alexandria checkout --view s --document d`
+  `alexandria checkout --document d --view s`
 
   This will export a view of document `d` using view definition `s`.
   
@@ -110,3 +110,33 @@ Go to the directory that you unpacked the zip into, and enter:
 
   This will import the `edited.tagml` TAGML file into document `d`.  
   The `-f` / `--file` parameter is optional, when omitted the document will be imported from `d.tagml`
+  
+* `alexandria -h`
+  or
+  `alexandria --help`
+  
+  This will show a list of the available commands (positional arguments)
+
+####NOTE:
+ In all of the previous commands, the parameters are order independent, so   
+  `alexandria register-document -n d -f frost-quote.tagml`  
+  gives the same result as  
+  `alexandria register-document -f frost-quote.tagml -n d`
+  
+  To show more information about an alexandria command, add `-h` or `--help`
+  
+  For example:
+  ```
+   alexandria register-document -h
+   usage: java -jar alexandria.jar
+          register-document -n NAME -f FILE [-h]
+   
+   Parse a TAGML document and store it as TAG
+   
+   named arguments:
+     -n NAME, --name NAME   The name of the document
+     -f FILE, --file FILE   The file containing the document TAGML source
+     -h, --help             show this help message and exit
+```
+  
+  

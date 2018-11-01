@@ -32,7 +32,6 @@ import org.apache.commons.io.FileUtils;
 import java.io.File;
 import java.io.IOException;
 import java.io.UncheckedIOException;
-import java.util.Map;
 
 public class CheckOutCommand extends AlexandriaCommand {
   private static final String VIEW = "view";
@@ -60,22 +59,20 @@ public class CheckOutCommand extends AlexandriaCommand {
   @Override
   public void run(Bootstrap<?> bootstrap, Namespace namespace) {
     checkDirectoryIsInitialized();
-    Map<String, Long> documentIndex = readDocumentIndex();
-    Map<String, TAGView> viewMap = readViewMap();
 
     String viewName = namespace.getString(VIEW);
     String docName = namespace.getString(DOCUMENT);
     String outFilename = String.format("%s-%s.tagml", docName, viewName);
 
     System.out.printf("Exporting document %s using view %s to %s...%n", docName, viewName, outFilename);
-    Long docId = documentIndex.get(docName);
+    Long docId = getIdForExistingDocument(docName);
     store.open();
     store.runInTransaction(() -> {
       System.out.printf("Retrieving document %s%n", docName);
       TAGDocument document = store.getDocument(docId);
 
       System.out.printf("Retrieving view %s%n", viewName);
-      TAGView tagView = viewMap.get(viewName);
+      TAGView tagView = getExistingView(viewName);
 
       System.out.printf("Exporting document view to %s%n", outFilename);
       TAGMLExporter tagmlExporter = new TAGMLExporter(store, tagView);
