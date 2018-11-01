@@ -48,6 +48,7 @@ public class DotEngine {
     } catch (InterruptedException | ExecutionException e) {
       throw new WebApplicationException(e);
     }
+    processThreads.shutdown();
   }
 
   private CompletableFuture<Void> waitForCompletion(Process dotProc, StringWriter errors) {
