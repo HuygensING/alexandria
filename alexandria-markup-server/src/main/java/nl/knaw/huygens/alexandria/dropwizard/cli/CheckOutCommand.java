@@ -32,7 +32,6 @@ import org.apache.commons.io.FileUtils;
 import java.io.File;
 import java.io.IOException;
 import java.io.UncheckedIOException;
-import java.util.Map;
 
 public class CheckOutCommand extends AlexandriaCommand {
   private static final String VIEW = "view";
