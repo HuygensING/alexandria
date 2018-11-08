@@ -22,3 +22,6 @@ hs_err_pid*
 
 alexandria-markup-server/.alexandria/
 clips.txt
+
+# jupyter NB checkpoints
+*.ipynb_checkpoints/
