@@ -96,6 +96,7 @@ Go to the directory that you unpacked the zip into, and enter:
   `alexandria export-xml --document d --view v`
   
   This will export view `v` on document `d` as xml, to file d-v.xml.
+  [Trojan Horse markup](http://www.balisage.net/Proceedings/vol21/html/Sperberg-McQueen01/BalisageVol21-Sperberg-McQueen01.html) is used to deal with overlapping hierarchies.
   
 * `alexandria export-tagml -d d [-f frost-quote.tagml]`  
   or  
