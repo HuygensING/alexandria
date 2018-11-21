@@ -28,9 +28,7 @@
     </encoder>
   </appender>
 
-  <logger name="org.apache.solr" level="WARN"/>
-
-  <root level="info">
+  <root level="error">
     <appender-ref ref="STDOUT"/>
   </root>
 </configuration>
