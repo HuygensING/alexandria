@@ -56,7 +56,7 @@ public class StatusCommand extends AlexandriaCommand {
     checkDirectoryIsInitialized();
 
     CLIContext context = readContext();
-    System.out.printf("Active view: %s", context.getActiveView());
+    System.out.printf("Active view: %s%n", context.getActiveView());
     showDocuments();
     showViews();
   }

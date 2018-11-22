@@ -1,5 +1,24 @@
 package nl.knaw.huygens.alexandria.dropwizard.cli;
 
+/*-
+ * #%L
+ * alexandria-markup-client
+ * =======
+ * Copyright (C) 2015 - 2018 Huygens ING (KNAW)
+ * =======
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ * 
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ * #L%
+ */
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.dropwizard.cli.Cli;
 import io.dropwizard.setup.Bootstrap;
@@ -92,7 +111,9 @@ public abstract class CommandIntegrationTest {
   void softlyAssertSucceedsWithExpectedStdout(final boolean success, final String expectedOutput) {
     SoftAssertions softly = new SoftAssertions();
     softly.assertThat(success).as("Exit success").isTrue();
-    softly.assertThat(stdOut.toString().trim()).as("stdout").isEqualTo(expectedOutput.trim());
+
+    String normalizedExpectedOutput = normalize(expectedOutput);
+    softly.assertThat(stdOut.toString().trim()).as("stdout").isEqualTo(normalizedExpectedOutput);
     softly.assertThat(stdErr.toString().trim()).as("stderr").isEmpty();
     softly.assertAll();
   }
@@ -152,6 +173,12 @@ public abstract class CommandIntegrationTest {
     assertThat(cli.run("init")).isTrue();
     stdOut.reset();
     stdErr.reset();
+  }
+
+  void assertCommandRunsInAnInitializedDirectory(final String... cliArguments) throws Exception {
+    final boolean success = cli.run(cliArguments);
+    assertThat(success).isFalse();
+    assertThat(getCliStdErrAsString()).isEqualTo("Initialize first");
   }
 
 }
