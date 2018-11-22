@@ -66,7 +66,7 @@ public class RegisterDocumentCommand extends AlexandriaCommand {
     String docName = namespace.getString(NAME);
     System.out.printf("Parsing %s to document %s...%n", filename, docName);
 
-    try (TAGStore store = new TAGStore(PROJECT_DIR, false)) {
+    try (TAGStore store = new TAGStore(ALEXANDRIA_DIR, false)) {
       store.runInTransaction(Unchecked.runnable(() -> {
         TAGMLImporter tagmlImporter = new TAGMLImporter(store);
         File file = new File(filename);

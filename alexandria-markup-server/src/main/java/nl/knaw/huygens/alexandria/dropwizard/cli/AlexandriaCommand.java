@@ -9,9 +9,9 @@ package nl.knaw.huygens.alexandria.dropwizard.cli;
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -23,6 +23,7 @@ package nl.knaw.huygens.alexandria.dropwizard.cli;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.dropwizard.cli.Command;
+import nl.knaw.huygens.alexandria.markup.api.AlexandriaProperties;
 import nl.knaw.huygens.alexandria.storage.TAGStore;
 import nl.knaw.huygens.alexandria.view.TAGView;
 import nl.knaw.huygens.alexandria.view.TAGViewDefinition;
@@ -40,25 +41,32 @@ import static java.util.stream.Collectors.toMap;
 
 public abstract class AlexandriaCommand extends Command {
   private static final Logger LOG = LoggerFactory.getLogger(AlexandriaCommand.class);
-  static final String PROJECT_DIR = ".alexandria";
+  static final String ALEXANDRIA_DIR = ".alexandria";
   final String NAME = "name";
   final String FILE = "file";
   final TAGStore store;
 
+  private final String alexandriaDir;
+  private final File viewsFile;
+  private final File documentIndexFile;
+  private final File contextFile;
+  private final String workDir;
+
   public AlexandriaCommand(String name, String description) {
     super(name, description);
+    workDir = System.getProperty(AlexandriaProperties.WORKDIR, ".");
+    alexandriaDir = workDir + "/" + ALEXANDRIA_DIR;
     initProjectDir();
-    store = new TAGStore(PROJECT_DIR, false);
+    store = new TAGStore(alexandriaDir, false);
+
+    viewsFile = new File(alexandriaDir, "views.json");
+    documentIndexFile = new File(alexandriaDir, "document_index.json");
+    contextFile = new File(alexandriaDir, "context.json");
   }
 
   private void initProjectDir() {
-    File dir = new File(PROJECT_DIR);
-    dir.mkdir();
+    new File(alexandriaDir).mkdir();
   }
-
-  private final File viewsFile = new File(PROJECT_DIR, "views.json");
-  private final File documentIndexFile = new File(PROJECT_DIR, "document_index.json");
-  private final File contextFile = new File(PROJECT_DIR, "context.json");
 
   Map<String, TAGView> readViewMap() {
     TAGViewFactory viewFactory = new TAGViewFactory(store);
@@ -137,7 +145,7 @@ public abstract class AlexandriaCommand extends Command {
   Long getIdForExistingDocument(String docName) {
     Map<String, Long> documentIndex = readDocumentIndex();
     if (!documentIndex.containsKey(docName)) {
-      System.err.println("ERROR: No document '" + docName + "' was registered.\n  alexandria info\nwill show you which documents and views have been registered.");
+      System.err.println("ERROR: No document '" + docName + "' was registered.\n  alexandria status\nwill show you which documents and views have been registered.");
 //      System.exit(-1);
     }
     return documentIndex.get(docName);
@@ -145,8 +153,8 @@ public abstract class AlexandriaCommand extends Command {
 
   TAGView getExistingView(String viewName) {
     Map<String, TAGView> viewMap = readViewMap();
-    if (!viewMap.containsKey(viewName)){
-      System.err.println("ERROR: No view '" + viewName + "' was registered.\n  alexandria info\nwill show you which documents and views have been registered.");
+    if (!viewMap.containsKey(viewName)) {
+      System.err.println("ERROR: No view '" + viewName + "' was registered.\n  alexandria status\nwill show you which documents and views have been registered.");
 //      System.exit(-1);
     }
     return viewMap.get(viewName);

@@ -69,7 +69,7 @@ public class ImportTagmlCommand extends AlexandriaCommand {
 
     String filename = StringUtils.defaultIfBlank(namespace.getString(FILE), docName + ".tagml");
     System.out.printf("Parsing and importing %s into document %s...%n", filename, docName);
-    try (TAGStore store = new TAGStore(PROJECT_DIR, false)) {
+    try (TAGStore store = new TAGStore(ALEXANDRIA_DIR, false)) {
       store.runInTransaction(Unchecked.runnable(() -> {
         TAGMLImporter tagmlImporter = new TAGMLImporter(store);
         File file = new File(filename);
