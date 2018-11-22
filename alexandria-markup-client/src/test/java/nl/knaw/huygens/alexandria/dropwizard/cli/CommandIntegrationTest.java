@@ -28,17 +28,18 @@ import static org.mockito.Mockito.when;
 public abstract class CommandIntegrationTest {
   Logger LOG = LoggerFactory.getLogger(this.getClass());
 
+  Cli cli;
+
   private final PrintStream originalOut = System.out;
   private final PrintStream originalErr = System.err;
   private final InputStream originalIn = System.in;
 
   private final ByteArrayOutputStream stdOut = new ByteArrayOutputStream();
   private final ByteArrayOutputStream stdErr = new ByteArrayOutputStream();
-  Cli cli;
   private Path workDirectory;
 
   @Before
-  public void setUp() throws Exception {
+  public void setUp() {
     setupWorkDir();
 
     // Setup necessary mock
@@ -67,7 +68,7 @@ public abstract class CommandIntegrationTest {
     cli = new Cli(location, bootstrap, stdOut, stdErr);
   }
 
-  private void setupWorkDir() throws IOException {
+  private void setupWorkDir() {
     String tmpDir = System.getProperty("java.io.tmpdir");
     workDirectory = Paths.get(tmpDir, "alexandria_testdir");
     FileUtils.deleteQuietly(workDirectory.toFile());
@@ -88,7 +89,7 @@ public abstract class CommandIntegrationTest {
     FileUtils.forceDeleteOnExit(directory);
   }
 
-  private void softlyAssertSucceedsWithExpectedStdout(final boolean success, final String expectedOutput) {
+  void softlyAssertSucceedsWithExpectedStdout(final boolean success, final String expectedOutput) {
     SoftAssertions softly = new SoftAssertions();
     softly.assertThat(success).as("Exit success").isTrue();
     softly.assertThat(stdOut.toString().trim()).as("stdout").isEqualTo(expectedOutput.trim());
@@ -136,8 +137,21 @@ public abstract class CommandIntegrationTest {
     String json = new String(Files.readAllBytes(contextPath));
     assertThat(json).isNotEmpty();
     System.out.println(json);
-    CLIContext cliContext = new ObjectMapper().readValue(json, CLIContext.class);
-    return cliContext;
+    return new ObjectMapper().readValue(json, CLIContext.class);
+  }
+
+  String getCliStdOutAsString() {
+    return stdOut.toString();
+  }
+
+  String getCliStdErrAsString() {
+    return stdErr.toString();
+  }
+
+  void runInitCommand() throws Exception {
+    assertThat(cli.run("init")).isTrue();
+    stdOut.reset();
+    stdErr.reset();
   }
 
 }

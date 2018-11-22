@@ -24,7 +24,11 @@ import io.dropwizard.setup.Bootstrap;
 import net.sourceforge.argparse4j.inf.Namespace;
 import net.sourceforge.argparse4j.inf.Subparser;
 
+import java.util.List;
+
 public class AddCommand extends AlexandriaCommand {
+
+  public static final String ARG_FILE = "file";
 
   public AddCommand() {
     super("add", "Add file context to the index");
@@ -32,7 +36,7 @@ public class AddCommand extends AlexandriaCommand {
 
   @Override
   public void configure(Subparser subparser) {
-    subparser.addArgument("file")//
+    subparser.addArgument(ARG_FILE)//
         .metavar("FILE")
         .dest(FILE)//
         .type(String.class)//
@@ -43,6 +47,11 @@ public class AddCommand extends AlexandriaCommand {
 
   @Override
   public void run(Bootstrap<?> bootstrap, Namespace namespace) {
-    System.out.println("TODO");
+    checkDirectoryIsInitialized();
+    List<String> files = namespace.getList(ARG_FILE);
+    CLIContext cliContext = readContext();
+    cliContext.getWatchedFiles().addAll(files);
+    storeContext(cliContext);
+    System.out.println("");
   }
 }

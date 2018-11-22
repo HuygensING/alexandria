@@ -50,7 +50,7 @@ public class DiffCommand extends AlexandriaCommand {
   }
 
   @Override
-  public void run(Bootstrap<?> bootstrap, Namespace namespace) throws IOException {
+  public void run(Bootstrap<?> bootstrap, Namespace namespace) {
     checkDirectoryIsInitialized();
     store.runInTransaction(() -> {
       CLIContext context = readContext();

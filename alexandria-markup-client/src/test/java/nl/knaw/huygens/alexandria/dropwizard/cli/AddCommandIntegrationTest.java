@@ -7,8 +7,9 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class AddCommandIntegrationTest extends CommandIntegrationTest {
   @Test
   public void testAddCommand() throws Exception {
+    runInitCommand();
     final boolean success = cli.run("add", "transcription1.tagml", "transcription2.tagml");
-    assertSucceedsWithExpectedStdout(success, "");
+    softlyAssertSucceedsWithExpectedStdout(success, "");
 
     CLIContext cliContext = readCLIContext();
     assertThat(cliContext.getWatchedFiles()).containsExactlyInAnyOrder("transcription1.tagml", "transcription2.tagml");
@@ -17,6 +18,7 @@ public class AddCommandIntegrationTest extends CommandIntegrationTest {
   @Test
   public void testAddCommandWithoutParametersFails() throws Exception {
     final boolean success = cli.run("add");
+    assertThat(getCliStdErrAsString()).contains("too few arguments");
     softlyAssertFailsWithExpectedStderr(success, "too few arguments\n" +
         "usage: java -jar alexandria-app.jar\n" +
         "       add [-h] FILE [FILE ...]\n" +

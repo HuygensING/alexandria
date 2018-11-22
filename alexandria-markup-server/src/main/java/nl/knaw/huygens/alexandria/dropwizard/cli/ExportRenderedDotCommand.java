@@ -38,7 +38,7 @@ public class ExportRenderedDotCommand extends AbstractGraphvizCommand {
   }
 
   @Override
-  protected void render(final String dot, final String fileName) throws IOException {
+  protected void render(final String dot, final String fileName) {
     DotEngine dotEngine = new DotEngine(Util.detectDotPath());
     File file = new File(fileName);
     try (FileOutputStream fos = new FileOutputStream(file)) {
