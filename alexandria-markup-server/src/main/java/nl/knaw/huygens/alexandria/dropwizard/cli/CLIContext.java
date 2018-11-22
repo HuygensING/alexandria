@@ -9,9 +9,9 @@ package nl.knaw.huygens.alexandria.dropwizard.cli;
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -24,12 +24,16 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import java.util.HashMap;
+import java.util.LinkedHashSet;
 import java.util.Map;
+import java.util.Set;
 
 public class CLIContext {
 
   @JsonProperty("fileContextMap")
   private Map<String, FileInfo> fileContextMap = new HashMap<>();
+  private String activeView = "-";
+  private Set<String> watchedFiles = new LinkedHashSet<>();
 
   @JsonIgnore
   public CLIContext setDocumentName(String filename, String docName) {
@@ -53,6 +57,24 @@ public class CLIContext {
   @JsonIgnore
   public String getViewName(String filename) {
     return fileContextMap.get(filename).getViewName();
+  }
+
+  public CLIContext setActiveView(final String activeView) {
+    this.activeView = activeView;
+    return this;
+  }
+
+  public String getActiveView() {
+    return activeView;
+  }
+
+  public CLIContext setWatchedFiles(final Set<String> watchedFiles) {
+    this.watchedFiles = watchedFiles;
+    return this;
+  }
+
+  public Set<String> getWatchedFiles() {
+    return watchedFiles;
   }
 
 }

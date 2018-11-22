@@ -87,7 +87,9 @@ public class ServerApplication extends Application<ServerConfiguration> {
       }
     });
     bootstrap.addCommand(new InitCommand());
-    bootstrap.addCommand(new InfoCommand().withAppInfo(appInfo));
+    bootstrap.addCommand(new AddCommand());
+    bootstrap.addCommand(new CommitCommand());
+    bootstrap.addCommand(new StatusCommand().withAppInfo(appInfo));
     bootstrap.addCommand(new RegisterDocumentCommand());
     bootstrap.addCommand(new QueryCommand());
     bootstrap.addCommand(new DefineViewCommand());

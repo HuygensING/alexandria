@@ -38,22 +38,17 @@ public class CheckOutCommand extends AlexandriaCommand {
   private static final String DOCUMENT = "document";
 
   public CheckOutCommand() {
-    super("checkout", "Check out a view on a document into a file for editing.");
+    super("checkout", "Activate or deactivate a view in this directory");
   }
 
   @Override
   public void configure(Subparser subparser) {
-    subparser.addArgument("-v", "--view")//
+    subparser.addArgument("view")//
+        .metavar("VIEW")
         .dest(VIEW)//
         .type(String.class)//
         .required(true)//
         .help("The name of the view to use");
-
-    subparser.addArgument("-d", "--document")//
-        .dest(DOCUMENT)//
-        .type(String.class)//
-        .required(true)//
-        .help("The name of the document to view.");
   }
 
   @Override

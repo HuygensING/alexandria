@@ -106,7 +106,7 @@ public abstract class AlexandriaCommand extends Command {
       System.out.println("This directory has not been initialized, run ");
       System.out.println("  alexandria init");
       System.out.println("first.");
-      System.exit(-1);
+//      System.exit(-1);
     }
   }
 
@@ -138,7 +138,7 @@ public abstract class AlexandriaCommand extends Command {
     Map<String, Long> documentIndex = readDocumentIndex();
     if (!documentIndex.containsKey(docName)) {
       System.err.println("ERROR: No document '" + docName + "' was registered.\n  alexandria info\nwill show you which documents and views have been registered.");
-      System.exit(-1);
+//      System.exit(-1);
     }
     return documentIndex.get(docName);
   }
@@ -147,7 +147,7 @@ public abstract class AlexandriaCommand extends Command {
     Map<String, TAGView> viewMap = readViewMap();
     if (!viewMap.containsKey(viewName)){
       System.err.println("ERROR: No view '" + viewName + "' was registered.\n  alexandria info\nwill show you which documents and views have been registered.");
-      System.exit(-1);
+//      System.exit(-1);
     }
     return viewMap.get(viewName);
   }

@@ -33,11 +33,11 @@ import java.util.*;
 import static java.lang.String.format;
 import static java.util.stream.Collectors.joining;
 
-public class InfoCommand extends AlexandriaCommand {
+public class StatusCommand extends AlexandriaCommand {
   private AppInfo appInfo;
 
-  public InfoCommand() {
-    super("info", "Show info about the alexandria graph.");
+  public StatusCommand() {
+    super("status", "Show info about the alexandria graph and the directory status.");
   }
 
   public Command withAppInfo(final AppInfo appInfo) {
@@ -51,10 +51,12 @@ public class InfoCommand extends AlexandriaCommand {
 
   @Override
   public void run(Bootstrap<?> bootstrap, Namespace namespace) {
-    System.out.printf("alexandria version %s%n", appInfo.getVersion());
-    System.out.printf("build date: %s%n%n", appInfo.getBuildDate());
+    System.out.printf("Alexandria version %s%n", appInfo.getVersion());
+    System.out.printf("Build date: %s%n%n", appInfo.getBuildDate());
     checkDirectoryIsInitialized();
 
+    CLIContext context = readContext();
+    System.out.printf("Active view: %s", context.getActiveView());
     showDocuments();
     showViews();
   }
