@@ -25,6 +25,7 @@ import net.sourceforge.argparse4j.inf.Namespace;
 import net.sourceforge.argparse4j.inf.Subparser;
 import nl.knaw.huygens.alexandria.view.TAGView;
 
+import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -42,6 +43,9 @@ public class InitCommand extends AlexandriaCommand {
   @Override
   public void run(Bootstrap<?> bootstrap, Namespace namespace) {
     System.out.println("initializing...");
+
+    File viewsDir = new File(workDir,"views");
+    viewsDir.mkdir();
 
     Map<String, TAGView> viewMap = new HashMap<>();
     storeViewMap(viewMap);

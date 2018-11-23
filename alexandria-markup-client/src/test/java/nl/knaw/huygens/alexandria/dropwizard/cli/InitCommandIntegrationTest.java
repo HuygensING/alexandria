@@ -19,6 +19,7 @@ package nl.knaw.huygens.alexandria.dropwizard.cli;
  * limitations under the License.
  * #L%
  */
+
 import org.junit.Test;
 
 import java.nio.file.Path;
@@ -34,6 +35,10 @@ public class InitCommandIntegrationTest extends CommandIntegrationTest {
 
     Path viewsJson = workFilePath(".alexandria/views.json");
     assertThat(viewsJson).hasContent("{}");
+
+    Path viewsDir = workFilePath("views");
+    assertThat(viewsDir).isDirectory()
+        .isWritable();
 
     CLIContext cliContext = readCLIContext();
     assertThat(cliContext.getActiveView()).isEqualTo("-");

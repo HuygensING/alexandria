@@ -50,10 +50,11 @@ public abstract class AlexandriaCommand extends Command {
   private final File viewsFile;
   private final File documentIndexFile;
   private final File contextFile;
+  final String workDir;
 
   public AlexandriaCommand(String name, String description) {
     super(name, description);
-    final String workDir = System.getProperty(AlexandriaProperties.WORKDIR, ".");
+    workDir = System.getProperty(AlexandriaProperties.WORKDIR, ".");
     alexandriaDir = workDir + "/" + ALEXANDRIA_DIR;
     initProjectDir();
     store = new TAGStore(alexandriaDir, false);
