@@ -26,6 +26,7 @@ import net.sourceforge.argparse4j.inf.Namespace;
 import net.sourceforge.argparse4j.inf.Subparser;
 import nl.knaw.huygens.alexandria.markup.api.AppInfo;
 import nl.knaw.huygens.alexandria.storage.TAGDocument;
+import nl.knaw.huygens.alexandria.storage.TAGStore;
 import nl.knaw.huygens.alexandria.view.TAGView;
 
 import java.util.*;
@@ -78,13 +79,13 @@ public class StatusCommand extends AlexandriaCommand {
 
   private String docInfo(final String docName, final Map<String, Long> documentIndex) {
     Long docId = documentIndex.get(docName);
-    store.open();
-    String docInfo = store.runInTransaction(() -> {
-      TAGDocument document = store.getDocument(docId);
-      return format("%s (created:%s, modified:%s)", docName, document.getCreationDate(), document.getModificationDate());
-    });
-    store.close();
-    return docInfo;
+    try (TAGStore store = getTAGStore()) {
+      String docInfo = store.runInTransaction(() -> {
+        TAGDocument document = store.getDocument(docId);
+        return format("%s (created:%s, modified:%s)", docName, document.getCreationDate(), document.getModificationDate());
+      });
+      return docInfo;
+    }
   }
 
   private void showViews() {

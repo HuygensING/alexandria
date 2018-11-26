@@ -23,17 +23,16 @@ package nl.knaw.huygens.alexandria.dropwizard.cli;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+import java.time.Instant;
 import java.util.HashMap;
-import java.util.LinkedHashSet;
 import java.util.Map;
-import java.util.Set;
 
 public class CLIContext {
 
   @JsonProperty("fileContextMap")
   private Map<String, FileInfo> fileContextMap = new HashMap<>();
   private String activeView = "-";
-  private Set<String> watchedFiles = new LinkedHashSet<>();
+  private Map<String, Instant> watchedFiles = new HashMap<>();
 
   @JsonIgnore
   public CLIContext setDocumentName(String filename, String docName) {
@@ -68,12 +67,12 @@ public class CLIContext {
     return activeView;
   }
 
-  public CLIContext setWatchedFiles(final Set<String> watchedFiles) {
+  public CLIContext setWatchedFiles(final Map<String, Instant> watchedFiles) {
     this.watchedFiles = watchedFiles;
     return this;
   }
 
-  public Set<String> getWatchedFiles() {
+  public Map<String, Instant> getWatchedFiles() {
     return watchedFiles;
   }
 

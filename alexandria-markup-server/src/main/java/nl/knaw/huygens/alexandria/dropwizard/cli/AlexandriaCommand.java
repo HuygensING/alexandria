@@ -34,6 +34,8 @@ import org.slf4j.LoggerFactory;
 import java.io.File;
 import java.io.IOException;
 import java.io.UncheckedIOException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -44,20 +46,20 @@ public abstract class AlexandriaCommand extends Command {
   static final String ALEXANDRIA_DIR = ".alexandria";
   final String NAME = "name";
   final String FILE = "file";
-  final TAGStore store;
 
   private final String alexandriaDir;
   private final File viewsFile;
   private final File documentIndexFile;
   private final File contextFile;
   final String workDir;
+  static ObjectMapper mapper = new ObjectMapper();
 
   public AlexandriaCommand(String name, String description) {
     super(name, description);
+    mapper.findAndRegisterModules();
     workDir = System.getProperty(AlexandriaProperties.WORKDIR, ".");
     alexandriaDir = workDir + "/" + ALEXANDRIA_DIR;
     initProjectDir();
-    store = new TAGStore(alexandriaDir, false);
 
     viewsFile = new File(alexandriaDir, "views.json");
     documentIndexFile = new File(alexandriaDir, "document_index.json");
@@ -69,16 +71,19 @@ public abstract class AlexandriaCommand extends Command {
   }
 
   Map<String, TAGView> readViewMap() {
-    TAGViewFactory viewFactory = new TAGViewFactory(store);
-    TypeReference<HashMap<String, TAGViewDefinition>> typeReference = new TypeReference<HashMap<String, TAGViewDefinition>>() {
-    };
-    Map<String, TAGViewDefinition> stringTAGViewMap = uncheckedRead(viewsFile, typeReference);
-    return stringTAGViewMap.entrySet()//
-        .stream()//
-        .collect(toMap(//
-            Map.Entry::getKey,//
-            e -> viewFactory.fromDefinition(e.getValue())//
-        ));
+    try (TAGStore store = getTAGStore()) {
+      TAGViewFactory viewFactory = new TAGViewFactory(store);
+      TypeReference<HashMap<String, TAGViewDefinition>> typeReference = new TypeReference<HashMap<String, TAGViewDefinition>>() {
+      };
+      Map<String, TAGViewDefinition> stringTAGViewMap = uncheckedRead(viewsFile, typeReference);
+      Map<String, TAGView> viewMap = stringTAGViewMap.entrySet()//
+          .stream()//
+          .collect(toMap(//
+              Map.Entry::getKey,//
+              e -> viewFactory.fromDefinition(e.getValue())//
+          ));
+      return viewMap;
+    }
   }
 
   void storeViewMap(Map<String, TAGView> viewMap) {
@@ -120,7 +125,7 @@ public abstract class AlexandriaCommand extends Command {
 
   private void uncheckedStore(File file, Object object) {
     try {
-      new ObjectMapper().writeValue(file, object);
+      mapper.writeValue(file, object);
     } catch (IOException e) {
       throw new UncheckedIOException(e);
     }
@@ -128,7 +133,7 @@ public abstract class AlexandriaCommand extends Command {
 
   private <T> T uncheckedRead(File file, Class<T> clazz) {
     try {
-      return new ObjectMapper().readValue(file, clazz);
+      return mapper.readValue(file, clazz);
     } catch (IOException e) {
       throw new UncheckedIOException(e);
     }
@@ -136,7 +141,7 @@ public abstract class AlexandriaCommand extends Command {
 
   private <T> T uncheckedRead(File file, TypeReference<T> typeReference) {
     try {
-      return new ObjectMapper().readValue(file, typeReference);
+      return mapper.readValue(file, typeReference);
     } catch (IOException e) {
       throw new UncheckedIOException(e);
     }
@@ -160,4 +165,12 @@ public abstract class AlexandriaCommand extends Command {
     return viewMap.get(viewName);
   }
 
+  Path workFilePath(final String relativePath) {
+    return Paths.get(workDir).resolve(relativePath);
+  }
+
+
+  TAGStore getTAGStore() {
+    return new TAGStore(alexandriaDir, false);
+  }
 }

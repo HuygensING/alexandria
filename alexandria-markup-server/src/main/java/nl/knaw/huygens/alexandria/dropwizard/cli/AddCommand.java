@@ -24,7 +24,9 @@ import io.dropwizard.setup.Bootstrap;
 import net.sourceforge.argparse4j.inf.Namespace;
 import net.sourceforge.argparse4j.inf.Subparser;
 
+import java.time.Instant;
 import java.util.List;
+import java.util.Map;
 
 public class AddCommand extends AlexandriaCommand {
 
@@ -49,8 +51,16 @@ public class AddCommand extends AlexandriaCommand {
   public void run(Bootstrap<?> bootstrap, Namespace namespace) {
     checkDirectoryIsInitialized();
     List<String> files = namespace.getList(ARG_FILE);
+
     CLIContext cliContext = readContext();
-    cliContext.getWatchedFiles().addAll(files);
+    Map<String, Instant> watchedFiles = cliContext.getWatchedFiles();
+    for (String file : files) {
+      if (workFilePath(file).toFile().isFile()) {
+        watchedFiles.put(file, Instant.now());
+      } else {
+        System.err.printf("%s is not a file!%n", file);
+      }
+    }
     storeContext(cliContext);
     System.out.println("");
   }

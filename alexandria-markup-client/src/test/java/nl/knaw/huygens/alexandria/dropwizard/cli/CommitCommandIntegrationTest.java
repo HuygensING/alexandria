@@ -19,23 +19,51 @@ package nl.knaw.huygens.alexandria.dropwizard.cli;
  * limitations under the License.
  * #L%
  */
-import org.junit.Ignore;
+
 import org.junit.Test;
 
+import java.time.Instant;
+
+import static org.assertj.core.api.Assertions.assertThat;
+
 public class CommitCommandIntegrationTest extends CommandIntegrationTest {
-  @Ignore
+  //  @Ignore
   @Test
-  public void testCommitCommand() throws Exception {
+  public void testCommitCommandWithFile() throws Exception {
     runInitCommand();
-    final boolean success = cli.run("commit");
-    assertSucceedsWithExpectedStdout(success, "TODO");
+
+    String filename = "transcription1.tagml";
+    createFile(filename, "[tagml>test<tagml]");
+    runAddCommand(filename);
+
+    Instant dateAfterAdd = readLastCommittedInstant(filename);
+    assertThat(dateAfterAdd).isNotNull();
+
+    LOG.info("{}", dateAfterAdd);
+
+    final boolean success = cli.run("commit", filename);
+
+    softlyAssertSucceedsWithExpectedStdout(success, "Parsing transcription1.tagml to document transcription1...");
+    Instant dateAfterCommit = readLastCommittedInstant(filename);
+    assertThat(dateAfterCommit).isAfter(dateAfterAdd);
+
+  }
+
+  @Test
+  public void testCommitCommandWithAllOption() throws Exception {
+    runInitCommand();
+    String filename = "transcription1.tagml";
+    createFile(filename, "[tagml>test<tagml]");
+
+    final boolean success = cli.run("commit", "-a");
+    softlyAssertSucceedsWithExpectedStdout(success, "TODO");
   }
 
   @Test
   public void testCommitCommandHelp() throws Exception {
     final boolean success = cli.run("commit", "-h");
     assertSucceedsWithExpectedStdout(success, "usage: java -jar alexandria-app.jar\n" +
-        "       commit [-a A] [-h] FILE [FILE ...]\n" +
+        "       commit [-a] [-h] [FILE [FILE ...]]\n" +
         "\n" +
         "Record changes to the repository\n" +
         "\n" +
@@ -43,7 +71,8 @@ public class CommitCommandIntegrationTest extends CommandIntegrationTest {
         "  FILE                   the changed file(s)\n" +
         "\n" +
         "named arguments:\n" +
-        "  -a A                   automatically add all changed files\n" +
+        "  -a                     automatically  add  all  changed  files  (default:\n" +
+        "                         false)\n" +
         "  -h, --help             show this help message and exit");
   }
 

@@ -30,7 +30,7 @@ public class InitCommandIntegrationTest extends CommandIntegrationTest {
   @Test
   public void testInitCommand() throws Exception {
     final boolean success = cli.run("init");
-    assertSucceedsWithExpectedStdout(success, "initializing...\n" +
+    softlyAssertSucceedsWithExpectedStdout(success, "initializing...\n" +
         "done!");
 
     Path viewsJson = workFilePath(".alexandria/views.json");

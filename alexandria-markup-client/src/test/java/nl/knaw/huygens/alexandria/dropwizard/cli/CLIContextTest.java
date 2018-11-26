@@ -24,13 +24,21 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.Test;
 
 import java.io.IOException;
+import java.time.Instant;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 
 import static java.util.Arrays.asList;
+import static java.util.stream.Collectors.toMap;
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class CLIContextTest {
+  static ObjectMapper mapper = new ObjectMapper();
+
+  static {
+    mapper.findAndRegisterModules();
+  }
 
   @Test
   public void testSerialization() throws IOException {
@@ -38,15 +46,18 @@ public class CLIContextTest {
         "transcriptions/transcription-1.tagml",
         "views/view-1.json"
     ));
+    Map<String, Instant> watchedFilesMap = watchedFiles.stream()
+        .collect(toMap(f -> f, f -> Instant.now(), (a, b) -> b));
     CLIContext cliContext = new CLIContext()
         .setViewName("filename", "viewname")
         .setDocumentName("filename", "docName")
         .setActiveView("view-1")
-        .setWatchedFiles(watchedFiles);
-    String json = new ObjectMapper().writeValueAsString(cliContext);
+        .setWatchedFiles(watchedFilesMap);
+    String json = mapper.writeValueAsString(cliContext);
     assertThat(json).isNotEmpty();
     System.out.println(json);
-    CLIContext cliContext1 = new ObjectMapper().readValue(json, CLIContext.class);
+//    SettableBeanProperty
+    CLIContext cliContext1 = mapper.readValue(json, CLIContext.class);
     assertThat(cliContext1).isEqualToComparingFieldByFieldRecursively(cliContext);
   }
 }

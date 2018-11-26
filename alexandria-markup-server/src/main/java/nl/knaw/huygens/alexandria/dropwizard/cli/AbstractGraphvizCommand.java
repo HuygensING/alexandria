@@ -25,6 +25,7 @@ import net.sourceforge.argparse4j.inf.Namespace;
 import net.sourceforge.argparse4j.inf.Subparser;
 import nl.knaw.huc.di.tag.model.graph.DotFactory;
 import nl.knaw.huygens.alexandria.storage.TAGDocument;
+import nl.knaw.huygens.alexandria.storage.TAGStore;
 
 import java.io.IOException;
 
@@ -49,27 +50,26 @@ abstract class AbstractGraphvizCommand extends AlexandriaCommand {
     checkDirectoryIsInitialized();
     String docName = namespace.getString(DOCUMENT);
     Long docId = getIdForExistingDocument(docName);
-    store.open();
-    store.runInTransaction(() -> {
-      System.out.printf("document: %s%n", docName);
+    try (TAGStore store = getTAGStore()) {
+      store.runInTransaction(() -> {
+        System.out.printf("document: %s%n", docName);
 
-      System.out.printf("Retrieving document %s%n", docName);
-      TAGDocument document = store.getDocument(docId);
+        System.out.printf("Retrieving document %s%n", docName);
+        TAGDocument document = store.getDocument(docId);
 
-      DotFactory dotFactory = new DotFactory();
-      String dot = dotFactory.toDot(document, "");
-      String fileName = String.format("%s.%s", docName, getFormat());
-      System.out.printf("exporting to file %s...", fileName);
-      try {
-        render(dot, fileName);
-      } catch (IOException e) {
-        e.printStackTrace();
-      }
-      System.out.println();
-      System.out.println("done!");
-
-    });
-    store.close();
+        DotFactory dotFactory = new DotFactory();
+        String dot = dotFactory.toDot(document, "");
+        String fileName = String.format("%s.%s", docName, getFormat());
+        System.out.printf("exporting to file %s...", fileName);
+        try {
+          render(dot, fileName);
+        } catch (IOException e) {
+          e.printStackTrace();
+        }
+        System.out.println();
+        System.out.println("done!");
+      });
+    }
   }
 
   protected abstract String getFormat();

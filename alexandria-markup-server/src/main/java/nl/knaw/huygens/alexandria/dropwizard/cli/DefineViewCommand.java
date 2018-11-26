@@ -24,6 +24,7 @@ import com.google.common.base.Charsets;
 import io.dropwizard.setup.Bootstrap;
 import net.sourceforge.argparse4j.inf.Namespace;
 import net.sourceforge.argparse4j.inf.Subparser;
+import nl.knaw.huygens.alexandria.storage.TAGStore;
 import nl.knaw.huygens.alexandria.view.TAGView;
 import nl.knaw.huygens.alexandria.view.TAGViewFactory;
 import org.apache.commons.io.FileUtils;
@@ -59,13 +60,14 @@ public class DefineViewCommand extends AlexandriaCommand {
     Map<String, TAGView> viewMap = readViewMap();
     String filename = namespace.getString(FILE);
     File viewFile = new File(filename);
-    TAGViewFactory viewFactory = new TAGViewFactory(store);
-    String json = FileUtils.readFileToString(viewFile, Charsets.UTF_8);
-    TAGView view = viewFactory.fromJsonString(json);
-    String viewName = namespace.getString(NAME);
-    viewMap.put(viewName, view);
-    storeViewMap(viewMap);
-    store.close();
+    try (TAGStore store = getTAGStore()) {
+      TAGViewFactory viewFactory = new TAGViewFactory(store);
+      String json = FileUtils.readFileToString(viewFile, Charsets.UTF_8);
+      TAGView view = viewFactory.fromJsonString(json);
+      String viewName = namespace.getString(NAME);
+      viewMap.put(viewName, view);
+      storeViewMap(viewMap);
+    }
     System.out.println("done!");
   }
 

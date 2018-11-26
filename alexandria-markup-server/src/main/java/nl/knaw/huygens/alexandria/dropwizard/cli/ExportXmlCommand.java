@@ -27,6 +27,7 @@ import net.sourceforge.argparse4j.inf.Subparser;
 import nl.knaw.huc.di.tag.TAGViews;
 import nl.knaw.huc.di.tag.tagml.xml.exporter.XMLExporter;
 import nl.knaw.huygens.alexandria.storage.TAGDocument;
+import nl.knaw.huygens.alexandria.storage.TAGStore;
 import nl.knaw.huygens.alexandria.view.TAGView;
 import org.apache.commons.io.FileUtils;
 
@@ -62,35 +63,35 @@ public class ExportXmlCommand extends AlexandriaCommand {
     String viewName = namespace.getString(VIEW);
     boolean useView = viewName != null;
     Long docId = getIdForExistingDocument(docName);
-    store.open();
-    store.runInTransaction(() -> {
-      System.out.printf("document: %s%n", docName);
-      System.out.printf("Retrieving document %s%n", docName);
-      TAGDocument document = store.getDocument(docId);
-      String format = "xml";
+    try (TAGStore store = getTAGStore()) {
+      store.runInTransaction(() -> {
+        System.out.printf("document: %s%n", docName);
+        System.out.printf("Retrieving document %s%n", docName);
+        TAGDocument document = store.getDocument(docId);
+        String format = "xml";
 
-      TAGView tagView;
-      if (useView) {
-        System.out.printf("Retrieving view %s%n", viewName);
-        tagView = getExistingView(viewName);
-      } else {
-        tagView = TAGViews.getShowAllMarkupView(store);
-      }
+        TAGView tagView;
+        if (useView) {
+          System.out.printf("Retrieving view %s%n", viewName);
+          tagView = getExistingView(viewName);
+        } else {
+          tagView = TAGViews.getShowAllMarkupView(store);
+        }
 
-      String sub = useView ? "-" + viewName : "";
-      String fileName = String.format("%s%s.%s", docName, sub, format);
-      System.out.printf("exporting to file %s...", fileName);
-      try {
-        XMLExporter xmlExporter = new XMLExporter(store, tagView);
-        String xml = xmlExporter.asXML(document);
-        FileUtils.writeStringToFile(new File(fileName), xml, Charsets.UTF_8);
-      } catch (IOException e) {
-        e.printStackTrace();
-      }
-      System.out.println();
-      System.out.println("done!");
-    });
-    store.close();
+        String sub = useView ? "-" + viewName : "";
+        String fileName = String.format("%s%s.%s", docName, sub, format);
+        System.out.printf("exporting to file %s...", fileName);
+        try {
+          XMLExporter xmlExporter = new XMLExporter(store, tagView);
+          String xml = xmlExporter.asXML(document);
+          FileUtils.writeStringToFile(new File(fileName), xml, Charsets.UTF_8);
+        } catch (IOException e) {
+          e.printStackTrace();
+        }
+        System.out.println();
+        System.out.println("done!");
+      });
+    }
   }
 
 }

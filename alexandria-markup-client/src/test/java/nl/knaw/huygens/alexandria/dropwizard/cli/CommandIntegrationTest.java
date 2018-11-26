@@ -19,6 +19,7 @@ package nl.knaw.huygens.alexandria.dropwizard.cli;
  * limitations under the License.
  * #L%
  */
+
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.dropwizard.cli.Cli;
 import io.dropwizard.setup.Bootstrap;
@@ -37,7 +38,8 @@ import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Optional;
+import java.time.Instant;
+import java.util.*;
 
 import static nl.knaw.huygens.alexandria.markup.api.AlexandriaProperties.WORKDIR;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -56,6 +58,11 @@ public abstract class CommandIntegrationTest {
   private final ByteArrayOutputStream stdOut = new ByteArrayOutputStream();
   private final ByteArrayOutputStream stdErr = new ByteArrayOutputStream();
   private Path workDirectory;
+  static ObjectMapper mapper = new ObjectMapper();
+
+  static {
+    mapper.findAndRegisterModules();
+  }
 
   @Before
   public void setUp() {
@@ -157,8 +164,8 @@ public abstract class CommandIntegrationTest {
     assertThat(contextPath).isRegularFile();
     String json = new String(Files.readAllBytes(contextPath));
     assertThat(json).isNotEmpty();
-    System.out.println(json);
-    return new ObjectMapper().readValue(json, CLIContext.class);
+//    System.out.println(json);
+    return mapper.readValue(json, CLIContext.class);
   }
 
   String getCliStdOutAsString() {
@@ -175,10 +182,33 @@ public abstract class CommandIntegrationTest {
     stdErr.reset();
   }
 
+  void runAddCommand(String... filenames) throws Exception {
+    List<String> arguments = new ArrayList<>();
+    arguments.add("add");
+    Collections.addAll(arguments, filenames);
+    String[] argumentArray = arguments.toArray(new String[]{});
+    assertThat(cli.run(argumentArray)).isTrue();
+    stdOut.reset();
+    stdErr.reset();
+  }
+
   void assertCommandRunsInAnInitializedDirectory(final String... cliArguments) throws Exception {
     final boolean success = cli.run(cliArguments);
     assertThat(success).isFalse();
     assertThat(getCliStdErrAsString()).isEqualTo("Initialize first");
   }
 
+  void createFile(String filename, String content) throws IOException {
+    Path file1 = workFilePath(filename);
+    Path file = Files.createFile(file1);
+    if (!content.isEmpty()) {
+      Files.write(file, content.getBytes());
+    }
+  }
+
+  protected Instant readLastCommittedInstant(String filename) throws IOException {
+    CLIContext cliContext = readCLIContext();
+    Map<String, Instant> watchedFiles = cliContext.getWatchedFiles();
+    return watchedFiles.get(filename);
+  }
 }

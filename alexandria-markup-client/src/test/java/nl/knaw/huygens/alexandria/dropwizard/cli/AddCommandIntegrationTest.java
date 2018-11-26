@@ -19,6 +19,7 @@ package nl.knaw.huygens.alexandria.dropwizard.cli;
  * limitations under the License.
  * #L%
  */
+
 import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -27,11 +28,24 @@ public class AddCommandIntegrationTest extends CommandIntegrationTest {
   @Test
   public void testAddCommand() throws Exception {
     runInitCommand();
-    final boolean success = cli.run("add", "transcription1.tagml", "transcription2.tagml");
+    String filename1 = "transcription1.tagml";
+    String filename2 = "transcription2.tagml";
+    createFile(filename1, "");
+    createFile(filename2, "");
+    final boolean success = cli.run("add", filename1, filename2);
     softlyAssertSucceedsWithExpectedStdout(success, "");
 
     CLIContext cliContext = readCLIContext();
-    assertThat(cliContext.getWatchedFiles()).containsExactlyInAnyOrder("transcription1.tagml", "transcription2.tagml");
+    assertThat(cliContext.getWatchedFiles().keySet()).containsExactlyInAnyOrder(filename1, filename2);
+  }
+
+  @Test
+  public void testAddCommandWithNonExistingFilesFails() throws Exception {
+    runInitCommand();
+    final boolean success = cli.run("add", "transcription1.tagml", "transcription2.tagml");
+    assertThat(success).isTrue();
+    assertThat(getCliStdErrAsString()).contains("transcription1.tagml is not a file!")
+        .contains("transcription2.tagml is not a file!");
   }
 
   @Test

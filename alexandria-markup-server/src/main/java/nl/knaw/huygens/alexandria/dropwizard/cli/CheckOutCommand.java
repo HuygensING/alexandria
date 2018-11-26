@@ -26,6 +26,7 @@ import net.sourceforge.argparse4j.inf.Namespace;
 import net.sourceforge.argparse4j.inf.Subparser;
 import nl.knaw.huc.di.tag.tagml.exporter.TAGMLExporter;
 import nl.knaw.huygens.alexandria.storage.TAGDocument;
+import nl.knaw.huygens.alexandria.storage.TAGStore;
 import nl.knaw.huygens.alexandria.view.TAGView;
 import org.apache.commons.io.FileUtils;
 
@@ -61,31 +62,31 @@ public class CheckOutCommand extends AlexandriaCommand {
 
     System.out.printf("Exporting document %s using view %s to %s...%n", docName, viewName, outFilename);
     Long docId = getIdForExistingDocument(docName);
-    store.open();
-    store.runInTransaction(() -> {
-      System.out.printf("Retrieving document %s%n", docName);
-      TAGDocument document = store.getDocument(docId);
+    try (TAGStore store = getTAGStore()) {
+      store.runInTransaction(() -> {
+        System.out.printf("Retrieving document %s%n", docName);
+        TAGDocument document = store.getDocument(docId);
 
-      System.out.printf("Retrieving view %s%n", viewName);
-      TAGView tagView = getExistingView(viewName);
+        System.out.printf("Retrieving view %s%n", viewName);
+        TAGView tagView = getExistingView(viewName);
 
-      System.out.printf("Exporting document view to %s%n", outFilename);
-      TAGMLExporter tagmlExporter = new TAGMLExporter(store, tagView);
-      String tagml = tagmlExporter.asTAGML(document)
-          .replaceAll("\n\\s*\n", "\n")
-          .trim();
-      try {
-        FileUtils.writeStringToFile(new File(outFilename), tagml, Charsets.UTF_8);
-        CLIContext context = readContext()//
-            .setDocumentName(outFilename, docName)//
-            .setViewName(outFilename, viewName);
-        storeContext(context);
-      } catch (IOException e) {
-        e.printStackTrace();
-        throw new UncheckedIOException(e);
-      }
-    });
-    store.close();
+        System.out.printf("Exporting document view to %s%n", outFilename);
+        TAGMLExporter tagmlExporter = new TAGMLExporter(store, tagView);
+        String tagml = tagmlExporter.asTAGML(document)
+            .replaceAll("\n\\s*\n", "\n")
+            .trim();
+        try {
+          FileUtils.writeStringToFile(new File(outFilename), tagml, Charsets.UTF_8);
+          CLIContext context = readContext()//
+              .setDocumentName(outFilename, docName)//
+              .setViewName(outFilename, viewName);
+          storeContext(context);
+        } catch (IOException e) {
+          e.printStackTrace();
+          throw new UncheckedIOException(e);
+        }
+      });
+    }
 
     System.out.println("done!");
   }

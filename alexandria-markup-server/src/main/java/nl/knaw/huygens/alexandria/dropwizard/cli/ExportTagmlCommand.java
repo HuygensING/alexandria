@@ -26,6 +26,7 @@ import net.sourceforge.argparse4j.inf.Namespace;
 import net.sourceforge.argparse4j.inf.Subparser;
 import nl.knaw.huc.di.tag.tagml.exporter.TAGMLExporter;
 import nl.knaw.huygens.alexandria.storage.TAGDocument;
+import nl.knaw.huygens.alexandria.storage.TAGStore;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
 
@@ -59,27 +60,27 @@ public class ExportTagmlCommand extends AlexandriaCommand {
     checkDirectoryIsInitialized();
     String docName = namespace.getString(DOCUMENT);
     Long docId = getIdForExistingDocument(docName);
-    store.open();
-    store.runInTransaction(() -> {
-      System.out.printf("document: %s%n", docName);
+    try (TAGStore store = getTAGStore()) {
+      store.runInTransaction(() -> {
+        System.out.printf("document: %s%n", docName);
 
-      System.out.printf("Retrieving document %s%n", docName);
-      TAGDocument document = store.getDocument(docId);
+        System.out.printf("Retrieving document %s%n", docName);
+        TAGDocument document = store.getDocument(docId);
 
-      String fileName = StringUtils.defaultIfBlank(namespace.getString(FILE), docName + ".tagml");
-      System.out.printf("exporting to file %s...", fileName);
-      try {
-        TAGMLExporter tagmlExporter = new TAGMLExporter(store);
-        String tagml = tagmlExporter.asTAGML(document);
-        FileUtils.writeStringToFile(new File(fileName), tagml, Charsets.UTF_8);
-      } catch (IOException e) {
-        e.printStackTrace();
-      }
-      System.out.println();
-      System.out.println("done!");
+        String fileName = StringUtils.defaultIfBlank(namespace.getString(FILE), docName + ".tagml");
+        System.out.printf("exporting to file %s...", fileName);
+        try {
+          TAGMLExporter tagmlExporter = new TAGMLExporter(store);
+          String tagml = tagmlExporter.asTAGML(document);
+          FileUtils.writeStringToFile(new File(fileName), tagml, Charsets.UTF_8);
+        } catch (IOException e) {
+          e.printStackTrace();
+        }
+        System.out.println();
+        System.out.println("done!");
 
-    });
-    store.close();
+      });
+    }
   }
 
 
