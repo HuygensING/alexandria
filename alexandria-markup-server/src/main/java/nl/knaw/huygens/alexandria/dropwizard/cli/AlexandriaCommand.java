@@ -22,6 +22,8 @@ package nl.knaw.huygens.alexandria.dropwizard.cli;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import io.dropwizard.cli.Command;
 import nl.knaw.huygens.alexandria.markup.api.AlexandriaProperties;
 import nl.knaw.huygens.alexandria.storage.TAGStore;
@@ -51,11 +53,12 @@ public abstract class AlexandriaCommand extends Command {
   private final File documentIndexFile;
   private final File contextFile;
   final String workDir;
-  static ObjectMapper mapper = new ObjectMapper();
+  static ObjectMapper mapper = new ObjectMapper()
+      .registerModule(new Jdk8Module())//
+      .registerModule(new JavaTimeModule());
 
   public AlexandriaCommand(String name, String description) {
     super(name, description);
-    mapper.findAndRegisterModules();
     workDir = System.getProperty(AlexandriaProperties.WORKDIR, ".");
     alexandriaDir = workDir + "/" + ALEXANDRIA_DIR;
     initProjectDir();

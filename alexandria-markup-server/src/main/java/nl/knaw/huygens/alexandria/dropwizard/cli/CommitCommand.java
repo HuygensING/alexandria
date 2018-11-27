@@ -112,8 +112,8 @@ public class CommitCommand extends AlexandriaCommand {
   private void checkNoViewIsActive() {
     String activeView = readContext().getActiveView();
     boolean inMainView = activeView.equals(MAIN_VIEW);
-    if (!inMainView){
-      System.out.println("View "+activeView+" is active. Currently, committing is only allowed in the main view. Use `alexandria checkout -` to return to the main view.");
+    if (!inMainView) {
+      System.out.println("View " + activeView + " is active. Currently, committing is only allowed in the main view. Use `alexandria checkout -` to return to the main view.");
     }
   }
 
@@ -147,18 +147,19 @@ public class CommitCommand extends AlexandriaCommand {
     }
   }
 
+  private void processOtherFile(Map<String, Long> documentIndex, TAGStore store, String fileName) {
+  }
+
+  private String toDocName(String fileName) {
+    return fileName
+        .replaceAll("^.*transcriptions/", "")
+        .replaceAll(".tag(ml)?", "");
+  }
+
   private String toViewName(String fileName) {
     return fileName
         .replaceAll("^.*views/", "")
         .replaceAll(".json", "");
-  }
-
-  private void processOtherFile(Map<String, Long> documentIndex, TAGStore store, String fileName) {
-
-  }
-
-  private String toDocName(String fileName) {
-    return fileName.replaceAll(".tag(ml)?", "");
   }
 
   private List<String> getModifiedWatchedFileNames() {
@@ -169,7 +170,7 @@ public class CommitCommand extends AlexandriaCommand {
       Instant lastCommitted = v.getLastCommit();
       try {
         FileTime lastModifiedTime = Files.getLastModifiedTime(filePath);
-        if (!lastModifiedTime.toInstant().equals(lastCommitted)) {
+        if (lastModifiedTime.toInstant().isAfter(lastCommitted)) {
           modifiedFiles.add(k);
         }
       } catch (IOException e) {
