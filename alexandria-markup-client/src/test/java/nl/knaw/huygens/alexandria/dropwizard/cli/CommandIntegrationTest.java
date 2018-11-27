@@ -26,6 +26,7 @@ import io.dropwizard.setup.Bootstrap;
 import io.dropwizard.util.JarLocation;
 import nl.knaw.huygens.alexandria.dropwizard.ServerApplication;
 import nl.knaw.huygens.alexandria.dropwizard.ServerConfiguration;
+import nl.knaw.huygens.alexandria.dropwizard.cli.commands.*;
 import nl.knaw.huygens.alexandria.markup.api.AppInfo;
 import org.apache.commons.io.FileUtils;
 import org.assertj.core.api.SoftAssertions;

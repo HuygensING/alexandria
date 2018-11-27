@@ -1,4 +1,4 @@
-package nl.knaw.huygens.alexandria.dropwizard.cli;
+package nl.knaw.huygens.alexandria.dropwizard.cli.commands;
 
 /*
  * #%L

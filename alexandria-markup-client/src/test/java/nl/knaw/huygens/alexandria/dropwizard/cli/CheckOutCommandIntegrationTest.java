@@ -22,7 +22,7 @@ package nl.knaw.huygens.alexandria.dropwizard.cli;
 
 import org.junit.Test;
 
-import static nl.knaw.huygens.alexandria.dropwizard.cli.CheckOutCommand.MAIN_VIEW;
+import static nl.knaw.huygens.alexandria.dropwizard.cli.commands.CheckOutCommand.MAIN_VIEW;
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class CheckOutCommandIntegrationTest extends CommandIntegrationTest {

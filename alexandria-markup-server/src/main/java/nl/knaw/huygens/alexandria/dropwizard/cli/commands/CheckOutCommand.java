@@ -1,4 +1,4 @@
-package nl.knaw.huygens.alexandria.dropwizard.cli;
+package nl.knaw.huygens.alexandria.dropwizard.cli.commands;
 
 /*
  * #%L
@@ -26,6 +26,9 @@ import net.sourceforge.argparse4j.inf.Namespace;
 import net.sourceforge.argparse4j.inf.Subparser;
 import nl.knaw.huc.di.tag.TAGViews;
 import nl.knaw.huc.di.tag.tagml.exporter.TAGMLExporter;
+import nl.knaw.huygens.alexandria.dropwizard.cli.CLIContext;
+import nl.knaw.huygens.alexandria.dropwizard.cli.FileInfo;
+import nl.knaw.huygens.alexandria.dropwizard.cli.FileType;
 import nl.knaw.huygens.alexandria.storage.TAGDocument;
 import nl.knaw.huygens.alexandria.storage.TAGStore;
 import nl.knaw.huygens.alexandria.view.TAGView;

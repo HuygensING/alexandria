@@ -1,4 +1,4 @@
-package nl.knaw.huygens.alexandria.dropwizard.cli;
+package nl.knaw.huygens.alexandria.dropwizard.cli.commands;
 
 /*
  * #%L
@@ -20,22 +20,26 @@ package nl.knaw.huygens.alexandria.dropwizard.cli;
  * #L%
  */
 
-import io.dropwizard.setup.Bootstrap;
-import net.sourceforge.argparse4j.inf.Namespace;
-import net.sourceforge.argparse4j.inf.Subparser;
+import com.google.common.base.Charsets;
+import org.apache.commons.io.FileUtils;
 
-public class HelpCommand extends AlexandriaCommand {
-  public HelpCommand() {
-    super("help", "Show helpful information about the available commands");
+import java.io.File;
+import java.io.IOException;
+
+public class ExportDotCommand extends AbstractGraphvizCommand {
+
+  public ExportDotCommand() {
+    super("export-dot", "Export the document as .dot file.");
   }
 
   @Override
-  public void configure(Subparser subparser) {
-
+  protected String getFormat() {
+    return "dot";
   }
 
   @Override
-  public void run(Bootstrap<?> bootstrap, Namespace namespace) {
-    System.out.println("TODO");
+  protected void render(final String dot, final String fileName) throws IOException {
+    FileUtils.writeStringToFile(new File(fileName), dot, Charsets.UTF_8);
   }
+
 }

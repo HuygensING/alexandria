@@ -32,7 +32,7 @@ import nl.knaw.huc.di.tag.tagml.exporter.TAGMLExporter;
 import nl.knaw.huc.di.tag.tagml.importer.TAGMLImporter;
 import nl.knaw.huygens.alexandria.dropwizard.api.DocumentService;
 import nl.knaw.huygens.alexandria.dropwizard.api.PropertiesConfiguration;
-import nl.knaw.huygens.alexandria.dropwizard.cli.*;
+import nl.knaw.huygens.alexandria.dropwizard.cli.commands.*;
 import nl.knaw.huygens.alexandria.dropwizard.health.ServerHealthCheck;
 import nl.knaw.huygens.alexandria.dropwizard.resources.AboutResource;
 import nl.knaw.huygens.alexandria.dropwizard.resources.DocumentsResource;

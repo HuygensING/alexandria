@@ -21,7 +21,7 @@ import java.time.Instant;
  * limitations under the License.
  * #L%
  */
-class FileInfo {
+public class FileInfo {
   private FileType fileType;
   private String objectName;
   private Instant lastCommit;

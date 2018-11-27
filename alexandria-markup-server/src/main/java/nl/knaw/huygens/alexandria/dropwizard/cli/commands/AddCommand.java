@@ -1,4 +1,4 @@
-package nl.knaw.huygens.alexandria.dropwizard.cli;
+package nl.knaw.huygens.alexandria.dropwizard.cli.commands;
 
 /*
  * #%L
@@ -23,6 +23,8 @@ package nl.knaw.huygens.alexandria.dropwizard.cli;
 import io.dropwizard.setup.Bootstrap;
 import net.sourceforge.argparse4j.inf.Namespace;
 import net.sourceforge.argparse4j.inf.Subparser;
+import nl.knaw.huygens.alexandria.dropwizard.cli.CLIContext;
+import nl.knaw.huygens.alexandria.dropwizard.cli.FileInfo;
 
 import java.io.IOException;
 import java.nio.file.Files;

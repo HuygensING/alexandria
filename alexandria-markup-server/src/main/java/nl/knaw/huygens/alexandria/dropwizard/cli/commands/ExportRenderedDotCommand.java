@@ -1,4 +1,4 @@
-package nl.knaw.huygens.alexandria.dropwizard.cli;
+package nl.knaw.huygens.alexandria.dropwizard.cli.commands;
 
 /*
  * #%L
@@ -19,6 +19,9 @@ package nl.knaw.huygens.alexandria.dropwizard.cli;
  * limitations under the License.
  * #L%
  */
+
+import nl.knaw.huygens.alexandria.dropwizard.cli.DotEngine;
+import nl.knaw.huygens.alexandria.dropwizard.cli.Util;
 
 import java.io.File;
 import java.io.FileOutputStream;

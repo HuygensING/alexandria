@@ -1,4 +1,4 @@
-package nl.knaw.huygens.alexandria.dropwizard.cli;
+package nl.knaw.huygens.alexandria.dropwizard.cli.commands;
 
 /*
  * #%L
@@ -27,6 +27,9 @@ import net.sourceforge.argparse4j.inf.Namespace;
 import net.sourceforge.argparse4j.inf.Subparser;
 import nl.knaw.huc.di.tag.tagml.importer.TAGMLImporter;
 import nl.knaw.huygens.alexandria.dropwizard.api.NamedDocumentService;
+import nl.knaw.huygens.alexandria.dropwizard.cli.CLIContext;
+import nl.knaw.huygens.alexandria.dropwizard.cli.FileInfo;
+import nl.knaw.huygens.alexandria.dropwizard.cli.FileType;
 import nl.knaw.huygens.alexandria.storage.TAGDocument;
 import nl.knaw.huygens.alexandria.storage.TAGStore;
 import nl.knaw.huygens.alexandria.view.TAGView;
@@ -45,7 +48,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import static nl.knaw.huygens.alexandria.dropwizard.cli.CheckOutCommand.MAIN_VIEW;
+import static nl.knaw.huygens.alexandria.dropwizard.cli.commands.CheckOutCommand.MAIN_VIEW;
 
 public class CommitCommand extends AlexandriaCommand {
   public static final String ARG_FILE = "file";
