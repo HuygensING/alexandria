@@ -43,7 +43,7 @@ public class CommitCommandIntegrationTest extends CommandIntegrationTest {
 
     final boolean success = cli.run("commit", filename);
 
-    softlyAssertSucceedsWithExpectedStdout(success, "Parsing transcription1.tagml to document transcription1...");
+    softlyAssertSucceedsWithExpectedStdout(success, "Parsing transcription1.tagml to document transcription1...\ndone!");
     Instant dateAfterCommit = readLastCommittedInstant(filename);
     assertThat(dateAfterCommit).isAfter(dateAfterAdd);
 
@@ -56,7 +56,7 @@ public class CommitCommandIntegrationTest extends CommandIntegrationTest {
     createFile(filename, "[tagml>test<tagml]");
 
     final boolean success = cli.run("commit", "-a");
-    softlyAssertSucceedsWithExpectedStdout(success, "TODO");
+    softlyAssertSucceedsWithExpectedStdout(success, "done!");
   }
 
   @Test
