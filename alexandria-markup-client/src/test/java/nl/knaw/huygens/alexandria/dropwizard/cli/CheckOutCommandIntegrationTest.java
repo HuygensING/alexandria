@@ -27,7 +27,15 @@ public class CheckOutCommandIntegrationTest extends CommandIntegrationTest {
   @Test
   public void testCheckOutCommand() throws Exception {
     runInitCommand();
-    final boolean success = cli.run("checkout");
+
+    String tagFilename = "transcription1.tagml";
+    createFile(tagFilename, "[tagml>[l>test<l]<tagml]");
+    String viewFilename = "views/v1.json";
+    createFile(viewFilename, "{\"includeMarkup\":[\"l\"]}");
+    runAddCommand(tagFilename, viewFilename);
+    runCommitAllCommand();
+
+    final boolean success = cli.run("checkout" "v1");
     assertSucceedsWithExpectedStdout(success, "TODO");
   }
 

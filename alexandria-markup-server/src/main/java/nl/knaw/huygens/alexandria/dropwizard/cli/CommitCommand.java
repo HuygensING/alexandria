@@ -49,10 +49,6 @@ public class CommitCommand extends AlexandriaCommand {
   public static final String ARG_FILE = "file";
   private final String ARG_ALL = "add_all";
 
-  enum FileType {
-    viewDefinition, tagmlSource, other
-  }
-
   public CommitCommand() {
     super("commit", "Record changes to the repository");
   }
@@ -83,38 +79,33 @@ public class CommitCommand extends AlexandriaCommand {
     Map<String, Long> documentIndex = readDocumentIndex();
     try (TAGStore store = getTAGStore()) {
       fileNames.forEach(fileName -> {
-        switch (fileType(fileName)) {
+        FileType fileType = fileType(fileName);
+        String objectName = fileName;
+        switch (fileType) {
           case tagmlSource:
-            processTAGMLFile(documentIndex, store, fileName);
+            objectName = toDocName(fileName);
+            processTAGMLFile(documentIndex, store, fileName, objectName);
             break;
           case viewDefinition:
-            processViewDefinition(store, fileName);
+            objectName = toViewName(fileName);
+            processViewDefinition(store, fileName, objectName);
             break;
           case other:
             processOtherFile(documentIndex, store, fileName);
             break;
         }
         CLIContext cliContext = readContext();
-        cliContext.getWatchedFiles().put(fileName, Instant.now());
+        cliContext.getWatchedFiles().put(fileName, new FileInfo()
+            .setObjectName(objectName)
+            .setFileType(fileType)
+            .setLastCommit(Instant.now()));
         storeContext(cliContext);
       });
     }
     System.out.println("done!");
   }
 
-
-  private FileType fileType(String fileName) {
-    if (fileName.endsWith(".tagml") || fileName.endsWith(".tag")) {
-      return FileType.tagmlSource;
-    }
-    if (fileName.endsWith(".json")) {
-      return FileType.viewDefinition;
-    }
-    return FileType.other;
-  }
-
-  private void processTAGMLFile(Map<String, Long> documentIndex, TAGStore store, String fileName) {
-    String docName = toDocName(fileName);
+  private void processTAGMLFile(Map<String, Long> documentIndex, TAGStore store, String fileName, String docName) {
     System.out.printf("Parsing %s to document %s...%n", fileName, docName);
 
     store.runInTransaction(Unchecked.runnable(() -> {
@@ -129,8 +120,7 @@ public class CommitCommand extends AlexandriaCommand {
     }));
   }
 
-  private void processViewDefinition(TAGStore store, String fileName) {
-    String viewName = toViewName(fileName);
+  private void processViewDefinition(TAGStore store, String fileName, String viewName) {
     Map<String, TAGView> viewMap = readViewMap();
     File viewFile = workFilePath(fileName).toFile();
     TAGViewFactory viewFactory = new TAGViewFactory(store);
@@ -165,7 +155,7 @@ public class CommitCommand extends AlexandriaCommand {
     CLIContext cliContext = readContext();
     cliContext.getWatchedFiles().forEach((k, v) -> {
       Path filePath = workFilePath(k);
-      Instant lastCommitted = v;
+      Instant lastCommitted = v.getLastCommit();
       try {
         FileTime lastModifiedTime = Files.getLastModifiedTime(filePath);
         if (!lastModifiedTime.toInstant().equals(lastCommitted)) {

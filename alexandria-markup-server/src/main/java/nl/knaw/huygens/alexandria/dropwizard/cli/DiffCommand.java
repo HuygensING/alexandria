@@ -20,20 +20,10 @@ package nl.knaw.huygens.alexandria.dropwizard.cli;
  * #L%
  */
 
-import com.google.common.base.Charsets;
 import io.dropwizard.setup.Bootstrap;
 import net.sourceforge.argparse4j.inf.Namespace;
 import net.sourceforge.argparse4j.inf.Subparser;
-import nl.knaw.huc.di.tag.tagml.importer.TAGMLImporter;
-import nl.knaw.huygens.alexandria.compare.TAGComparison;
-import nl.knaw.huygens.alexandria.storage.TAGDocument;
 import nl.knaw.huygens.alexandria.storage.TAGStore;
-import nl.knaw.huygens.alexandria.view.TAGView;
-import org.apache.commons.io.FileUtils;
-
-import java.io.File;
-import java.io.IOException;
-import java.io.UncheckedIOException;
 
 public class DiffCommand extends AlexandriaCommand {
 
@@ -57,33 +47,33 @@ public class DiffCommand extends AlexandriaCommand {
       store.runInTransaction(() -> {
         CLIContext context = readContext();
 
-        String filename = namespace.getString(FILE);
-        String documentName = context.getDocumentName(filename);
-        Long documentId = getIdForExistingDocument(documentName);
-        TAGDocument original = store.getDocument(documentId);
-
-        String viewId = context.getViewName(filename);
-        TAGView tagView = readViewMap().get(viewId);
-
-        File editedFile = new File(filename);
-        try {
-          String newTAGML = FileUtils.readFileToString(editedFile, Charsets.UTF_8);
-          TAGMLImporter importer = new TAGMLImporter(store);
-          TAGDocument edited = importer.importTAGML(newTAGML);
-
-          TAGComparison comparison = new TAGComparison(original, tagView, edited);
-
-          System.out.printf("diff for document %s, using view %s:%n", documentName, viewId);
-          if (comparison.hasDifferences()) {
-            System.out.printf("%s%n", String.join("\n", comparison.getDiffLines()));
-          } else {
-            System.out.println("no changes");
-          }
-
-        } catch (IOException e) {
-          e.printStackTrace();
-          throw new UncheckedIOException(e);
-        }
+//        String filename = namespace.getString(FILE);
+//        String documentName = context.getDocumentName(filename);
+//        Long documentId = getIdForExistingDocument(documentName);
+//        TAGDocument original = store.getDocument(documentId);
+//
+//        String viewId = context.getViewName(filename);
+//        TAGView tagView = readViewMap().get(viewId);
+//
+//        File editedFile = new File(filename);
+//        try {
+//          String newTAGML = FileUtils.readFileToString(editedFile, Charsets.UTF_8);
+//          TAGMLImporter importer = new TAGMLImporter(store);
+//          TAGDocument edited = importer.importTAGML(newTAGML);
+//
+//          TAGComparison comparison = new TAGComparison(original, tagView, edited);
+//
+//          System.out.printf("diff for document %s, using view %s:%n", documentName, viewId);
+//          if (comparison.hasDifferences()) {
+//            System.out.printf("%s%n", String.join("\n", comparison.getDiffLines()));
+//          } else {
+//            System.out.println("no changes");
+//          }
+//
+//        } catch (IOException e) {
+//          e.printStackTrace();
+//          throw new UncheckedIOException(e);
+//        }
       });
     }
   }

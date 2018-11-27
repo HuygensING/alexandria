@@ -191,6 +191,12 @@ public abstract class CommandIntegrationTest {
     stdErr.reset();
   }
 
+  void runCommitAllCommand() throws Exception {
+    assertThat(cli.run("commit", "-a")).isTrue();
+    stdOut.reset();
+    stdErr.reset();
+  }
+
   void assertCommandRunsInAnInitializedDirectory(final String... cliArguments) throws Exception {
     final boolean success = cli.run(cliArguments);
     assertThat(success).isFalse();

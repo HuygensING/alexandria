@@ -33,6 +33,8 @@ import org.apache.commons.io.FileUtils;
 import java.io.File;
 import java.io.IOException;
 import java.io.UncheckedIOException;
+import java.util.HashMap;
+import java.util.Map;
 
 public class CheckOutCommand extends AlexandriaCommand {
   private static final String VIEW = "view";
@@ -57,14 +59,25 @@ public class CheckOutCommand extends AlexandriaCommand {
     checkDirectoryIsInitialized();
 
     String viewName = namespace.getString(VIEW);
-    String docName = namespace.getString(DOCUMENT);
-    String outFilename = String.format("%s-%s.tagml", docName, viewName);
 
-    System.out.printf("Exporting document %s using view %s to %s...%n", docName, viewName, outFilename);
-    Long docId = getIdForExistingDocument(docName);
+    System.out.printf("Checking out view %s...%n", viewName);
     try (TAGStore store = getTAGStore()) {
+      CLIContext context = readContext();
+      Map<String, FileInfo> watchedTranscriptions = new HashMap<>();
+      context.getWatchedFiles().entrySet()
+          .stream()
+          .filter(e -> e.getValue().getFileType().equals(FileType.tagmlSource))
+          .forEach(e -> {
+            String fileName = e.getKey();
+            FileInfo fileInfo = e.getValue();
+            watchedTranscriptions.put(fileName, fileInfo);
+          });
+
       store.runInTransaction(() -> {
-        System.out.printf("Retrieving document %s%n", docName);
+        watchedTranscriptions.forEach((fileName,fileInfo)->{
+          System.out.printf("  %s...%n", fileName);
+
+        });
         TAGDocument document = store.getDocument(docId);
 
         System.out.printf("Retrieving view %s%n", viewName);
@@ -77,10 +90,10 @@ public class CheckOutCommand extends AlexandriaCommand {
             .trim();
         try {
           FileUtils.writeStringToFile(new File(outFilename), tagml, Charsets.UTF_8);
-          CLIContext context = readContext()//
-              .setDocumentName(outFilename, docName)//
-              .setViewName(outFilename, viewName);
-          storeContext(context);
+//          CLIContext context = readContext()//
+//              .setDocumentName(outFilename, docName)//
+//              .setViewName(outFilename, viewName);
+//          storeContext(context);
         } catch (IOException e) {
           e.printStackTrace();
           throw new UncheckedIOException(e);

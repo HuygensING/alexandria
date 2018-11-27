@@ -20,43 +20,16 @@ package nl.knaw.huygens.alexandria.dropwizard.cli;
  * #L%
  */
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-import java.time.Instant;
 import java.util.HashMap;
 import java.util.Map;
 
 public class CLIContext {
 
   @JsonProperty("fileContextMap")
-  private Map<String, FileInfo> fileContextMap = new HashMap<>();
   private String activeView = "-";
-  private Map<String, Instant> watchedFiles = new HashMap<>();
-
-  @JsonIgnore
-  public CLIContext setDocumentName(String filename, String docName) {
-    fileContextMap.putIfAbsent(filename, new FileInfo());
-    fileContextMap.get(filename).setDocumentName(docName);
-    return this;
-  }
-
-  @JsonIgnore
-  public String getDocumentName(String filename) {
-    return fileContextMap.get(filename).getDocumentName();
-  }
-
-  @JsonIgnore
-  public CLIContext setViewName(String filename, String viewName) {
-    fileContextMap.putIfAbsent(filename, new FileInfo());
-    fileContextMap.get(filename).setViewName(viewName);
-    return this;
-  }
-
-  @JsonIgnore
-  public String getViewName(String filename) {
-    return fileContextMap.get(filename).getViewName();
-  }
+  private Map<String, FileInfo> watchedFiles = new HashMap<>();
 
   public CLIContext setActiveView(final String activeView) {
     this.activeView = activeView;
@@ -67,12 +40,12 @@ public class CLIContext {
     return activeView;
   }
 
-  public CLIContext setWatchedFiles(final Map<String, Instant> watchedFiles) {
+  public CLIContext setWatchedFiles(final Map<String, FileInfo> watchedFiles) {
     this.watchedFiles = watchedFiles;
     return this;
   }
 
-  public Map<String, Instant> getWatchedFiles() {
+  public Map<String, FileInfo> getWatchedFiles() {
     return watchedFiles;
   }
 

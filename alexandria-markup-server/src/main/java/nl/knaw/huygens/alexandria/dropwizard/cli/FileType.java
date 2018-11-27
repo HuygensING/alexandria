@@ -1,7 +1,5 @@
 package nl.knaw.huygens.alexandria.dropwizard.cli;
 
-import java.time.Instant;
-
 /*-
  * #%L
  * alexandria-markup-server
@@ -21,35 +19,6 @@ import java.time.Instant;
  * limitations under the License.
  * #L%
  */
-class FileInfo {
-  private FileType fileType;
-  private String objectName;
-  private Instant lastCommit;
-
-  public FileType getFileType() {
-    return fileType;
-  }
-
-  public FileInfo setFileType(FileType fileType) {
-    this.fileType = fileType;
-    return this;
-  }
-
-  public String getObjectName() {
-    return objectName;
-  }
-
-  public FileInfo setObjectName(String objectName) {
-    this.objectName = objectName;
-    return this;
-  }
-
-  public Instant getLastCommit() {
-    return lastCommit;
-  }
-
-  public FileInfo setLastCommit(Instant lastCommit) {
-    this.lastCommit = lastCommit;
-    return this;
-  }
+public enum FileType {
+  viewDefinition, tagmlSource, other
 }

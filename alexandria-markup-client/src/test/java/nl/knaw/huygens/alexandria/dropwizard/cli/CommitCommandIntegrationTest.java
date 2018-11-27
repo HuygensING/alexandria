@@ -53,7 +53,7 @@ public class CommitCommandIntegrationTest extends CommandIntegrationTest {
   public void testCommitCommandWithAllOption() throws Exception {
     runInitCommand();
     String tagFilename = "transcription1.tagml";
-    createFile(tagFilename, "[tagml>test<tagml]");
+    createFile(tagFilename, "[tagml>[l>test<l]<tagml]");
     String viewFilename = "views/v1.json";
     createFile(viewFilename, "{\"includeMarkup\":[\"l\"]}");
 

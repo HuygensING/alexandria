@@ -169,8 +169,18 @@ public abstract class AlexandriaCommand extends Command {
     return Paths.get(workDir).resolve(relativePath);
   }
 
-
   TAGStore getTAGStore() {
     return new TAGStore(alexandriaDir, false);
   }
+
+  FileType fileType(String fileName) {
+    if (fileName.endsWith(".tagml") || fileName.endsWith(".tag")) {
+      return FileType.tagmlSource;
+    }
+    if (fileName.endsWith(".json")) {
+      return FileType.viewDefinition;
+    }
+    return FileType.other;
+  }
+
 }
