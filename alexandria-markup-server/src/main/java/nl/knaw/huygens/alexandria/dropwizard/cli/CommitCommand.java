@@ -20,6 +20,7 @@ package nl.knaw.huygens.alexandria.dropwizard.cli;
  * #L%
  */
 
+import com.google.common.base.Charsets;
 import io.dropwizard.setup.Bootstrap;
 import net.sourceforge.argparse4j.impl.Arguments;
 import net.sourceforge.argparse4j.inf.Namespace;
@@ -28,6 +29,8 @@ import nl.knaw.huc.di.tag.tagml.importer.TAGMLImporter;
 import nl.knaw.huygens.alexandria.dropwizard.api.NamedDocumentService;
 import nl.knaw.huygens.alexandria.storage.TAGDocument;
 import nl.knaw.huygens.alexandria.storage.TAGStore;
+import nl.knaw.huygens.alexandria.view.TAGView;
+import nl.knaw.huygens.alexandria.view.TAGViewFactory;
 import org.apache.commons.io.FileUtils;
 import org.jooq.lambda.Unchecked;
 
@@ -85,7 +88,7 @@ public class CommitCommand extends AlexandriaCommand {
             processTAGMLFile(documentIndex, store, fileName);
             break;
           case viewDefinition:
-            processViewDefinition(documentIndex, store, fileName);
+            processViewDefinition(store, fileName);
             break;
           case other:
             processOtherFile(documentIndex, store, fileName);
@@ -126,8 +129,26 @@ public class CommitCommand extends AlexandriaCommand {
     }));
   }
 
-  private void processViewDefinition(Map<String, Long> documentIndex, TAGStore store, String fileName) {
+  private void processViewDefinition(TAGStore store, String fileName) {
+    String viewName = toViewName(fileName);
+    Map<String, TAGView> viewMap = readViewMap();
+    File viewFile = workFilePath(fileName).toFile();
+    TAGViewFactory viewFactory = new TAGViewFactory(store);
+    System.out.printf("Parsing %s to view %s...%n", fileName, viewName);
+    try {
+      String json = FileUtils.readFileToString(viewFile, Charsets.UTF_8);
+      TAGView view = viewFactory.fromJsonString(json);
+      viewMap.put(viewName, view);
+      storeViewMap(viewMap);
+    } catch (IOException e) {
+      e.printStackTrace();
+    }
+  }
 
+  private String toViewName(String fileName) {
+    return fileName
+        .replaceAll("^.*views/", "")
+        .replaceAll(".json", "");
   }
 
   private void processOtherFile(Map<String, Long> documentIndex, TAGStore store, String fileName) {

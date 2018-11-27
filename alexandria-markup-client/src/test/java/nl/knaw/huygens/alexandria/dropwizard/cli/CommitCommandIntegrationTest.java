@@ -52,11 +52,27 @@ public class CommitCommandIntegrationTest extends CommandIntegrationTest {
   @Test
   public void testCommitCommandWithAllOption() throws Exception {
     runInitCommand();
-    String filename = "transcription1.tagml";
-    createFile(filename, "[tagml>test<tagml]");
+    String tagFilename = "transcription1.tagml";
+    createFile(tagFilename, "[tagml>test<tagml]");
+    String viewFilename = "views/v1.json";
+    createFile(viewFilename, "{\"includeMarkup\":[\"l\"]}");
+
+    runAddCommand(tagFilename, viewFilename);
+
+    Instant tagDateAfterAdd = readLastCommittedInstant(tagFilename);
+    assertThat(tagDateAfterAdd).isNotNull();
+    Instant viewDateAfterAdd = readLastCommittedInstant(viewFilename);
+    assertThat(viewDateAfterAdd).isNotNull();
 
     final boolean success = cli.run("commit", "-a");
-    softlyAssertSucceedsWithExpectedStdout(success, "done!");
+    assertSucceedsWithExpectedStdout(success, "Parsing transcription1.tagml to document transcription1...\n" +
+        "Parsing views/v1.json to view v1...\n" +
+        "done!");
+
+    Instant tagDateAfterCommit = readLastCommittedInstant(tagFilename);
+    assertThat(tagDateAfterCommit).isAfter(tagDateAfterAdd);
+    Instant viewDateAfterCommit = readLastCommittedInstant(viewFilename);
+    assertThat(viewDateAfterCommit).isAfter(viewDateAfterAdd);
   }
 
   @Test
