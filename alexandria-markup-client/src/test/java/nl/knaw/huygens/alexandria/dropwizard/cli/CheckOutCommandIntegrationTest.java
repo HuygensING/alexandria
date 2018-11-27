@@ -19,24 +19,47 @@ package nl.knaw.huygens.alexandria.dropwizard.cli;
  * limitations under the License.
  * #L%
  */
-import org.junit.Ignore;
+
 import org.junit.Test;
 
+import static nl.knaw.huygens.alexandria.dropwizard.cli.CheckOutCommand.MAIN_VIEW;
+import static org.assertj.core.api.Assertions.assertThat;
+
 public class CheckOutCommandIntegrationTest extends CommandIntegrationTest {
-  @Ignore
   @Test
   public void testCheckOutCommand() throws Exception {
     runInitCommand();
 
     String tagFilename = "transcription1.tagml";
-    createFile(tagFilename, "[tagml>[l>test<l]<tagml]");
-    String viewFilename = "views/v1.json";
+    String tagml = "[tagml>[l>test<l]<tagml]";
+    createFile(tagFilename, tagml);
+    String viewName = "v1";
+    String viewFilename = "views/" + viewName + ".json";
     createFile(viewFilename, "{\"includeMarkup\":[\"l\"]}");
     runAddCommand(tagFilename, viewFilename);
     runCommitAllCommand();
 
-    final boolean success = cli.run("checkout" "v1");
-    assertSucceedsWithExpectedStdout(success, "TODO");
+    final boolean success = cli.run("checkout", viewName);
+    softlyAssertSucceedsWithExpectedStdout(success, "Checking out view v1...\n" +
+        "  updating transcription1.tagml...\n" +
+        "done!");
+
+    CLIContext cliContext = readCLIContext();
+    assertThat(cliContext.getActiveView()).isEqualTo(viewName);
+
+    String newContent = readFileContents(tagFilename);
+    assertThat(newContent).isEqualTo("[l>test<l]");
+
+    final boolean success2 = cli.run("checkout", MAIN_VIEW);
+    softlyAssertSucceedsWithExpectedStdout(success2, "Checking out main view...\n" +
+        "  updating transcription1.tagml...\n" +
+        "done!");
+
+    CLIContext cliContext2 = readCLIContext();
+    assertThat(cliContext2.getActiveView()).isEqualTo(MAIN_VIEW);
+
+    String newContent2 = readFileContents(tagFilename);
+    assertThat(newContent2).isEqualTo(tagml);
   }
 
   @Test

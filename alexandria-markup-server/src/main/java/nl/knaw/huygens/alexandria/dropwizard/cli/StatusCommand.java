@@ -58,17 +58,19 @@ public class StatusCommand extends AlexandriaCommand {
 
     CLIContext context = readContext();
     System.out.printf("Active view: %s%n", context.getActiveView());
-    showDocuments();
-    showViews();
+    try (TAGStore store = getTAGStore()) {
+      showDocuments(store);
+      showViews(store);
+    }
   }
 
-  private void showDocuments() {
+  private void showDocuments(final TAGStore store) {
     Map<String, Long> documentIndex = readDocumentIndex();
     String documents = documentIndex
         .keySet()
         .stream()
         .sorted()
-        .map(docName -> docInfo(docName, documentIndex))
+        .map(docName -> docInfo(docName, documentIndex, store))
         .collect(joining("\n  "));
     if (documents.isEmpty()) {
       System.out.println("no documents");
@@ -77,19 +79,17 @@ public class StatusCommand extends AlexandriaCommand {
     }
   }
 
-  private String docInfo(final String docName, final Map<String, Long> documentIndex) {
+  private String docInfo(final String docName, final Map<String, Long> documentIndex, final TAGStore store) {
     Long docId = documentIndex.get(docName);
-    try (TAGStore store = getTAGStore()) {
-      String docInfo = store.runInTransaction(() -> {
-        TAGDocument document = store.getDocument(docId);
-        return format("%s (created:%s, modified:%s)", docName, document.getCreationDate(), document.getModificationDate());
-      });
-      return docInfo;
-    }
+    String docInfo = store.runInTransaction(() -> {
+      TAGDocument document = store.getDocument(docId);
+      return format("%s (created:%s, modified:%s)", docName, document.getCreationDate(), document.getModificationDate());
+    });
+    return docInfo;
   }
 
-  private void showViews() {
-    String views = readViewMap()
+  private void showViews(final TAGStore store) {
+    String views = readViewMap(store)
         .entrySet()
         .stream()
         .map(this::toString)

@@ -121,7 +121,7 @@ public class CommitCommand extends AlexandriaCommand {
   }
 
   private void processViewDefinition(TAGStore store, String fileName, String viewName) {
-    Map<String, TAGView> viewMap = readViewMap();
+    Map<String, TAGView> viewMap = readViewMap(store);
     File viewFile = workFilePath(fileName).toFile();
     TAGViewFactory viewFactory = new TAGViewFactory(store);
     System.out.printf("Parsing %s to view %s...%n", fileName, viewName);

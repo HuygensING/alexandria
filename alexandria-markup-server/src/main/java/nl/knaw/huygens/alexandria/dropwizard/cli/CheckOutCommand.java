@@ -24,6 +24,7 @@ import com.google.common.base.Charsets;
 import io.dropwizard.setup.Bootstrap;
 import net.sourceforge.argparse4j.inf.Namespace;
 import net.sourceforge.argparse4j.inf.Subparser;
+import nl.knaw.huc.di.tag.TAGViews;
 import nl.knaw.huc.di.tag.tagml.exporter.TAGMLExporter;
 import nl.knaw.huygens.alexandria.storage.TAGDocument;
 import nl.knaw.huygens.alexandria.storage.TAGStore;
@@ -39,6 +40,7 @@ import java.util.Map;
 public class CheckOutCommand extends AlexandriaCommand {
   private static final String VIEW = "view";
   private static final String DOCUMENT = "document";
+  public static final String MAIN_VIEW = "-";
 
   public CheckOutCommand() {
     super("checkout", "Activate or deactivate a view in this directory");
@@ -59,8 +61,13 @@ public class CheckOutCommand extends AlexandriaCommand {
     checkDirectoryIsInitialized();
 
     String viewName = namespace.getString(VIEW);
+    boolean showAll = MAIN_VIEW.equals(viewName);
 
-    System.out.printf("Checking out view %s...%n", viewName);
+    if (showAll) {
+      System.out.println("Checking out main view...");
+    } else {
+      System.out.printf("Checking out view %s...%n", viewName);
+    }
     try (TAGStore store = getTAGStore()) {
       CLIContext context = readContext();
       Map<String, FileInfo> watchedTranscriptions = new HashMap<>();
@@ -73,34 +80,32 @@ public class CheckOutCommand extends AlexandriaCommand {
             watchedTranscriptions.put(fileName, fileInfo);
           });
 
+      Map<String, Long> documentIndex = readDocumentIndex();
       store.runInTransaction(() -> {
-        watchedTranscriptions.forEach((fileName,fileInfo)->{
-          System.out.printf("  %s...%n", fileName);
-
+        TAGView tagView = showAll
+            ? TAGViews.getShowAllMarkupView(store)
+            : getExistingView(viewName, store);
+        watchedTranscriptions.forEach((fileName, fileInfo) -> {
+          System.out.printf("  updating %s...%n", fileName);
+          final Long docId = documentIndex.get(fileInfo.getObjectName());
+          TAGDocument document = store.getDocument(docId);
+          TAGMLExporter tagmlExporter = new TAGMLExporter(store, tagView);
+          String tagml = tagmlExporter.asTAGML(document)
+              .replaceAll("\n\\s*\n", "\n")
+              .trim();
+          try {
+            final File out = workFilePath(fileName).toFile();
+            FileUtils.writeStringToFile(out, tagml, Charsets.UTF_8);
+          } catch (IOException e) {
+            e.printStackTrace();
+            throw new UncheckedIOException(e);
+          }
         });
-        TAGDocument document = store.getDocument(docId);
-
-        System.out.printf("Retrieving view %s%n", viewName);
-        TAGView tagView = getExistingView(viewName);
-
-        System.out.printf("Exporting document view to %s%n", outFilename);
-        TAGMLExporter tagmlExporter = new TAGMLExporter(store, tagView);
-        String tagml = tagmlExporter.asTAGML(document)
-            .replaceAll("\n\\s*\n", "\n")
-            .trim();
-        try {
-          FileUtils.writeStringToFile(new File(outFilename), tagml, Charsets.UTF_8);
-//          CLIContext context = readContext()//
-//              .setDocumentName(outFilename, docName)//
-//              .setViewName(outFilename, viewName);
-//          storeContext(context);
-        } catch (IOException e) {
-          e.printStackTrace();
-          throw new UncheckedIOException(e);
-        }
       });
+      storeDocumentIndex(documentIndex);
+      context.setActiveView(viewName);
+      storeContext(context);
     }
-
     System.out.println("done!");
   }
 

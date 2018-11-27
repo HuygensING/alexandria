@@ -122,6 +122,7 @@ public abstract class CommandIntegrationTest {
     softly.assertThat(stdOut.toString().trim()).as("stdout").isEqualTo(normalizedExpectedOutput);
     softly.assertThat(stdErr.toString().trim()).as("stderr").isEmpty();
     softly.assertAll();
+    resetStdOutErr();
   }
 
   void assertSucceedsWithExpectedStdout(final boolean success, final String expectedOutput) {
@@ -133,6 +134,7 @@ public abstract class CommandIntegrationTest {
 
     String normalizedErrors = stdErr.toString().trim();
     assertThat(normalizedErrors).as("stderr").isEmpty();
+    resetStdOutErr();
   }
 
   void softlyAssertFailsWithExpectedStderr(final boolean success, final String expectedError) {
@@ -141,12 +143,19 @@ public abstract class CommandIntegrationTest {
     softly.assertThat(success).as("Exit success").isFalse();
     softly.assertThat(stdErr.toString().trim()).as("stderr").isEqualTo(normalizedExpectedError);
     softly.assertAll();
+    resetStdOutErr();
   }
 
   private void assertFailsWithExpectedStderr(final boolean success, final String expectedError) {
     String normalizedExpectedError = normalize(expectedError);
     assertThat(success).as("Exit success").isFalse();
     assertThat(stdErr.toString().trim()).as("stderr").isEqualTo(normalizedExpectedError);
+    resetStdOutErr();
+  }
+
+  private void resetStdOutErr() {
+    stdOut.reset();
+    stdErr.reset();
   }
 
   private String normalize(final String expectedOutput) {
@@ -177,8 +186,7 @@ public abstract class CommandIntegrationTest {
 
   void runInitCommand() throws Exception {
     assertThat(cli.run("init")).isTrue();
-    stdOut.reset();
-    stdErr.reset();
+    resetStdOutErr();
   }
 
   void runAddCommand(String... filenames) throws Exception {
@@ -187,14 +195,12 @@ public abstract class CommandIntegrationTest {
     Collections.addAll(arguments, filenames);
     String[] argumentArray = arguments.toArray(new String[]{});
     assertThat(cli.run(argumentArray)).isTrue();
-    stdOut.reset();
-    stdErr.reset();
+    resetStdOutErr();
   }
 
   void runCommitAllCommand() throws Exception {
     assertThat(cli.run("commit", "-a")).isTrue();
-    stdOut.reset();
-    stdErr.reset();
+    resetStdOutErr();
   }
 
   void assertCommandRunsInAnInitializedDirectory(final String... cliArguments) throws Exception {
@@ -211,9 +217,14 @@ public abstract class CommandIntegrationTest {
     }
   }
 
+  String readFileContents(String filename) throws IOException {
+    Path file1 = workFilePath(filename);
+    return new String(Files.readAllBytes(file1));
+  }
+
   protected Instant readLastCommittedInstant(String filename) throws IOException {
     CLIContext cliContext = readCLIContext();
-    Map<String, Instant> watchedFiles = cliContext.getWatchedFiles();
-    return watchedFiles.get(filename);
+    Map<String, FileInfo> watchedFiles = cliContext.getWatchedFiles();
+    return watchedFiles.get(filename).getLastCommit();
   }
 }

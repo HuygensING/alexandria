@@ -20,14 +20,11 @@ package nl.knaw.huygens.alexandria.dropwizard.cli;
  * #L%
  */
 
-import com.fasterxml.jackson.annotation.JsonProperty;
-
 import java.util.HashMap;
 import java.util.Map;
 
 public class CLIContext {
 
-  @JsonProperty("fileContextMap")
   private String activeView = "-";
   private Map<String, FileInfo> watchedFiles = new HashMap<>();
 

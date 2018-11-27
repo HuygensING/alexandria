@@ -73,7 +73,7 @@ public class ExportXmlCommand extends AlexandriaCommand {
         TAGView tagView;
         if (useView) {
           System.out.printf("Retrieving view %s%n", viewName);
-          tagView = getExistingView(viewName);
+          tagView = getExistingView(viewName, store);
         } else {
           tagView = TAGViews.getShowAllMarkupView(store);
         }
