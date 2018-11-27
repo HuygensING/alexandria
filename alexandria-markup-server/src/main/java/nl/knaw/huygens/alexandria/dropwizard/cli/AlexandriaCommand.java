@@ -44,7 +44,6 @@ import static java.util.stream.Collectors.toMap;
 public abstract class AlexandriaCommand extends Command {
   private static final Logger LOG = LoggerFactory.getLogger(AlexandriaCommand.class);
   static final String ALEXANDRIA_DIR = ".alexandria";
-  final String NAME = "name";
   final String FILE = "file";
 
   private final String alexandriaDir;
@@ -117,7 +116,7 @@ public abstract class AlexandriaCommand extends Command {
       System.out.println("This directory has not been initialized, run ");
       System.out.println("  alexandria init");
       System.out.println("first.");
-//      System.exit(-1);
+      throw new AlexandriaCommandException("not initialized");
     }
   }
 
@@ -148,8 +147,8 @@ public abstract class AlexandriaCommand extends Command {
   Long getIdForExistingDocument(String docName) {
     Map<String, Long> documentIndex = readDocumentIndex();
     if (!documentIndex.containsKey(docName)) {
-      System.err.println("ERROR: No document '" + docName + "' was registered.\n  alexandria status\nwill show you which documents and views have been registered.");
-//      System.exit(-1);
+      System.err.printf("ERROR: No document '%s' was registered.\n  alexandria status\nwill show you which documents and views have been registered.%n", docName);
+      throw new AlexandriaCommandException("unregistered document");
     }
     return documentIndex.get(docName);
   }
@@ -157,8 +156,8 @@ public abstract class AlexandriaCommand extends Command {
   TAGView getExistingView(String viewName, final TAGStore store) {
     Map<String, TAGView> viewMap = readViewMap(store);
     if (!viewMap.containsKey(viewName)) {
-      System.err.println("ERROR: No view '" + viewName + "' was registered.\n  alexandria status\nwill show you which documents and views have been registered.");
-//      System.exit(-1);
+      System.err.printf("ERROR: No view '%s' was registered.\n  alexandria status\nwill show you which documents and views have been registered.%n", viewName);
+      throw new AlexandriaCommandException("unregistered view");
     }
     return viewMap.get(viewName);
   }

@@ -27,7 +27,6 @@ import java.time.Instant;
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class CommitCommandIntegrationTest extends CommandIntegrationTest {
-  //  @Ignore
   @Test
   public void testCommitCommandWithFile() throws Exception {
     runInitCommand();
@@ -46,7 +45,6 @@ public class CommitCommandIntegrationTest extends CommandIntegrationTest {
     softlyAssertSucceedsWithExpectedStdout(success, "Parsing transcription1.tagml to document transcription1...\ndone!");
     Instant dateAfterCommit = readLastCommittedInstant(filename);
     assertThat(dateAfterCommit).isAfter(dateAfterAdd);
-
   }
 
   @Test
@@ -89,7 +87,9 @@ public class CommitCommandIntegrationTest extends CommandIntegrationTest {
         "named arguments:\n" +
         "  -a                     automatically  add  all  changed  files  (default:\n" +
         "                         false)\n" +
-        "  -h, --help             show this help message and exit");
+        "  -h, --help             show this help message and exit\n" +
+        "\n" +
+        "Warning: currently, committing changes is only possible in the main view!");
   }
 
 }

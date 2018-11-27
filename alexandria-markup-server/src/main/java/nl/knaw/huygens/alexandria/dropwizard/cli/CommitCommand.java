@@ -45,6 +45,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import static nl.knaw.huygens.alexandria.dropwizard.cli.CheckOutCommand.MAIN_VIEW;
+
 public class CommitCommand extends AlexandriaCommand {
   public static final String ARG_FILE = "file";
   private final String ARG_ALL = "add_all";
@@ -68,11 +70,13 @@ public class CommitCommand extends AlexandriaCommand {
         .nargs("*")
         .required(false)//
         .help("the changed file(s)");
+    subparser.epilog("Warning: currently, committing changes is only possible in the main view!");
   }
 
   @Override
   public void run(Bootstrap<?> bootstrap, Namespace namespace) {
     checkDirectoryIsInitialized();
+    checkNoViewIsActive();
     List<String> fileNames = (namespace.getBoolean(ARG_ALL))
         ? getModifiedWatchedFileNames()
         : namespace.getList(ARG_FILE);
@@ -103,6 +107,14 @@ public class CommitCommand extends AlexandriaCommand {
       });
     }
     System.out.println("done!");
+  }
+
+  private void checkNoViewIsActive() {
+    String activeView = readContext().getActiveView();
+    boolean inMainView = activeView.equals(MAIN_VIEW);
+    if (!inMainView){
+      System.out.println("View "+activeView+" is active. Currently, committing is only allowed in the main view. Use `alexandria checkout -` to return to the main view.");
+    }
   }
 
   private void processTAGMLFile(Map<String, Long> documentIndex, TAGStore store, String fileName, String docName) {
@@ -144,7 +156,6 @@ public class CommitCommand extends AlexandriaCommand {
   private void processOtherFile(Map<String, Long> documentIndex, TAGStore store, String fileName) {
 
   }
-
 
   private String toDocName(String fileName) {
     return fileName.replaceAll(".tag(ml)?", "");
