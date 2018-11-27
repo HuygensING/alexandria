@@ -1,5 +1,7 @@
 package nl.knaw.huygens.alexandria.dropwizard.cli;
 
+import java.time.Instant;
+
 /*-
  * #%L
  * alexandria-markup-server
@@ -20,22 +22,34 @@ package nl.knaw.huygens.alexandria.dropwizard.cli;
  * #L%
  */
 class FileInfo {
-  private String documentName;
-  private String viewName;
+  private FileType fileType;
+  private String objectName;
+  private Instant lastCommit;
 
-  public void setDocumentName(String documentName) {
-    this.documentName = documentName;
+  public FileType getFileType() {
+    return fileType;
   }
 
-  public String getDocumentName() {
-    return documentName;
+  public FileInfo setFileType(FileType fileType) {
+    this.fileType = fileType;
+    return this;
   }
 
-  public void setViewName(String viewName) {
-    this.viewName = viewName;
+  public String getObjectName() {
+    return objectName;
   }
 
-  public String getViewName() {
-    return viewName;
+  public FileInfo setObjectName(String objectName) {
+    this.objectName = objectName;
+    return this;
+  }
+
+  public Instant getLastCommit() {
+    return lastCommit;
+  }
+
+  public FileInfo setLastCommit(Instant lastCommit) {
+    this.lastCommit = lastCommit;
+    return this;
   }
 }

@@ -1,6 +1,6 @@
 package nl.knaw.huygens.alexandria.dropwizard.cli;
 
-/*
+/*-
  * #%L
  * alexandria-markup-server
  * =======
@@ -19,29 +19,6 @@ package nl.knaw.huygens.alexandria.dropwizard.cli;
  * limitations under the License.
  * #L%
  */
-
-import io.dropwizard.setup.Bootstrap;
-import net.sourceforge.argparse4j.inf.Namespace;
-import net.sourceforge.argparse4j.inf.Subparser;
-
-public class CheckInCommand extends AlexandriaCommand {
-
-  public CheckInCommand() {
-    super("checkin", "Merge the changes in the view into the TAG");
-  }
-
-  @Override
-  public void configure(Subparser subparser) {
-    subparser.addArgument("file")//
-        .dest(FILE)//
-        .type(String.class)//
-        .required(true)//
-        .help("The file containing the edited view");
-  }
-
-  @Override
-  public void run(Bootstrap<?> bootstrap, Namespace namespace) {
-    System.out.printf("Merging changes from %s...%n", namespace.getString(FILE));
-    System.out.println("TODO");
-  }
+public enum FileType {
+  viewDefinition, tagmlSource, other
 }

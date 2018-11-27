@@ -53,15 +53,15 @@ public class AddCommand extends AlexandriaCommand {
     List<String> files = namespace.getList(ARG_FILE);
 
     CLIContext cliContext = readContext();
-    Map<String, Instant> watchedFiles = cliContext.getWatchedFiles();
+    Map<String, FileInfo> watchedFiles = cliContext.getWatchedFiles();
     for (String file : files) {
       if (workFilePath(file).toFile().isFile()) {
-        watchedFiles.put(file, Instant.now());
+        watchedFiles.put(file, new FileInfo().setLastCommit(Instant.now()));
       } else {
         System.err.printf("%s is not a file!%n", file);
       }
     }
     storeContext(cliContext);
-    System.out.println("");
+    System.out.println();
   }
 }

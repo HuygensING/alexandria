@@ -46,11 +46,11 @@ public class CLIContextTest {
         "transcriptions/transcription-1.tagml",
         "views/view-1.json"
     ));
-    Map<String, Instant> watchedFilesMap = watchedFiles.stream()
-        .collect(toMap(f -> f, f -> Instant.now(), (a, b) -> b));
+    Map<String, FileInfo> watchedFilesMap = watchedFiles.stream()
+        .collect(toMap(f -> f, f -> new FileInfo().setLastCommit(Instant.now()), (a, b) -> b));
     CLIContext cliContext = new CLIContext()
-        .setViewName("filename", "viewname")
-        .setDocumentName("filename", "docName")
+//        .setViewName("filename", "viewname")
+//        .setDocumentName("filename", "docName")
         .setActiveView("view-1")
         .setWatchedFiles(watchedFilesMap);
     String json = mapper.writeValueAsString(cliContext);

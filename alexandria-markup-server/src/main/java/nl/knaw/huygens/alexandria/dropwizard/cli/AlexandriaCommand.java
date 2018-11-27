@@ -70,20 +70,18 @@ public abstract class AlexandriaCommand extends Command {
     new File(alexandriaDir).mkdir();
   }
 
-  Map<String, TAGView> readViewMap() {
-    try (TAGStore store = getTAGStore()) {
-      TAGViewFactory viewFactory = new TAGViewFactory(store);
-      TypeReference<HashMap<String, TAGViewDefinition>> typeReference = new TypeReference<HashMap<String, TAGViewDefinition>>() {
-      };
-      Map<String, TAGViewDefinition> stringTAGViewMap = uncheckedRead(viewsFile, typeReference);
-      Map<String, TAGView> viewMap = stringTAGViewMap.entrySet()//
-          .stream()//
-          .collect(toMap(//
-              Map.Entry::getKey,//
-              e -> viewFactory.fromDefinition(e.getValue())//
-          ));
-      return viewMap;
-    }
+  Map<String, TAGView> readViewMap(TAGStore store) {
+    TAGViewFactory viewFactory = new TAGViewFactory(store);
+    TypeReference<HashMap<String, TAGViewDefinition>> typeReference = new TypeReference<HashMap<String, TAGViewDefinition>>() {
+    };
+    Map<String, TAGViewDefinition> stringTAGViewMap = uncheckedRead(viewsFile, typeReference);
+    Map<String, TAGView> viewMap = stringTAGViewMap.entrySet()//
+        .stream()//
+        .collect(toMap(//
+            Map.Entry::getKey,//
+            e -> viewFactory.fromDefinition(e.getValue())//
+        ));
+    return viewMap;
   }
 
   void storeViewMap(Map<String, TAGView> viewMap) {
@@ -156,8 +154,8 @@ public abstract class AlexandriaCommand extends Command {
     return documentIndex.get(docName);
   }
 
-  TAGView getExistingView(String viewName) {
-    Map<String, TAGView> viewMap = readViewMap();
+  TAGView getExistingView(String viewName, final TAGStore store) {
+    Map<String, TAGView> viewMap = readViewMap(store);
     if (!viewMap.containsKey(viewName)) {
       System.err.println("ERROR: No view '" + viewName + "' was registered.\n  alexandria status\nwill show you which documents and views have been registered.");
 //      System.exit(-1);
@@ -169,8 +167,18 @@ public abstract class AlexandriaCommand extends Command {
     return Paths.get(workDir).resolve(relativePath);
   }
 
-
   TAGStore getTAGStore() {
     return new TAGStore(alexandriaDir, false);
   }
+
+  FileType fileType(String fileName) {
+    if (fileName.endsWith(".tagml") || fileName.endsWith(".tag")) {
+      return FileType.tagmlSource;
+    }
+    if (fileName.endsWith(".json")) {
+      return FileType.viewDefinition;
+    }
+    return FileType.other;
+  }
+
 }

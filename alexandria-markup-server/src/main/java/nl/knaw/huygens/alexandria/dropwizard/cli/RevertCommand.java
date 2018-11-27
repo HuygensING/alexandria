@@ -20,19 +20,9 @@ package nl.knaw.huygens.alexandria.dropwizard.cli;
  * #L%
  */
 
-import com.google.common.base.Charsets;
 import io.dropwizard.setup.Bootstrap;
 import net.sourceforge.argparse4j.inf.Namespace;
 import net.sourceforge.argparse4j.inf.Subparser;
-import nl.knaw.huc.di.tag.tagml.exporter.TAGMLExporter;
-import nl.knaw.huygens.alexandria.storage.TAGDocument;
-import nl.knaw.huygens.alexandria.storage.TAGStore;
-import nl.knaw.huygens.alexandria.view.TAGView;
-import org.apache.commons.io.FileUtils;
-
-import java.io.File;
-import java.io.IOException;
-import java.io.UncheckedIOException;
 
 public class RevertCommand extends AlexandriaCommand {
 
@@ -51,38 +41,38 @@ public class RevertCommand extends AlexandriaCommand {
 
   @Override
   public void run(Bootstrap<?> bootstrap, Namespace namespace) {
-    checkDirectoryIsInitialized();
-    try (TAGStore store = getTAGStore()) {
-      store.runInTransaction(() -> {
-        CLIContext context = readContext();
-
-        String filename = namespace.getString(FILE);
-        String documentName = context.getDocumentName(filename);
-        System.out.printf("Reverting %s%n", filename);
-
-        Long docId = getIdForExistingDocument(documentName);
-        TAGDocument tAGDocument = store.getDocument(docId);
-
-        String viewId = context.getViewName(filename);
-        TAGView tagView = getExistingView(viewId);
-
-        TAGMLExporter tagmlExporter = new TAGMLExporter(store, tagView);
-        String tagml = tagmlExporter.asTAGML(tAGDocument)
-            .replaceAll("\n\\s*\n", "\n")
-            .trim();
-        try {
-          FileUtils.writeStringToFile(new File(filename), tagml, Charsets.UTF_8);
-          context = readContext()//
-              .setDocumentName(filename, documentName)//
-              .setViewName(filename, viewId);
-          storeContext(context);
-        } catch (IOException e) {
-          e.printStackTrace();
-          throw new UncheckedIOException(e);
-        }
-      });
-    }
-    System.out.println("done!");
+//    checkDirectoryIsInitialized();
+//    try (TAGStore store = getTAGStore()) {
+//      store.runInTransaction(() -> {
+//        CLIContext context = readContext();
+//
+//        String filename = namespace.getString(FILE);
+//        String documentName = context.getDocumentName(filename);
+//        System.out.printf("Reverting %s%n", filename);
+//
+//        Long docId = getIdForExistingDocument(documentName);
+//        TAGDocument tAGDocument = store.getDocument(docId);
+//
+//        String viewId = context.getViewName(filename);
+//        TAGView tagView = getExistingView(viewId);
+//
+//        TAGMLExporter tagmlExporter = new TAGMLExporter(store, tagView);
+//        String tagml = tagmlExporter.asTAGML(tAGDocument)
+//            .replaceAll("\n\\s*\n", "\n")
+//            .trim();
+//        try {
+//          FileUtils.writeStringToFile(new File(filename), tagml, Charsets.UTF_8);
+//          context = readContext()//
+//              .setDocumentName(filename, documentName)//
+//              .setViewName(filename, viewId);
+//          storeContext(context);
+//        } catch (IOException e) {
+//          e.printStackTrace();
+//          throw new UncheckedIOException(e);
+//        }
+//      });
+//    }
+//    System.out.println("done!");
   }
 
 }
