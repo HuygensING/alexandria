@@ -24,9 +24,14 @@ import io.dropwizard.setup.Bootstrap;
 import net.sourceforge.argparse4j.inf.Namespace;
 import net.sourceforge.argparse4j.inf.Subparser;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.time.Instant;
 import java.util.List;
 import java.util.Map;
+
+import static java.time.temporal.ChronoUnit.DAYS;
 
 public class AddCommand extends AlexandriaCommand {
 
@@ -48,15 +53,19 @@ public class AddCommand extends AlexandriaCommand {
   }
 
   @Override
-  public void run(Bootstrap<?> bootstrap, Namespace namespace) {
+  public void run(Bootstrap<?> bootstrap, Namespace namespace) throws IOException {
     checkDirectoryIsInitialized();
     List<String> files = namespace.getList(ARG_FILE);
 
     CLIContext cliContext = readContext();
     Map<String, FileInfo> watchedFiles = cliContext.getWatchedFiles();
     for (String file : files) {
-      if (workFilePath(file).toFile().isFile()) {
-        watchedFiles.put(file, new FileInfo().setLastCommit(Instant.now()));
+      Path filePath = workFilePath(file);
+      if (filePath.toFile().isFile()) {
+        Instant lastModifiedInstant = Files.getLastModifiedTime(filePath).toInstant();
+        Instant lastCommit = lastModifiedInstant.minus(365L, DAYS); // set lastCommit to instant sooner than lastModifiedInstant
+        FileInfo fileInfo = new FileInfo().setLastCommit(lastCommit);
+        watchedFiles.put(file, fileInfo);
       } else {
         System.err.printf("%s is not a file!%n", file);
       }
