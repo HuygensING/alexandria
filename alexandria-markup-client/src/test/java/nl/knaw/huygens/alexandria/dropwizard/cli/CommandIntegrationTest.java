@@ -75,13 +75,12 @@ public abstract class CommandIntegrationTest {
 
     // Add commands you want to test
     final Bootstrap<ServerConfiguration> bootstrap = new Bootstrap<>(new ServerApplication());
-    bootstrap.addCommand(new AddCommand());
-    bootstrap.addCommand(new CheckInCommand());
-    bootstrap.addCommand(new CheckOutCommand());
-    bootstrap.addCommand(new CommitCommand());
-    bootstrap.addCommand(new DiffCommand());
     bootstrap.addCommand(new HelpCommand());
     bootstrap.addCommand(new InitCommand());
+    bootstrap.addCommand(new AddCommand());
+    bootstrap.addCommand(new CommitCommand());
+    bootstrap.addCommand(new CheckOutCommand());
+    bootstrap.addCommand(new DiffCommand());
     bootstrap.addCommand(new RevertCommand());
     final AppInfo appInfo = new AppInfo().setVersion("$version$").setBuildDate("$buildDate$");
     bootstrap.addCommand(new StatusCommand().withAppInfo(appInfo));
