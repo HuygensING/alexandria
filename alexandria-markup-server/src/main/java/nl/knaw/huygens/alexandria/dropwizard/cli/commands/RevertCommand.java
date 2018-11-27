@@ -41,7 +41,8 @@ public class RevertCommand extends AlexandriaCommand {
 
   @Override
   public void run(Bootstrap<?> bootstrap, Namespace namespace) {
-//    checkDirectoryIsInitialized();
+    catchExceptions(() -> {
+    checkDirectoryIsInitialized();
 //    try (TAGStore store = getTAGStore()) {
 //      store.runInTransaction(() -> {
 //        CLIContext context = readContext();
@@ -72,7 +73,8 @@ public class RevertCommand extends AlexandriaCommand {
 //        }
 //      });
 //    }
-//    System.out.println("done!");
+    System.out.println("done!");
+    });
   }
 
 }

@@ -55,24 +55,30 @@ public class AddCommand extends AlexandriaCommand {
   }
 
   @Override
-  public void run(Bootstrap<?> bootstrap, Namespace namespace) throws IOException {
-    checkDirectoryIsInitialized();
-    List<String> files = namespace.getList(ARG_FILE);
+  public void run(Bootstrap<?> bootstrap, Namespace namespace) {
+    catchExceptions(() -> {
+      checkDirectoryIsInitialized();
+      List<String> files = namespace.getList(ARG_FILE);
 
-    CLIContext cliContext = readContext();
-    Map<String, FileInfo> watchedFiles = cliContext.getWatchedFiles();
-    for (String file : files) {
-      Path filePath = workFilePath(file);
-      if (filePath.toFile().isFile()) {
-        Instant lastModifiedInstant = Files.getLastModifiedTime(filePath).toInstant();
-        Instant lastCommit = lastModifiedInstant.minus(365L, DAYS); // set lastCommit to instant sooner than lastModifiedInstant
-        FileInfo fileInfo = new FileInfo().setLastCommit(lastCommit);
-        watchedFiles.put(file, fileInfo);
-      } else {
-        System.err.printf("%s is not a file!%n", file);
+      CLIContext cliContext = readContext();
+      Map<String, FileInfo> watchedFiles = cliContext.getWatchedFiles();
+      for (String file : files) {
+        Path filePath = workFilePath(file);
+        if (filePath.toFile().isFile()) {
+          try {
+            Instant lastModifiedInstant = Files.getLastModifiedTime(filePath).toInstant();
+            Instant lastCommit = lastModifiedInstant.minus(365L, DAYS); // set lastCommit to instant sooner than lastModifiedInstant
+            FileInfo fileInfo = new FileInfo().setLastCommit(lastCommit);
+            watchedFiles.put(file, fileInfo);
+          } catch (IOException e) {
+            throw new RuntimeException(e);
+          }
+        } else {
+          System.err.printf("%s is not a file!%n", file);
+        }
       }
-    }
-    storeContext(cliContext);
-    System.out.println();
+      storeContext(cliContext);
+      System.out.println();
+    });
   }
 }

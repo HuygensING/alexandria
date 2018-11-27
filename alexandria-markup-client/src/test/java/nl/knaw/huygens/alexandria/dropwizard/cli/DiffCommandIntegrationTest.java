@@ -28,7 +28,7 @@ public class DiffCommandIntegrationTest extends CommandIntegrationTest {
   public void testDiffCommand() throws Exception {
     runInitCommand();
     final boolean success = cli.run("diff");
-    assertSucceedsWithExpectedStdout(success, "TODO");
+    softlyAssertSucceedsWithExpectedStdout(success, "TODO");
   }
 
   @Test

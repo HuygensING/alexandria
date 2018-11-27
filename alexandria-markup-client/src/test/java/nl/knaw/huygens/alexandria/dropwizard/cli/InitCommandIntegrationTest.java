@@ -33,11 +33,12 @@ public class InitCommandIntegrationTest extends CommandIntegrationTest {
     softlyAssertSucceedsWithExpectedStdout(success, "initializing...\n" +
         "done!");
 
-    Path viewsJson = workFilePath(".alexandria/views.json");
-    assertThat(viewsJson).hasContent("{}");
-
     Path viewsDir = workFilePath("views");
     assertThat(viewsDir).isDirectory()
+        .isWritable();
+
+    Path transcriptionsDir = workFilePath("transcriptions");
+    assertThat(transcriptionsDir).isDirectory()
         .isWritable();
 
     CLIContext cliContext = readCLIContext();

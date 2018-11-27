@@ -43,10 +43,11 @@ public class DiffCommand extends AlexandriaCommand {
 
   @Override
   public void run(Bootstrap<?> bootstrap, Namespace namespace) {
-    checkDirectoryIsInitialized();
-    try (TAGStore store = getTAGStore()) {
-      store.runInTransaction(() -> {
-        CLIContext context = readContext();
+    catchExceptions(() -> {
+      checkDirectoryIsInitialized();
+      try (TAGStore store = getTAGStore()) {
+        store.runInTransaction(() -> {
+          CLIContext context = readContext();
 
 //        String filename = namespace.getString(FILE);
 //        String documentName = context.getDocumentName(filename);
@@ -75,7 +76,8 @@ public class DiffCommand extends AlexandriaCommand {
 //          e.printStackTrace();
 //          throw new UncheckedIOException(e);
 //        }
-      });
-    }
+        });
+      }
+    });
   }
 }

@@ -53,16 +53,18 @@ public class StatusCommand extends AlexandriaCommand {
 
   @Override
   public void run(Bootstrap<?> bootstrap, Namespace namespace) {
-    System.out.printf("Alexandria version %s%n", appInfo.getVersion());
-    System.out.printf("Build date: %s%n%n", appInfo.getBuildDate());
-    checkDirectoryIsInitialized();
+    catchExceptions(() -> {
+      System.out.printf("Alexandria version %s%n", appInfo.getVersion());
+      System.out.printf("Build date: %s%n%n", appInfo.getBuildDate());
+      checkDirectoryIsInitialized();
 
-    CLIContext context = readContext();
-    System.out.printf("Active view: %s%n", context.getActiveView());
-    try (TAGStore store = getTAGStore()) {
-      showDocuments(store);
-      showViews(store);
-    }
+      CLIContext context = readContext();
+      System.out.printf("Active view: %s%n", context.getActiveView());
+      try (TAGStore store = getTAGStore()) {
+        showDocuments(store);
+        showViews(store, context);
+      }
+    });
   }
 
   private void showDocuments(final TAGStore store) {
@@ -89,8 +91,8 @@ public class StatusCommand extends AlexandriaCommand {
     return docInfo;
   }
 
-  private void showViews(final TAGStore store) {
-    String views = readViewMap(store)
+  private void showViews(final TAGStore store, final CLIContext context) {
+    String views = readViewMap(store, context)
         .entrySet()
         .stream()
         .map(this::toString)

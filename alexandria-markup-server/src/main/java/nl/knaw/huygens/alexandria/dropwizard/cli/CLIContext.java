@@ -20,6 +20,8 @@ package nl.knaw.huygens.alexandria.dropwizard.cli;
  * #L%
  */
 
+import nl.knaw.huygens.alexandria.view.TAGViewDefinition;
+
 import java.util.HashMap;
 import java.util.Map;
 
@@ -27,6 +29,7 @@ public class CLIContext {
 
   private String activeView = "-";
   private Map<String, FileInfo> watchedFiles = new HashMap<>();
+  private Map<String, TAGViewDefinition> tagViewDefinitions = new HashMap<>();
 
   public CLIContext setActiveView(final String activeView) {
     this.activeView = activeView;
@@ -46,4 +49,12 @@ public class CLIContext {
     return watchedFiles;
   }
 
+  public Map<String, TAGViewDefinition> getTagViewDefinitions() {
+    return tagViewDefinitions;
+  }
+
+  public CLIContext setTagViewDefinitions(final Map<String, TAGViewDefinition> tagViewDefinitions) {
+    this.tagViewDefinitions = tagViewDefinitions;
+    return this;
+  }
 }

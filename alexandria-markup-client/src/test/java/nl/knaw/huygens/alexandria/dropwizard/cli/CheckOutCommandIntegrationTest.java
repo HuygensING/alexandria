@@ -62,6 +62,10 @@ public class CheckOutCommandIntegrationTest extends CommandIntegrationTest {
     assertThat(newContent2).isEqualTo(tagml);
   }
 
+
+  // On checkout, the lastcommitted dates should be adjusted.
+
+
   @Test
   public void testCheckOutCommandHelp() throws Exception {
     final boolean success = cli.run("checkout", "-h");

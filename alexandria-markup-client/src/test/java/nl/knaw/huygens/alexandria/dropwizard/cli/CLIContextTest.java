@@ -21,15 +21,18 @@ package nl.knaw.huygens.alexandria.dropwizard.cli;
  */
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import nl.knaw.huygens.alexandria.view.TAGViewDefinition;
 import org.junit.Test;
 
 import java.io.IOException;
 import java.time.Instant;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
 import static java.util.Arrays.asList;
+import static java.util.Collections.singletonList;
 import static java.util.stream.Collectors.toMap;
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -48,9 +51,14 @@ public class CLIContextTest {
     ));
     Map<String, FileInfo> watchedFilesMap = watchedFiles.stream()
         .collect(toMap(f -> f, f -> new FileInfo().setLastCommit(Instant.now()), (a, b) -> b));
+    final Map<String, TAGViewDefinition> tagViewDefinitionMap = new HashMap<>();
+    TAGViewDefinition excludeALayer = new TAGViewDefinition()
+        .setExcludeLayers(new HashSet(singletonList("a")));
+    tagViewDefinitionMap.put("exclude-a-layer", excludeALayer);
     CLIContext cliContext = new CLIContext()
 //        .setViewName("filename", "viewname")
 //        .setDocumentName("filename", "docName")
+        .setTagViewDefinitions(tagViewDefinitionMap)
         .setActiveView("view-1")
         .setWatchedFiles(watchedFilesMap);
     String json = mapper.writeValueAsString(cliContext);
@@ -59,5 +67,6 @@ public class CLIContextTest {
 //    SettableBeanProperty
     CLIContext cliContext1 = mapper.readValue(json, CLIContext.class);
     assertThat(cliContext1).isEqualToComparingFieldByFieldRecursively(cliContext);
+    assertThat(cliContext1.getTagViewDefinitions().get("exclude-a-layer").getExcludeLayers()).containsExactly("a");
   }
 }

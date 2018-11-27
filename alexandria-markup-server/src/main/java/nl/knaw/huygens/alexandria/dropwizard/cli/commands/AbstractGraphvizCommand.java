@@ -47,29 +47,31 @@ abstract class AbstractGraphvizCommand extends AlexandriaCommand {
 
   @Override
   public void run(Bootstrap<?> bootstrap, Namespace namespace) {
-    checkDirectoryIsInitialized();
-    String docName = namespace.getString(DOCUMENT);
-    Long docId = getIdForExistingDocument(docName);
-    try (TAGStore store = getTAGStore()) {
-      store.runInTransaction(() -> {
-        System.out.printf("document: %s%n", docName);
+    catchExceptions(() -> {
+      checkDirectoryIsInitialized();
+      String docName = namespace.getString(DOCUMENT);
+      Long docId = getIdForExistingDocument(docName);
+      try (TAGStore store = getTAGStore()) {
+        store.runInTransaction(() -> {
+          System.out.printf("document: %s%n", docName);
 
-        System.out.printf("Retrieving document %s%n", docName);
-        TAGDocument document = store.getDocument(docId);
+          System.out.printf("Retrieving document %s%n", docName);
+          TAGDocument document = store.getDocument(docId);
 
-        DotFactory dotFactory = new DotFactory();
-        String dot = dotFactory.toDot(document, "");
-        String fileName = String.format("%s.%s", docName, getFormat());
-        System.out.printf("exporting to file %s...", fileName);
-        try {
-          render(dot, fileName);
-        } catch (IOException e) {
-          e.printStackTrace();
-        }
-        System.out.println();
-        System.out.println("done!");
-      });
-    }
+          DotFactory dotFactory = new DotFactory();
+          String dot = dotFactory.toDot(document, "");
+          String fileName = String.format("%s.%s", docName, getFormat());
+          System.out.printf("exporting to file %s...", fileName);
+          try {
+            render(dot, fileName);
+          } catch (IOException e) {
+            e.printStackTrace();
+          }
+          System.out.println();
+          System.out.println("done!");
+        });
+      }
+    });
   }
 
   protected abstract String getFormat();

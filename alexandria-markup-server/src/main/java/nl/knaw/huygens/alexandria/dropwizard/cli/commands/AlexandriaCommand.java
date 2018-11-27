@@ -52,7 +52,7 @@ public abstract class AlexandriaCommand extends Command {
   final String FILE = "file";
 
   private final String alexandriaDir;
-  private final File viewsFile;
+  //  private final File viewsFile;
   private final File documentIndexFile;
   private final File contextFile;
   final String workDir;
@@ -66,7 +66,7 @@ public abstract class AlexandriaCommand extends Command {
     alexandriaDir = workDir + "/" + ALEXANDRIA_DIR;
     initProjectDir();
 
-    viewsFile = new File(alexandriaDir, "views.json");
+//    viewsFile = new File(alexandriaDir, "views.json");
     documentIndexFile = new File(alexandriaDir, "document_index.json");
     contextFile = new File(alexandriaDir, "context.json");
   }
@@ -75,28 +75,25 @@ public abstract class AlexandriaCommand extends Command {
     new File(alexandriaDir).mkdir();
   }
 
-  Map<String, TAGView> readViewMap(TAGStore store) {
+  Map<String, TAGView> readViewMap(TAGStore store, final CLIContext context) {
     TAGViewFactory viewFactory = new TAGViewFactory(store);
-    TypeReference<HashMap<String, TAGViewDefinition>> typeReference = new TypeReference<HashMap<String, TAGViewDefinition>>() {
-    };
-    Map<String, TAGViewDefinition> stringTAGViewMap = uncheckedRead(viewsFile, typeReference);
-    Map<String, TAGView> viewMap = stringTAGViewMap.entrySet()//
-        .stream()//
-        .collect(toMap(//
-            Map.Entry::getKey,//
-            e -> viewFactory.fromDefinition(e.getValue())//
+    return context.getTagViewDefinitions()
+        .entrySet()
+        .stream()
+        .collect(toMap(
+            Map.Entry::getKey,
+            e -> viewFactory.fromDefinition(e.getValue())
         ));
-    return viewMap;
   }
 
-  void storeViewMap(Map<String, TAGView> viewMap) {
+  void storeViewMap(Map<String, TAGView> viewMap, CLIContext context) {
     Map<String, TAGViewDefinition> viewDefinitionMap = viewMap.entrySet()//
         .stream()//
         .collect(toMap(//
             Map.Entry::getKey,//
             e -> e.getValue().getDefinition()//
         ));
-    uncheckedStore(viewsFile, viewDefinitionMap);
+    context.setTagViewDefinitions(viewDefinitionMap);
   }
 
   Map<String, Long> readDocumentIndex() {
@@ -159,8 +156,8 @@ public abstract class AlexandriaCommand extends Command {
     return documentIndex.get(docName);
   }
 
-  TAGView getExistingView(String viewName, final TAGStore store) {
-    Map<String, TAGView> viewMap = readViewMap(store);
+  TAGView getExistingView(String viewName, final TAGStore store, final CLIContext context) {
+    Map<String, TAGView> viewMap = readViewMap(store, context);
     if (!viewMap.containsKey(viewName)) {
       System.err.printf("ERROR: No view '%s' was registered.\n  alexandria status\nwill show you which documents and views have been registered.%n", viewName);
       throw new AlexandriaCommandException("unregistered view");
@@ -186,4 +183,12 @@ public abstract class AlexandriaCommand extends Command {
     return FileType.other;
   }
 
+  void catchExceptions(Runnable runnable) {
+    try {
+      runnable.run();
+    } catch (Exception e) {
+      System.err.println(e.getMessage());
+//      System.exit(-1);
+    }
+  }
 }

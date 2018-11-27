@@ -24,9 +24,11 @@ import io.dropwizard.setup.Bootstrap;
 import net.sourceforge.argparse4j.inf.Namespace;
 import net.sourceforge.argparse4j.inf.Subparser;
 import nl.knaw.huygens.alexandria.dropwizard.cli.CLIContext;
-import nl.knaw.huygens.alexandria.view.TAGView;
 
 import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -43,20 +45,23 @@ public class InitCommand extends AlexandriaCommand {
 
   @Override
   public void run(Bootstrap<?> bootstrap, Namespace namespace) {
-    System.out.println("initializing...");
+    catchExceptions(() -> {
+      System.out.println("initializing...");
 
-    File viewsDir = new File(workDir,"views");
-    viewsDir.mkdir();
+      try {
+        Files.createDirectory(Paths.get(workDir, "transcriptions"));
+        Files.createDirectory(Paths.get(workDir, "views"));
+      } catch (IOException e) {
+        throw new RuntimeException(e);
+      }
 
-    Map<String, TAGView> viewMap = new HashMap<>();
-    storeViewMap(viewMap);
+      CLIContext context = new CLIContext();
+      storeContext(context);
 
-    Map<String, Long> documentIndex = new HashMap<>();
-    storeDocumentIndex(documentIndex);
+      Map<String, Long> documentIndex = new HashMap<>();
+      storeDocumentIndex(documentIndex);
 
-    CLIContext context = new CLIContext();
-    storeContext(context);
-
-    System.out.println("done!");
+      System.out.println("done!");
+    });
   }
 }
