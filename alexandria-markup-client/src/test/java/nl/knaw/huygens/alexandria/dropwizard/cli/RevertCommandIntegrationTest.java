@@ -20,28 +20,80 @@ package nl.knaw.huygens.alexandria.dropwizard.cli;
  * #L%
  */
 
-import org.junit.Ignore;
 import org.junit.Test;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 public class RevertCommandIntegrationTest extends CommandIntegrationTest {
-  @Ignore
   @Test
-  public void testRevertCommand() throws Exception {
+  public void testRevertCommandInMainView() throws Exception {
     runInitCommand();
-    final boolean success = cli.run("revert");
-    assertSucceedsWithExpectedStdout(success, "TODO");
+
+    // create sourcefile
+    String tagFilename = "transcription1.tagml";
+    String tagml = "[tagml>[l>test<l]<tagml]";
+    createFile(tagFilename, tagml);
+
+    runAddCommand(tagFilename);
+    runCommitAllCommand();
+
+    // overwrite sourcefile
+    String tagml2 = "[x>And now for something completely different.<x]";
+    createFile(tagFilename, tagml2);
+
+    String fileContentsBeforeRevert = readFileContents(tagFilename);
+    assertThat(fileContentsBeforeRevert).isEqualTo(tagml2);
+
+    final boolean success = cli.run("revert", tagFilename);
+    assertSucceedsWithExpectedStdout(success, "Reverting " + tagFilename + "...\ndone!");
+
+    String fileContentsAfterRevert = readFileContents(tagFilename);
+    assertThat(fileContentsAfterRevert).isEqualTo(tagml);
+  }
+
+  @Test
+  public void testRevertCommandInView() throws Exception {
+    runInitCommand();
+
+    // create sourcefile
+    String tagFilename = "transcription1.tagml";
+    String tagml = "[tagml>[l>test<l]<tagml]";
+    createFile(tagFilename, tagml);
+
+    // create viewfile
+    String viewName = "l";
+    String viewFilename = "views/" + viewName + ".json";
+    createFile(viewFilename, "{\"includeMarkup\":[\"l\"]}");
+    runAddCommand(tagFilename, viewFilename);
+    runCommitAllCommand();
+    runCheckoutCommand(viewName);
+
+    String tagml_l = "[l>test<l]";
+
+    // overwrite sourcefile
+    String tagml2 = "[x>And now for something completely different.<x]";
+    createFile(tagFilename, tagml2);
+
+    String fileContentsBeforeRevert = readFileContents(tagFilename);
+    assertThat(fileContentsBeforeRevert).isEqualTo(tagml2);
+
+    final boolean success = cli.run("revert", tagFilename);
+    assertSucceedsWithExpectedStdout(success, "Reverting " + tagFilename + "...\ndone!");
+
+    String fileContentsAfterRevert = readFileContents(tagFilename);
+    assertThat(fileContentsAfterRevert).isEqualTo(tagml_l);
   }
 
   @Test
   public void testRevertCommandHelp() throws Exception {
     final boolean success = cli.run("revert", "-h");
     assertSucceedsWithExpectedStdout(success, "usage: java -jar alexandria-app.jar\n" +
-        "       revert [-h] file\n" +
+        "       revert [-h] FILE [FILE ...]\n" +
         "\n" +
-        "Revert the changes in the view.\n" +
+        "Restore the document file(s).\n" +
         "\n" +
         "positional arguments:\n" +
-        "  file                   The file to be reset\n" +
+        "  FILE                   the file to be reverted\n" +
         "\n" +
         "named arguments:\n" +
         "  -h, --help             show this help message and exit");

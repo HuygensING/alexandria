@@ -24,6 +24,7 @@ import nl.knaw.huygens.alexandria.view.TAGViewDefinition;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 
 public class CLIContext {
 
@@ -66,5 +67,13 @@ public class CLIContext {
   public CLIContext setDocumentInfo(final Map<String, DocumentInfo> documentInfo) {
     this.documentInfo = documentInfo;
     return this;
+  }
+
+  public Optional<String> getDocumentName(final String fileName) {
+    return documentInfo.values()
+        .stream()
+        .filter(di -> di.getSourceFile().equals(fileName))
+        .findFirst()
+        .map(DocumentInfo::getDocumentName);
   }
 }

@@ -23,55 +23,63 @@ package nl.knaw.huygens.alexandria.dropwizard.cli.commands;
 import io.dropwizard.setup.Bootstrap;
 import net.sourceforge.argparse4j.inf.Namespace;
 import net.sourceforge.argparse4j.inf.Subparser;
+import nl.knaw.huc.di.tag.TAGViews;
+import nl.knaw.huygens.alexandria.dropwizard.cli.CLIContext;
+import nl.knaw.huygens.alexandria.storage.TAGStore;
+import nl.knaw.huygens.alexandria.view.TAGView;
+
+import java.util.List;
+import java.util.Optional;
+
+import static nl.knaw.huygens.alexandria.dropwizard.cli.commands.CheckOutCommand.MAIN_VIEW;
 
 public class RevertCommand extends AlexandriaCommand {
 
+  public static final String ARG_FILE = "file";
+
   public RevertCommand() {
-    super("revert", "Revert the changes in the view.");
+    super("revert", "Restore the document file(s).");
   }
 
   @Override
   public void configure(Subparser subparser) {
-    subparser.addArgument("file")//
+    subparser.addArgument(ARG_FILE)//
+        .metavar("FILE")
         .dest(FILE)//
         .type(String.class)//
+        .nargs("+")
         .required(true)//
-        .help("The file to be reset");
+        .help("the file to be reverted");
   }
 
   @Override
   public void run(Bootstrap<?> bootstrap, Namespace namespace) {
     checkDirectoryIsInitialized();
-//    try (TAGStore store = getTAGStore()) {
-//      store.runInTransaction(() -> {
-//        CLIContext context = readContext();
-//
-//        String filename = namespace.getString(FILE);
-//        String documentName = context.getDocumentName(filename);
-//        System.out.printf("Reverting %s%n", filename);
-//
-//        Long docId = getIdForExistingDocument(documentName);
-//        TAGDocument tAGDocument = store.getDocument(docId);
-//
-//        String viewId = context.getViewName(filename);
-//        TAGView tagView = getExistingView(viewId);
-//
-//        TAGMLExporter tagmlExporter = new TAGMLExporter(store, tagView);
-//        String tagml = tagmlExporter.asTAGML(tAGDocument)
-//            .replaceAll("\n\\s*\n", "\n")
-//            .trim();
-//        try {
-//          FileUtils.writeStringToFile(new File(filename), tagml, Charsets.UTF_8);
-//          context = readContext()//
-//              .setDocumentName(filename, documentName)//
-//              .setViewName(filename, viewId);
-//          storeContext(context);
-//        } catch (IOException e) {
-//          e.printStackTrace();
-//          throw new UncheckedIOException(e);
-//        }
-//      });
-//    }
+    List<String> files = namespace.getList(ARG_FILE);
+
+    CLIContext context = readContext();
+
+    String viewName = context.getActiveView();
+    boolean showAll = MAIN_VIEW.equals(viewName);
+
+    try (TAGStore store = getTAGStore()) {
+      store.runInTransaction(() -> {
+        TAGView tagView = showAll
+            ? TAGViews.getShowAllMarkupView(store)
+            : getExistingView(viewName, store, context);
+        files.forEach(fileName -> {
+          Optional<String> documentName = context.getDocumentName(fileName);
+          if (documentName.isPresent()) {
+            System.out.printf("Reverting %s...%n", fileName);
+            Long docId = getIdForExistingDocument(documentName.get());
+            exportTAGML(context, store, tagView, fileName, docId);
+
+          } else {
+            System.out.printf("%s is not linked to a document, not reverting.%n", fileName);
+          }
+        });
+      });
+    }
     System.out.println("done!");
   }
 

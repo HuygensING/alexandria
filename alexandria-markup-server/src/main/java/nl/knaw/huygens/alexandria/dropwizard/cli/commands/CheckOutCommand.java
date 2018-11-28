@@ -20,25 +20,17 @@ package nl.knaw.huygens.alexandria.dropwizard.cli.commands;
  * #L%
  */
 
-import com.google.common.base.Charsets;
 import io.dropwizard.setup.Bootstrap;
 import net.sourceforge.argparse4j.inf.Namespace;
 import net.sourceforge.argparse4j.inf.Subparser;
 import nl.knaw.huc.di.tag.TAGViews;
-import nl.knaw.huc.di.tag.tagml.exporter.TAGMLExporter;
 import nl.knaw.huygens.alexandria.dropwizard.cli.CLIContext;
 import nl.knaw.huygens.alexandria.dropwizard.cli.DocumentInfo;
 import nl.knaw.huygens.alexandria.dropwizard.cli.FileInfo;
 import nl.knaw.huygens.alexandria.dropwizard.cli.FileType;
-import nl.knaw.huygens.alexandria.storage.TAGDocument;
 import nl.knaw.huygens.alexandria.storage.TAGStore;
 import nl.knaw.huygens.alexandria.view.TAGView;
-import org.apache.commons.io.FileUtils;
 
-import java.io.File;
-import java.io.IOException;
-import java.io.UncheckedIOException;
-import java.time.Instant;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -94,19 +86,7 @@ public class CheckOutCommand extends AlexandriaCommand {
           System.out.printf("  updating %s...%n", fileName);
           String documentName = fileInfo.getObjectName();
           final Long docId = documentIndex.get(documentName).getDbId();
-          TAGDocument document = store.getDocument(docId);
-          TAGMLExporter tagmlExporter = new TAGMLExporter(store, tagView);
-          String tagml = tagmlExporter.asTAGML(document)
-              .replaceAll("\n\\s*\n", "\n")
-              .trim();
-          try {
-            final File out = workFilePath(fileName).toFile();
-            FileUtils.writeStringToFile(out, tagml, Charsets.UTF_8);
-            context.getWatchedFiles().get(fileName).setLastCommit(Instant.now());
-          } catch (IOException e) {
-            e.printStackTrace();
-            throw new UncheckedIOException(e);
-          }
+          exportTAGML(context, store, tagView, fileName, docId);
         });
       });
       context.setActiveView(viewName);

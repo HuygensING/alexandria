@@ -24,18 +24,22 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import com.google.common.base.Charsets;
 import io.dropwizard.cli.Cli;
 import io.dropwizard.cli.Command;
 import net.sourceforge.argparse4j.inf.Namespace;
+import nl.knaw.huc.di.tag.tagml.exporter.TAGMLExporter;
 import nl.knaw.huygens.alexandria.dropwizard.cli.AlexandriaCommandException;
 import nl.knaw.huygens.alexandria.dropwizard.cli.CLIContext;
 import nl.knaw.huygens.alexandria.dropwizard.cli.DocumentInfo;
 import nl.knaw.huygens.alexandria.dropwizard.cli.FileType;
 import nl.knaw.huygens.alexandria.markup.api.AlexandriaProperties;
+import nl.knaw.huygens.alexandria.storage.TAGDocument;
 import nl.knaw.huygens.alexandria.storage.TAGStore;
 import nl.knaw.huygens.alexandria.view.TAGView;
 import nl.knaw.huygens.alexandria.view.TAGViewDefinition;
 import nl.knaw.huygens.alexandria.view.TAGViewFactory;
+import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -44,6 +48,7 @@ import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.time.Instant;
 import java.util.Map;
 
 import static java.util.stream.Collectors.toMap;
@@ -54,7 +59,6 @@ public abstract class AlexandriaCommand extends Command {
   final String FILE = "file";
 
   private final String alexandriaDir;
-  //  private final File documentIndexFile;
   private final File contextFile;
   final String workDir;
   static ObjectMapper mapper = new ObjectMapper()
@@ -67,7 +71,6 @@ public abstract class AlexandriaCommand extends Command {
     alexandriaDir = workDir + "/" + ALEXANDRIA_DIR;
     initProjectDir();
 
-//    documentIndexFile = new File(alexandriaDir, "document_index.json");
     contextFile = new File(alexandriaDir, "context.json");
   }
 
@@ -95,16 +98,6 @@ public abstract class AlexandriaCommand extends Command {
         ));
     context.setTagViewDefinitions(viewDefinitionMap);
   }
-
-//  Map<String, Long> readDocumentIndex() {
-//    TypeReference<HashMap<String, Long>> typeReference = new TypeReference<HashMap<String, Long>>() {
-//    };
-//    return uncheckedRead(documentIndexFile, typeReference);
-//  }
-
-//  void storeDocumentIndex(Map<String, Long> documentIndex) {
-//    uncheckedStore(documentIndexFile, documentIndex);
-//  }
 
   CLIContext readContext() {
     return uncheckedRead(contextFile, CLIContext.class);
@@ -187,4 +180,21 @@ public abstract class AlexandriaCommand extends Command {
   public void onError(Cli cli, Namespace namespace, Throwable e) {
     cli.getStdErr().println(e.getMessage());
   }
+
+  void exportTAGML(final CLIContext context, final TAGStore store, final TAGView tagView, final String fileName, final Long docId) {
+    TAGDocument document = store.getDocument(docId);
+    TAGMLExporter tagmlExporter = new TAGMLExporter(store, tagView);
+    String tagml = tagmlExporter.asTAGML(document)
+        .replaceAll("\n\\s*\n", "\n")
+        .trim();
+    try {
+      final File out = workFilePath(fileName).toFile();
+      FileUtils.writeStringToFile(out, tagml, Charsets.UTF_8);
+      context.getWatchedFiles().get(fileName).setLastCommit(Instant.now());
+    } catch (IOException e) {
+      e.printStackTrace();
+      throw new UncheckedIOException(e);
+    }
+  }
+
 }

@@ -83,7 +83,7 @@ public class StatusCommand extends AlexandriaCommand {
   private String docInfo(final String docName, final DocumentInfo documentInfo, final TAGStore store) {
     Long docId = documentInfo.getDbId();
     String sourceFile = documentInfo.getSourceFile();
-    String docInfo = store.runInTransaction(() -> {
+    return store.runInTransaction(() -> {
       TAGDocument document = store.getDocument(docId);
       return format("%s%n    created:  %s%n    modified: %s%n    source: %s",
           docName,
@@ -92,7 +92,6 @@ public class StatusCommand extends AlexandriaCommand {
           sourceFile
       );
     });
-    return docInfo;
   }
 
   private void showViews(final TAGStore store, final CLIContext context) {

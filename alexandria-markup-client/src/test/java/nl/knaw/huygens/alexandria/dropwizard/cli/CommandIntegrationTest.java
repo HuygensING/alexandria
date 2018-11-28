@@ -190,10 +190,10 @@ public abstract class CommandIntegrationTest {
     resetStdOutErr();
   }
 
-  void runAddCommand(String... filenames) throws Exception {
+  void runAddCommand(String... fileNames) throws Exception {
     List<String> arguments = new ArrayList<>();
     arguments.add("add");
-    Collections.addAll(arguments, filenames);
+    Collections.addAll(arguments, fileNames);
     String[] argumentArray = arguments.toArray(new String[]{});
     assertThat(cli.run(argumentArray)).isTrue();
     resetStdOutErr();
@@ -201,6 +201,15 @@ public abstract class CommandIntegrationTest {
 
   void runCommitAllCommand() throws Exception {
     final boolean success = cli.run("commit", "-a");
+    SoftAssertions softly = new SoftAssertions();
+    softly.assertThat(success).isTrue();
+    softly.assertThat(getCliStdErrAsString()).isEmpty();
+    softly.assertAll();
+    resetStdOutErr();
+  }
+
+  void runCheckoutCommand(final String viewName) throws Exception {
+    final boolean success = cli.run("checkout", viewName);
     SoftAssertions softly = new SoftAssertions();
     softly.assertThat(success).isTrue();
     softly.assertThat(getCliStdErrAsString()).isEmpty();
@@ -218,8 +227,10 @@ public abstract class CommandIntegrationTest {
   }
 
   void createFile(String filename, String content) throws IOException {
-    Path file1 = workFilePath(filename);
-    Path file = Files.createFile(file1);
+    Path file = workFilePath(filename);
+    if (!Files.exists(file)) {
+      Files.createFile(file);
+    }
     if (!content.isEmpty()) {
       Files.write(file, content.getBytes());
     }
