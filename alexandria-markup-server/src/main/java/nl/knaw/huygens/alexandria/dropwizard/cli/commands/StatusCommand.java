@@ -59,7 +59,7 @@ public class StatusCommand extends AlexandriaCommand {
     checkDirectoryIsInitialized();
 
     CLIContext context = readContext();
-    System.out.printf("Active view: %s%n", context.getActiveView());
+    System.out.printf("Active view: %s%n%n", context.getActiveView());
     try (TAGStore store = getTAGStore()) {
       showDocuments(store, context);
       showViews(store, context);
@@ -76,7 +76,7 @@ public class StatusCommand extends AlexandriaCommand {
     if (documents.isEmpty()) {
       System.out.println("no documents");
     } else {
-      System.out.printf("documents:%n  %s%n%n", documents);
+      System.out.printf("Documents:%n  %s%n%n", documents);
     }
   }
 
@@ -104,7 +104,7 @@ public class StatusCommand extends AlexandriaCommand {
     if (views.isEmpty()) {
       System.out.println("no views");
     } else {
-      System.out.printf("views:%n  %s%n%n", views);
+      System.out.printf("Views:%n  %s%n%n", views);
     }
   }
 

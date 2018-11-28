@@ -31,6 +31,7 @@ public class StatusCommandIntegrationTest extends CommandIntegrationTest {
         "Build date: $buildDate$\n" +
         "\n" +
         "Active view: -\n" +
+        "\n" +
         "no documents\n" +
         "no views");
   }
