@@ -27,10 +27,7 @@ import net.sourceforge.argparse4j.inf.Namespace;
 import net.sourceforge.argparse4j.inf.Subparser;
 import nl.knaw.huc.di.tag.tagml.importer.TAGMLImporter;
 import nl.knaw.huygens.alexandria.dropwizard.api.NamedDocumentService;
-import nl.knaw.huygens.alexandria.dropwizard.cli.CLIContext;
-import nl.knaw.huygens.alexandria.dropwizard.cli.DocumentInfo;
-import nl.knaw.huygens.alexandria.dropwizard.cli.FileInfo;
-import nl.knaw.huygens.alexandria.dropwizard.cli.FileType;
+import nl.knaw.huygens.alexandria.dropwizard.cli.*;
 import nl.knaw.huygens.alexandria.storage.TAGDocument;
 import nl.knaw.huygens.alexandria.storage.TAGStore;
 import nl.knaw.huygens.alexandria.view.TAGView;
@@ -116,7 +113,8 @@ public class CommitCommand extends AlexandriaCommand {
     String activeView = readContext().getActiveView();
     boolean inMainView = activeView.equals(MAIN_VIEW);
     if (!inMainView) {
-      System.out.println("View " + activeView + " is active. Currently, committing is only allowed in the main view. Use `alexandria checkout -` to return to the main view.");
+      System.out.printf("View %s is active. Currently, committing is only allowed in the main view. Use:%n  alexandria checkout -%nto return to the main view.%n", activeView);
+      throw new AlexandriaCommandException("no commit in view allowed");
     }
   }
 
