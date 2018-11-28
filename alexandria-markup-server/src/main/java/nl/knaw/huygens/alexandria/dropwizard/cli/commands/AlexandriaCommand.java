@@ -24,7 +24,9 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import io.dropwizard.cli.Cli;
 import io.dropwizard.cli.Command;
+import net.sourceforge.argparse4j.inf.Namespace;
 import nl.knaw.huygens.alexandria.dropwizard.cli.AlexandriaCommandException;
 import nl.knaw.huygens.alexandria.dropwizard.cli.CLIContext;
 import nl.knaw.huygens.alexandria.dropwizard.cli.FileType;
@@ -183,12 +185,8 @@ public abstract class AlexandriaCommand extends Command {
     return FileType.other;
   }
 
-  void catchExceptions(Runnable runnable) {
-    try {
-      runnable.run();
-    } catch (Exception e) {
-      System.err.println(e.getMessage());
-//      System.exit(-1);
-    }
+  @Override
+  public void onError(Cli cli, Namespace namespace, Throwable e) {
+    cli.getStdErr().println(e.getMessage());
   }
 }

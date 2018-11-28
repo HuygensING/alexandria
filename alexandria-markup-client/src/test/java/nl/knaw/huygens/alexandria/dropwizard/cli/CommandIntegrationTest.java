@@ -206,8 +206,11 @@ public abstract class CommandIntegrationTest {
 
   void assertCommandRunsInAnInitializedDirectory(final String... cliArguments) throws Exception {
     final boolean success = cli.run(cliArguments);
-    assertThat(success).isFalse();
-    assertThat(getCliStdErrAsString()).isEqualTo("Initialize first");
+    SoftAssertions softly = new SoftAssertions();
+    softly.assertThat(success).isFalse();
+    softly.assertThat(getCliStdOutAsString()).contains("This directory has not been initialized");
+    softly.assertThat(getCliStdErrAsString().trim()).isEqualTo("not initialized");
+    softly.assertAll();
   }
 
   void createFile(String filename, String content) throws IOException {

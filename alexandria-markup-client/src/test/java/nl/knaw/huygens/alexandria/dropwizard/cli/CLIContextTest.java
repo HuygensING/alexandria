@@ -56,15 +56,12 @@ public class CLIContextTest {
         .setExcludeLayers(new HashSet(singletonList("a")));
     tagViewDefinitionMap.put("exclude-a-layer", excludeALayer);
     CLIContext cliContext = new CLIContext()
-//        .setViewName("filename", "viewname")
-//        .setDocumentName("filename", "docName")
         .setTagViewDefinitions(tagViewDefinitionMap)
         .setActiveView("view-1")
         .setWatchedFiles(watchedFilesMap);
     String json = mapper.writeValueAsString(cliContext);
     assertThat(json).isNotEmpty();
     System.out.println(json);
-//    SettableBeanProperty
     CLIContext cliContext1 = mapper.readValue(json, CLIContext.class);
     assertThat(cliContext1).isEqualToComparingFieldByFieldRecursively(cliContext);
     assertThat(cliContext1.getTagViewDefinitions().get("exclude-a-layer").getExcludeLayers()).containsExactly("a");

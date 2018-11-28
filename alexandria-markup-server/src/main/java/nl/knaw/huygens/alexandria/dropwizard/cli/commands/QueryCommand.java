@@ -54,26 +54,24 @@ public class QueryCommand extends AlexandriaCommand {
 
   @Override
   public void run(Bootstrap<?> bootstrap, Namespace namespace) {
-    catchExceptions(() -> {
-      checkDirectoryIsInitialized();
-      String docName = namespace.getString(DOCUMENT);
-      String statement = namespace.getString(QUERY);
-      Long docId = getIdForExistingDocument(docName);
-      try (TAGStore store = getTAGStore()) {
-        store.runInTransaction(() -> {
-          System.out.printf("document: %s%n", docName);
-          System.out.printf("query: %s%n", statement);
-          TAGDocument document = store.getDocument(docId);
-          TAGQLQueryHandler h = new TAGQLQueryHandler(document);
-          TAGQLResult result = h.execute(statement);
-          System.out.printf("result:%n%s%n", result.getValues().stream()
-              .map(Object::toString)
-              .collect(joining("\n")));
-          if (!result.isOk()) {
-            System.out.printf("errors: %s%n", result.getErrors());
-          }
-        });
-      }
-    });
+    checkDirectoryIsInitialized();
+    String docName = namespace.getString(DOCUMENT);
+    String statement = namespace.getString(QUERY);
+    Long docId = getIdForExistingDocument(docName);
+    try (TAGStore store = getTAGStore()) {
+      store.runInTransaction(() -> {
+        System.out.printf("document: %s%n", docName);
+        System.out.printf("query: %s%n", statement);
+        TAGDocument document = store.getDocument(docId);
+        TAGQLQueryHandler h = new TAGQLQueryHandler(document);
+        TAGQLResult result = h.execute(statement);
+        System.out.printf("result:%n%s%n", result.getValues().stream()
+            .map(Object::toString)
+            .collect(joining("\n")));
+        if (!result.isOk()) {
+          System.out.printf("errors: %s%n", result.getErrors());
+        }
+      });
+    }
   }
 }

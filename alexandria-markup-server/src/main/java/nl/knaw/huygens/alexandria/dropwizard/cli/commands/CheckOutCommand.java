@@ -62,58 +62,56 @@ public class CheckOutCommand extends AlexandriaCommand {
 
   @Override
   public void run(Bootstrap<?> bootstrap, Namespace namespace) {
-    catchExceptions(() -> {
-      checkDirectoryIsInitialized();
+    checkDirectoryIsInitialized();
 
-      String viewName = namespace.getString(VIEW);
-      boolean showAll = MAIN_VIEW.equals(viewName);
+    String viewName = namespace.getString(VIEW);
+    boolean showAll = MAIN_VIEW.equals(viewName);
 
-      if (showAll) {
-        System.out.println("Checking out main view...");
-      } else {
-        System.out.printf("Checking out view %s...%n", viewName);
-      }
-      try (TAGStore store = getTAGStore()) {
-        CLIContext context = readContext();
-        Map<String, FileInfo> watchedTranscriptions = new HashMap<>();
-        context.getWatchedFiles().entrySet()
-            .stream()
-            .filter(e -> e.getValue().getFileType().equals(FileType.tagmlSource))
-            .forEach(e -> {
-              String fileName = e.getKey();
-              FileInfo fileInfo = e.getValue();
-              watchedTranscriptions.put(fileName, fileInfo);
-            });
-
-        Map<String, Long> documentIndex = readDocumentIndex();
-        store.runInTransaction(() -> {
-          TAGView tagView = showAll
-              ? TAGViews.getShowAllMarkupView(store)
-              : getExistingView(viewName, store, context);
-          watchedTranscriptions.forEach((fileName, fileInfo) -> {
-            System.out.printf("  updating %s...%n", fileName);
-            final Long docId = documentIndex.get(fileInfo.getObjectName());
-            TAGDocument document = store.getDocument(docId);
-            TAGMLExporter tagmlExporter = new TAGMLExporter(store, tagView);
-            String tagml = tagmlExporter.asTAGML(document)
-                .replaceAll("\n\\s*\n", "\n")
-                .trim();
-            try {
-              final File out = workFilePath(fileName).toFile();
-              FileUtils.writeStringToFile(out, tagml, Charsets.UTF_8);
-              context.getWatchedFiles().get(fileName).setLastCommit(Instant.now());
-            } catch (IOException e) {
-              e.printStackTrace();
-              throw new UncheckedIOException(e);
-            }
+    if (showAll) {
+      System.out.println("Checking out main view...");
+    } else {
+      System.out.printf("Checking out view %s...%n", viewName);
+    }
+    try (TAGStore store = getTAGStore()) {
+      CLIContext context = readContext();
+      Map<String, FileInfo> watchedTranscriptions = new HashMap<>();
+      context.getWatchedFiles().entrySet()
+          .stream()
+          .filter(e -> e.getValue().getFileType().equals(FileType.tagmlSource))
+          .forEach(e -> {
+            String fileName = e.getKey();
+            FileInfo fileInfo = e.getValue();
+            watchedTranscriptions.put(fileName, fileInfo);
           });
+
+      Map<String, Long> documentIndex = readDocumentIndex();
+      store.runInTransaction(() -> {
+        TAGView tagView = showAll
+            ? TAGViews.getShowAllMarkupView(store)
+            : getExistingView(viewName, store, context);
+        watchedTranscriptions.forEach((fileName, fileInfo) -> {
+          System.out.printf("  updating %s...%n", fileName);
+          final Long docId = documentIndex.get(fileInfo.getObjectName());
+          TAGDocument document = store.getDocument(docId);
+          TAGMLExporter tagmlExporter = new TAGMLExporter(store, tagView);
+          String tagml = tagmlExporter.asTAGML(document)
+              .replaceAll("\n\\s*\n", "\n")
+              .trim();
+          try {
+            final File out = workFilePath(fileName).toFile();
+            FileUtils.writeStringToFile(out, tagml, Charsets.UTF_8);
+            context.getWatchedFiles().get(fileName).setLastCommit(Instant.now());
+          } catch (IOException e) {
+            e.printStackTrace();
+            throw new UncheckedIOException(e);
+          }
         });
-        storeDocumentIndex(documentIndex);
-        context.setActiveView(viewName);
-        storeContext(context);
-      }
-      System.out.println("done!");
-    });
+      });
+      storeDocumentIndex(documentIndex);
+      context.setActiveView(viewName);
+      storeContext(context);
+    }
+    System.out.println("done!");
   }
 
 }

@@ -19,6 +19,7 @@ package nl.knaw.huygens.alexandria.dropwizard.cli;
  * limitations under the License.
  * #L%
  */
+
 import org.junit.Ignore;
 import org.junit.Test;
 
@@ -44,6 +45,11 @@ public class RevertCommandIntegrationTest extends CommandIntegrationTest {
         "\n" +
         "named arguments:\n" +
         "  -h, --help             show this help message and exit");
+  }
+
+  @Test
+  public void testCommandShouldBeRunInAnInitializedDirectory() throws Exception {
+    assertCommandRunsInAnInitializedDirectory("revert", "something");
   }
 
 }

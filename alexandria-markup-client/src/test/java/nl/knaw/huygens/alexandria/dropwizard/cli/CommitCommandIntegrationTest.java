@@ -92,4 +92,9 @@ public class CommitCommandIntegrationTest extends CommandIntegrationTest {
         "Warning: currently, committing changes is only possible in the main view!");
   }
 
+  @Test
+  public void testCommandShouldBeRunInAnInitializedDirectory() throws Exception {
+    assertCommandRunsInAnInitializedDirectory("commit", "-a");
+  }
+
 }

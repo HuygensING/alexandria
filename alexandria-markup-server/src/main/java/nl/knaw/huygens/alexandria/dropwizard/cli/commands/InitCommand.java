@@ -25,9 +25,9 @@ import net.sourceforge.argparse4j.inf.Namespace;
 import net.sourceforge.argparse4j.inf.Subparser;
 import nl.knaw.huygens.alexandria.dropwizard.cli.CLIContext;
 
-import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.Map;
@@ -44,24 +44,26 @@ public class InitCommand extends AlexandriaCommand {
   }
 
   @Override
-  public void run(Bootstrap<?> bootstrap, Namespace namespace) {
-    catchExceptions(() -> {
-      System.out.println("initializing...");
+  public void run(Bootstrap<?> bootstrap, Namespace namespace) throws IOException {
+    System.out.println("initializing...");
 
-      try {
-        Files.createDirectory(Paths.get(workDir, "transcriptions"));
-        Files.createDirectory(Paths.get(workDir, "views"));
-      } catch (IOException e) {
-        throw new RuntimeException(e);
-      }
+    Path transcriptionsPath = Paths.get(workDir, "transcriptions");
+    mkdir(transcriptionsPath);
+    Path viewsPath = Paths.get(workDir, "views");
+    mkdir(viewsPath);
 
-      CLIContext context = new CLIContext();
-      storeContext(context);
+    CLIContext context = new CLIContext();
+    storeContext(context);
 
-      Map<String, Long> documentIndex = new HashMap<>();
-      storeDocumentIndex(documentIndex);
+    Map<String, Long> documentIndex = new HashMap<>();
+    storeDocumentIndex(documentIndex);
 
-      System.out.println("done!");
-    });
+    System.out.println("done!");
+  }
+
+  private void mkdir(final Path path) throws IOException {
+    if (!Files.exists(path)) {
+      Files.createDirectory(path);
+    }
   }
 }

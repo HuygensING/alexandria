@@ -19,11 +19,10 @@ package nl.knaw.huygens.alexandria.dropwizard.cli;
  * limitations under the License.
  * #L%
  */
-import org.junit.Ignore;
+
 import org.junit.Test;
 
 public class StatusCommandIntegrationTest extends CommandIntegrationTest {
-  @Ignore
   @Test
   public void testStatusCommand() throws Exception {
     runInitCommand();
@@ -36,12 +35,6 @@ public class StatusCommandIntegrationTest extends CommandIntegrationTest {
         "no views");
   }
 
-  @Ignore
-  @Test
-  public void testStatusCommandShouldBeRunInAnInitializedDirectory() throws Exception {
-    assertCommandRunsInAnInitializedDirectory("status");
-  }
-
   @Test
   public void testStatusCommandHelp() throws Exception {
     final boolean success = cli.run("status", "-h");
@@ -52,5 +45,10 @@ public class StatusCommandIntegrationTest extends CommandIntegrationTest {
         "\n" +
         "named arguments:\n" +
         "  -h, --help             show this help message and exit");
+  }
+
+  @Test
+  public void testCommandShouldBeRunInAnInitializedDirectory() throws Exception {
+    assertCommandRunsInAnInitializedDirectory("status");
   }
 }

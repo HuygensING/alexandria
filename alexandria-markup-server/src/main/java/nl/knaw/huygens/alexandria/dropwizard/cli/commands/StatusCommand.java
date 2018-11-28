@@ -53,18 +53,16 @@ public class StatusCommand extends AlexandriaCommand {
 
   @Override
   public void run(Bootstrap<?> bootstrap, Namespace namespace) {
-    catchExceptions(() -> {
-      System.out.printf("Alexandria version %s%n", appInfo.getVersion());
-      System.out.printf("Build date: %s%n%n", appInfo.getBuildDate());
-      checkDirectoryIsInitialized();
+    System.out.printf("Alexandria version %s%n", appInfo.getVersion());
+    System.out.printf("Build date: %s%n%n", appInfo.getBuildDate());
+    checkDirectoryIsInitialized();
 
-      CLIContext context = readContext();
-      System.out.printf("Active view: %s%n", context.getActiveView());
-      try (TAGStore store = getTAGStore()) {
-        showDocuments(store);
-        showViews(store, context);
-      }
-    });
+    CLIContext context = readContext();
+    System.out.printf("Active view: %s%n", context.getActiveView());
+    try (TAGStore store = getTAGStore()) {
+      showDocuments(store);
+      showViews(store, context);
+    }
   }
 
   private void showDocuments(final TAGStore store) {

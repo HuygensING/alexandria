@@ -78,40 +78,38 @@ public class CommitCommand extends AlexandriaCommand {
 
   @Override
   public void run(Bootstrap<?> bootstrap, Namespace namespace) {
-    catchExceptions(() -> {
-      checkDirectoryIsInitialized();
-      checkNoViewIsActive();
-      List<String> fileNames = (namespace.getBoolean(ARG_ALL))
-          ? getModifiedWatchedFileNames()
-          : namespace.getList(ARG_FILE);
-      Map<String, Long> documentIndex = readDocumentIndex();
-      try (TAGStore store = getTAGStore()) {
-        CLIContext context = readContext();
-        fileNames.forEach(fileName -> {
-          FileType fileType = fileType(fileName);
-          String objectName = fileName;
-          switch (fileType) {
-            case tagmlSource:
-              objectName = toDocName(fileName);
-              processTAGMLFile(documentIndex, store, fileName, objectName);
-              break;
-            case viewDefinition:
-              objectName = toViewName(fileName);
-              processViewDefinition(store, fileName, objectName, context);
-              break;
-            case other:
-              processOtherFile(documentIndex, store, fileName);
-              break;
-          }
-          context.getWatchedFiles().put(fileName, new FileInfo()
-              .setObjectName(objectName)
-              .setFileType(fileType)
-              .setLastCommit(Instant.now()));
-        });
-        storeContext(context);
-      }
-      System.out.println("done!");
-    });
+    checkDirectoryIsInitialized();
+    checkNoViewIsActive();
+    List<String> fileNames = (namespace.getBoolean(ARG_ALL))
+        ? getModifiedWatchedFileNames()
+        : namespace.getList(ARG_FILE);
+    Map<String, Long> documentIndex = readDocumentIndex();
+    try (TAGStore store = getTAGStore()) {
+      CLIContext context = readContext();
+      fileNames.forEach(fileName -> {
+        FileType fileType = fileType(fileName);
+        String objectName = fileName;
+        switch (fileType) {
+          case tagmlSource:
+            objectName = toDocName(fileName);
+            processTAGMLFile(documentIndex, store, fileName, objectName);
+            break;
+          case viewDefinition:
+            objectName = toViewName(fileName);
+            processViewDefinition(store, fileName, objectName, context);
+            break;
+          case other:
+            processOtherFile(documentIndex, store, fileName);
+            break;
+        }
+        context.getWatchedFiles().put(fileName, new FileInfo()
+            .setObjectName(objectName)
+            .setFileType(fileType)
+            .setLastCommit(Instant.now()));
+      });
+      storeContext(context);
+    }
+    System.out.println("done!");
   }
 
   private void checkNoViewIsActive() {
@@ -147,7 +145,7 @@ public class CommitCommand extends AlexandriaCommand {
       TAGView view = viewFactory.fromJsonString(json);
       viewMap.put(viewName, view);
 
-      storeViewMap(viewMap,context);
+      storeViewMap(viewMap, context);
     } catch (IOException e) {
       e.printStackTrace();
     }

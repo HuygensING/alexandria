@@ -80,4 +80,9 @@ public class AddCommandIntegrationTest extends CommandIntegrationTest {
         "  -h, --help             show this help message and exit");
   }
 
+  @Test
+  public void testCommandShouldBeRunInAnInitializedDirectory() throws Exception {
+    assertCommandRunsInAnInitializedDirectory("add", "something");
+  }
+
 }
