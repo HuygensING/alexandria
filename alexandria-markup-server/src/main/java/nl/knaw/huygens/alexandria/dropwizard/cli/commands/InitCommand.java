@@ -55,9 +55,6 @@ public class InitCommand extends AlexandriaCommand {
     CLIContext context = new CLIContext();
     storeContext(context);
 
-    Map<String, Long> documentIndex = new HashMap<>();
-    storeDocumentIndex(documentIndex);
-
     System.out.println("done!");
   }
 

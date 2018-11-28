@@ -29,6 +29,7 @@ import io.dropwizard.cli.Command;
 import net.sourceforge.argparse4j.inf.Namespace;
 import nl.knaw.huygens.alexandria.dropwizard.cli.AlexandriaCommandException;
 import nl.knaw.huygens.alexandria.dropwizard.cli.CLIContext;
+import nl.knaw.huygens.alexandria.dropwizard.cli.DocumentInfo;
 import nl.knaw.huygens.alexandria.dropwizard.cli.FileType;
 import nl.knaw.huygens.alexandria.markup.api.AlexandriaProperties;
 import nl.knaw.huygens.alexandria.storage.TAGStore;
@@ -43,7 +44,6 @@ import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.HashMap;
 import java.util.Map;
 
 import static java.util.stream.Collectors.toMap;
@@ -54,8 +54,7 @@ public abstract class AlexandriaCommand extends Command {
   final String FILE = "file";
 
   private final String alexandriaDir;
-  //  private final File viewsFile;
-  private final File documentIndexFile;
+  //  private final File documentIndexFile;
   private final File contextFile;
   final String workDir;
   static ObjectMapper mapper = new ObjectMapper()
@@ -68,8 +67,7 @@ public abstract class AlexandriaCommand extends Command {
     alexandriaDir = workDir + "/" + ALEXANDRIA_DIR;
     initProjectDir();
 
-//    viewsFile = new File(alexandriaDir, "views.json");
-    documentIndexFile = new File(alexandriaDir, "document_index.json");
+//    documentIndexFile = new File(alexandriaDir, "document_index.json");
     contextFile = new File(alexandriaDir, "context.json");
   }
 
@@ -98,15 +96,15 @@ public abstract class AlexandriaCommand extends Command {
     context.setTagViewDefinitions(viewDefinitionMap);
   }
 
-  Map<String, Long> readDocumentIndex() {
-    TypeReference<HashMap<String, Long>> typeReference = new TypeReference<HashMap<String, Long>>() {
-    };
-    return uncheckedRead(documentIndexFile, typeReference);
-  }
+//  Map<String, Long> readDocumentIndex() {
+//    TypeReference<HashMap<String, Long>> typeReference = new TypeReference<HashMap<String, Long>>() {
+//    };
+//    return uncheckedRead(documentIndexFile, typeReference);
+//  }
 
-  void storeDocumentIndex(Map<String, Long> documentIndex) {
-    uncheckedStore(documentIndexFile, documentIndex);
-  }
+//  void storeDocumentIndex(Map<String, Long> documentIndex) {
+//    uncheckedStore(documentIndexFile, documentIndex);
+//  }
 
   CLIContext readContext() {
     return uncheckedRead(contextFile, CLIContext.class);
@@ -150,12 +148,12 @@ public abstract class AlexandriaCommand extends Command {
   }
 
   Long getIdForExistingDocument(String docName) {
-    Map<String, Long> documentIndex = readDocumentIndex();
+    Map<String, DocumentInfo> documentIndex = readContext().getDocumentInfo();
     if (!documentIndex.containsKey(docName)) {
       System.err.printf("ERROR: No document '%s' was registered.\n  alexandria status\nwill show you which documents and views have been registered.%n", docName);
       throw new AlexandriaCommandException("unregistered document");
     }
-    return documentIndex.get(docName);
+    return documentIndex.get(docName).getDbId();
   }
 
   TAGView getExistingView(String viewName, final TAGStore store, final CLIContext context) {

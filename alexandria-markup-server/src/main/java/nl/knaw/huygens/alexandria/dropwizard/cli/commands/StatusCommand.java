@@ -25,6 +25,7 @@ import io.dropwizard.setup.Bootstrap;
 import net.sourceforge.argparse4j.inf.Namespace;
 import net.sourceforge.argparse4j.inf.Subparser;
 import nl.knaw.huygens.alexandria.dropwizard.cli.CLIContext;
+import nl.knaw.huygens.alexandria.dropwizard.cli.DocumentInfo;
 import nl.knaw.huygens.alexandria.markup.api.AppInfo;
 import nl.knaw.huygens.alexandria.storage.TAGDocument;
 import nl.knaw.huygens.alexandria.storage.TAGStore;
@@ -60,18 +61,17 @@ public class StatusCommand extends AlexandriaCommand {
     CLIContext context = readContext();
     System.out.printf("Active view: %s%n", context.getActiveView());
     try (TAGStore store = getTAGStore()) {
-      showDocuments(store);
+      showDocuments(store, context);
       showViews(store, context);
     }
   }
 
-  private void showDocuments(final TAGStore store) {
-    Map<String, Long> documentIndex = readDocumentIndex();
-    String documents = documentIndex
+  private void showDocuments(final TAGStore store, final CLIContext context) {
+    String documents = context.getDocumentInfo()
         .keySet()
         .stream()
         .sorted()
-        .map(docName -> docInfo(docName, documentIndex, store))
+        .map(docName -> docInfo(docName, context.getDocumentInfo().get(docName), store))
         .collect(joining("\n  "));
     if (documents.isEmpty()) {
       System.out.println("no documents");
@@ -80,11 +80,17 @@ public class StatusCommand extends AlexandriaCommand {
     }
   }
 
-  private String docInfo(final String docName, final Map<String, Long> documentIndex, final TAGStore store) {
-    Long docId = documentIndex.get(docName);
+  private String docInfo(final String docName, final DocumentInfo documentInfo, final TAGStore store) {
+    Long docId = documentInfo.getDbId();
+    String sourceFile = documentInfo.getSourceFile();
     String docInfo = store.runInTransaction(() -> {
       TAGDocument document = store.getDocument(docId);
-      return format("%s (created:%s, modified:%s)", docName, document.getCreationDate(), document.getModificationDate());
+      return format("%s%n    created:  %s%n    modified: %s%n    source: %s",
+          docName,
+          document.getCreationDate(),
+          document.getModificationDate(),
+          sourceFile
+      );
     });
     return docInfo;
   }

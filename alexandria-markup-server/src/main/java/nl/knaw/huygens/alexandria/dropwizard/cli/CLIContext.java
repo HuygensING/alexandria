@@ -30,6 +30,7 @@ public class CLIContext {
   private String activeView = "-";
   private Map<String, FileInfo> watchedFiles = new HashMap<>();
   private Map<String, TAGViewDefinition> tagViewDefinitions = new HashMap<>();
+  private Map<String, DocumentInfo> documentInfo = new HashMap<>();
 
   public CLIContext setActiveView(final String activeView) {
     this.activeView = activeView;
@@ -55,6 +56,15 @@ public class CLIContext {
 
   public CLIContext setTagViewDefinitions(final Map<String, TAGViewDefinition> tagViewDefinitions) {
     this.tagViewDefinitions = tagViewDefinitions;
+    return this;
+  }
+
+  public Map<String, DocumentInfo> getDocumentInfo() {
+    return documentInfo;
+  }
+
+  public CLIContext setDocumentInfo(final Map<String, DocumentInfo> documentInfo) {
+    this.documentInfo = documentInfo;
     return this;
   }
 }

@@ -63,7 +63,7 @@ public class CommitCommandIntegrationTest extends CommandIntegrationTest {
     assertThat(viewDateAfterAdd).isNotNull();
 
     final boolean success = cli.run("commit", "-a");
-    assertSucceedsWithExpectedStdout(success, "Parsing transcription1.tagml to document transcription1...\n" +
+    softlyAssertSucceedsWithExpectedStdout(success, "Parsing transcription1.tagml to document transcription1...\n" +
         "Parsing views/v1.json to view v1...\n" +
         "done!");
 

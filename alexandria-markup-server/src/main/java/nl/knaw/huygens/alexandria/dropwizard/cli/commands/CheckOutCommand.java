@@ -27,6 +27,7 @@ import net.sourceforge.argparse4j.inf.Subparser;
 import nl.knaw.huc.di.tag.TAGViews;
 import nl.knaw.huc.di.tag.tagml.exporter.TAGMLExporter;
 import nl.knaw.huygens.alexandria.dropwizard.cli.CLIContext;
+import nl.knaw.huygens.alexandria.dropwizard.cli.DocumentInfo;
 import nl.knaw.huygens.alexandria.dropwizard.cli.FileInfo;
 import nl.knaw.huygens.alexandria.dropwizard.cli.FileType;
 import nl.knaw.huygens.alexandria.storage.TAGDocument;
@@ -84,14 +85,15 @@ public class CheckOutCommand extends AlexandriaCommand {
             watchedTranscriptions.put(fileName, fileInfo);
           });
 
-      Map<String, Long> documentIndex = readDocumentIndex();
+      Map<String, DocumentInfo> documentIndex = context.getDocumentInfo();
       store.runInTransaction(() -> {
         TAGView tagView = showAll
             ? TAGViews.getShowAllMarkupView(store)
             : getExistingView(viewName, store, context);
         watchedTranscriptions.forEach((fileName, fileInfo) -> {
           System.out.printf("  updating %s...%n", fileName);
-          final Long docId = documentIndex.get(fileInfo.getObjectName());
+          String documentName = fileInfo.getObjectName();
+          final Long docId = documentIndex.get(documentName).getDbId();
           TAGDocument document = store.getDocument(docId);
           TAGMLExporter tagmlExporter = new TAGMLExporter(store, tagView);
           String tagml = tagmlExporter.asTAGML(document)
@@ -107,7 +109,6 @@ public class CheckOutCommand extends AlexandriaCommand {
           }
         });
       });
-      storeDocumentIndex(documentIndex);
       context.setActiveView(viewName);
       storeContext(context);
     }

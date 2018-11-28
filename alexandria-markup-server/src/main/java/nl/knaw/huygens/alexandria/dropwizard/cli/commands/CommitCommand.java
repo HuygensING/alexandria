@@ -28,6 +28,7 @@ import net.sourceforge.argparse4j.inf.Subparser;
 import nl.knaw.huc.di.tag.tagml.importer.TAGMLImporter;
 import nl.knaw.huygens.alexandria.dropwizard.api.NamedDocumentService;
 import nl.knaw.huygens.alexandria.dropwizard.cli.CLIContext;
+import nl.knaw.huygens.alexandria.dropwizard.cli.DocumentInfo;
 import nl.knaw.huygens.alexandria.dropwizard.cli.FileInfo;
 import nl.knaw.huygens.alexandria.dropwizard.cli.FileType;
 import nl.knaw.huygens.alexandria.storage.TAGDocument;
@@ -83,7 +84,6 @@ public class CommitCommand extends AlexandriaCommand {
     List<String> fileNames = (namespace.getBoolean(ARG_ALL))
         ? getModifiedWatchedFileNames()
         : namespace.getList(ARG_FILE);
-    Map<String, Long> documentIndex = readDocumentIndex();
     try (TAGStore store = getTAGStore()) {
       CLIContext context = readContext();
       fileNames.forEach(fileName -> {
@@ -92,14 +92,14 @@ public class CommitCommand extends AlexandriaCommand {
         switch (fileType) {
           case tagmlSource:
             objectName = toDocName(fileName);
-            processTAGMLFile(documentIndex, store, fileName, objectName);
+            processTAGMLFile(context, store, fileName, objectName);
             break;
           case viewDefinition:
             objectName = toViewName(fileName);
             processViewDefinition(store, fileName, objectName, context);
             break;
           case other:
-            processOtherFile(documentIndex, store, fileName);
+            processOtherFile(fileName);
             break;
         }
         context.getWatchedFiles().put(fileName, new FileInfo()
@@ -120,7 +120,7 @@ public class CommitCommand extends AlexandriaCommand {
     }
   }
 
-  private void processTAGMLFile(Map<String, Long> documentIndex, TAGStore store, String fileName, String docName) {
+  private void processTAGMLFile(CLIContext context, TAGStore store, String fileName, String docName) {
     System.out.printf("Parsing %s to document %s...%n", fileName, docName);
 
     store.runInTransaction(Unchecked.runnable(() -> {
@@ -130,8 +130,11 @@ public class CommitCommand extends AlexandriaCommand {
       TAGDocument document = tagmlImporter.importTAGML(fileInputStream);
       NamedDocumentService service = new NamedDocumentService(store);
       service.registerDocument(document, docName);
-      documentIndex.put(docName, document.getDbId());
-      storeDocumentIndex(documentIndex);
+      DocumentInfo newDocumentInfo = new DocumentInfo()
+          .setDocumentName(docName)
+          .setSourceFile(fileName)
+          .setDbId(document.getDbId());
+      context.getDocumentInfo().put(docName, newDocumentInfo);
     }));
   }
 
@@ -151,7 +154,7 @@ public class CommitCommand extends AlexandriaCommand {
     }
   }
 
-  private void processOtherFile(Map<String, Long> documentIndex, TAGStore store, String fileName) {
+  private void processOtherFile(String fileName) {
   }
 
   private String toDocName(String fileName) {

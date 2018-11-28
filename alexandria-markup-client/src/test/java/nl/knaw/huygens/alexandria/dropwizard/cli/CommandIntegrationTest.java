@@ -200,7 +200,11 @@ public abstract class CommandIntegrationTest {
   }
 
   void runCommitAllCommand() throws Exception {
-    assertThat(cli.run("commit", "-a")).isTrue();
+    final boolean success = cli.run("commit", "-a");
+    SoftAssertions softly = new SoftAssertions();
+    softly.assertThat(success).isTrue();
+    softly.assertThat(getCliStdErrAsString()).isEmpty();
+    softly.assertAll();
     resetStdOutErr();
   }
 
