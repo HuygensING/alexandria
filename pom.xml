@@ -54,6 +54,7 @@
     <maven-shade.version>3.1.0</maven-shade.version>
     <mockito.version>2.23.4</mockito.version>
     <wagon-ssh.version>2.7</wagon-ssh.version>
+    <jansi.version>1.17.1</jansi.version>
   </properties>
 
   <build>

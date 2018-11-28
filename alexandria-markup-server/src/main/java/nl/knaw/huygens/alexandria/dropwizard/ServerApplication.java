@@ -89,7 +89,8 @@ public class ServerApplication extends Application<ServerConfiguration> {
     bootstrap.addCommand(new InitCommand());
     bootstrap.addCommand(new AddCommand());
     bootstrap.addCommand(new CommitCommand());
-    bootstrap.addCommand(new StatusCommand().withAppInfo(appInfo));
+    bootstrap.addCommand(new AboutCommand().withAppInfo(appInfo));
+    bootstrap.addCommand(new StatusCommand());
     bootstrap.addCommand(new QueryCommand());
     bootstrap.addCommand(new CheckOutCommand());
     bootstrap.addCommand(new DiffCommand());

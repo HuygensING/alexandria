@@ -20,6 +20,7 @@ package nl.knaw.huygens.alexandria.dropwizard.cli;
  * #L%
  */
 
+import nl.knaw.huygens.alexandria.dropwizard.cli.commands.CommitCommand;
 import org.junit.Test;
 
 import java.time.Instant;
@@ -27,8 +28,11 @@ import java.time.Instant;
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class CommitCommandIntegrationTest extends CommandIntegrationTest {
+
+  private static final String command = new CommitCommand().getName();
+
   @Test
-  public void testCommitCommandWithFile() throws Exception {
+  public void testCommandWithFile() throws Exception {
     runInitCommand();
 
     String filename = "transcription1.tagml";
@@ -40,7 +44,7 @@ public class CommitCommandIntegrationTest extends CommandIntegrationTest {
 
     LOG.info("{}", dateAfterAdd);
 
-    final boolean success = cli.run("commit", filename);
+    final boolean success = cli.run(command, filename);
 
     softlyAssertSucceedsWithExpectedStdout(success, "Parsing transcription1.tagml to document transcription1...\ndone!");
     Instant dateAfterCommit = readLastCommittedInstant(filename);
@@ -48,7 +52,7 @@ public class CommitCommandIntegrationTest extends CommandIntegrationTest {
   }
 
   @Test
-  public void testCommitCommandWithAllOption() throws Exception {
+  public void testCommandWithAllOption() throws Exception {
     runInitCommand();
     String tagFilename = "transcription1.tagml";
     createFile(tagFilename, "[tagml>[l>test<l]<tagml]");
@@ -62,7 +66,7 @@ public class CommitCommandIntegrationTest extends CommandIntegrationTest {
     Instant viewDateAfterAdd = readLastCommittedInstant(viewFilename);
     assertThat(viewDateAfterAdd).isNotNull();
 
-    final boolean success = cli.run("commit", "-a");
+    final boolean success = cli.run(command, "-a");
     softlyAssertSucceedsWithExpectedStdout(success, "Parsing transcription1.tagml to document transcription1...\n" +
         "Parsing views/v1.json to view v1...\n" +
         "done!");
@@ -74,8 +78,8 @@ public class CommitCommandIntegrationTest extends CommandIntegrationTest {
   }
 
   @Test
-  public void testCommitCommandHelp() throws Exception {
-    final boolean success = cli.run("commit", "-h");
+  public void testCommandHelp() throws Exception {
+    final boolean success = cli.run(command, "-h");
     assertSucceedsWithExpectedStdout(success, "usage: java -jar alexandria-app.jar\n" +
         "       commit [-a] [-h] [FILE [FILE ...]]\n" +
         "\n" +
@@ -94,7 +98,7 @@ public class CommitCommandIntegrationTest extends CommandIntegrationTest {
 
   @Test
   public void testCommandShouldBeRunInAnInitializedDirectory() throws Exception {
-    assertCommandRunsInAnInitializedDirectory("commit", "-a");
+    assertCommandRunsInAnInitializedDirectory(command, "-a");
   }
 
 }

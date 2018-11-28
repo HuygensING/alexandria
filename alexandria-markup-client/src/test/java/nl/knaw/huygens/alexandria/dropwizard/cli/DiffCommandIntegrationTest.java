@@ -20,11 +20,15 @@ package nl.knaw.huygens.alexandria.dropwizard.cli;
  * #L%
  */
 
+import nl.knaw.huygens.alexandria.dropwizard.cli.commands.DiffCommand;
 import org.junit.Test;
 
 public class DiffCommandIntegrationTest extends CommandIntegrationTest {
+
+  private static final String command = new DiffCommand().getName();
+
   @Test
-  public void testDiffCommand() throws Exception {
+  public void testCommand() throws Exception {
     runInitCommand();
 
     // create sourcefile
@@ -37,9 +41,9 @@ public class DiffCommandIntegrationTest extends CommandIntegrationTest {
 
     // overwrite sourcefile
     String tagml2 = "[tagml>[l>example<l]<tagml]";
-    createFile(tagFilename, tagml2);
+    modifyFile(tagFilename, tagml2);
 
-    final boolean success = cli.run("diff", tagFilename);
+    final boolean success = cli.run(command, tagFilename);
     String expectedOutput = "diff for transcriptions/transcription.tagml:\n" +
         " [tagml>[l>\n" +
         "-test\n" +
@@ -49,8 +53,8 @@ public class DiffCommandIntegrationTest extends CommandIntegrationTest {
   }
 
   @Test
-  public void testDiffCommandHelp() throws Exception {
-    final boolean success = cli.run("diff", "-h");
+  public void testCommandHelp() throws Exception {
+    final boolean success = cli.run(command, "-h");
     assertSucceedsWithExpectedStdout(success, "usage: java -jar alexandria-app.jar\n" +
         "       diff [-h] file\n" +
         "\n" +
@@ -65,7 +69,7 @@ public class DiffCommandIntegrationTest extends CommandIntegrationTest {
 
   @Test
   public void testCommandShouldBeRunInAnInitializedDirectory() throws Exception {
-    assertCommandRunsInAnInitializedDirectory("diff", "something");
+    assertCommandRunsInAnInitializedDirectory(command, "something");
   }
 
 }

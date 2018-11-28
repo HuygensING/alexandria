@@ -20,29 +20,76 @@ package nl.knaw.huygens.alexandria.dropwizard.cli;
  * #L%
  */
 
+import org.junit.Ignore;
 import org.junit.Test;
 
 public class StatusCommandIntegrationTest extends CommandIntegrationTest {
+
+  private static final String command = "status";
+
+  @Ignore
   @Test
-  public void testStatusCommand() throws Exception {
+  public void testCommand() throws Exception {
     runInitCommand();
-    final boolean success = cli.run("status");
-    softlyAssertSucceedsWithExpectedStdout(success, "Alexandria version $version$\n" +
-        "Build date: $buildDate$\n" +
-        "\n" +
-        "Active view: -\n" +
-        "\n" +
-        "no documents\n" +
-        "no views");
+
+    // in an empty, initialized directory
+    boolean success = cli.run(command);
+    softlyAssertSucceedsWithExpectedStdout(success, "Active view: -\n" +
+        "");
+
+    // add a sourcefile and a view definition
+    String tagFilename = "transcriptions/transcription.tagml";
+    String tagml = "[tagml>[l>test<l]<tagml]";
+    createFile(tagFilename, tagml);
+    String viewName = "l";
+    String viewFilename = "views/" + viewName + ".json";
+    createFile(viewFilename, "{\"includeMarkup\":[\"l\"]}");
+    success = cli.run(command);
+    softlyAssertSucceedsWithExpectedStdout(success, "Active view: -\n" +
+        "");
+
+    // add files
+    runAddCommand(tagFilename, viewFilename);
+    success = cli.run(command);
+    softlyAssertSucceedsWithExpectedStdout(success, "Active view: -\n" +
+        "");
+
+    // commit files
+    runCommitAllCommand();
+    success = cli.run(command);
+    softlyAssertSucceedsWithExpectedStdout(success, "Active view: -\n" +
+        "");
+
+    // checkout view
+    runCheckoutCommand(viewName);
+    success = cli.run(command);
+    softlyAssertSucceedsWithExpectedStdout(success, "Active view: l\n" +
+        "");
+
+    // checkout main view and change a file
+    runCheckoutCommand("-");
+    success = cli.run(command);
+    String newTagml = "[tagml>something else<tagml]";
+    modifyFile(tagFilename, newTagml);
+    success = cli.run(command);
+    softlyAssertSucceedsWithExpectedStdout(success, "Active view: -\n" +
+        "");
+
+    // delete file
+    deleteFile(tagFilename);
+    success = cli.run(command);
+    softlyAssertSucceedsWithExpectedStdout(success, "Active view: l\n" +
+        "");
+
   }
 
   @Test
-  public void testStatusCommandHelp() throws Exception {
-    final boolean success = cli.run("status", "-h");
+  public void testCommandHelp() throws Exception {
+    final boolean success = cli.run(command, "-h");
     assertSucceedsWithExpectedStdout(success, "usage: java -jar alexandria-app.jar\n" +
         "       status [-h]\n" +
         "\n" +
-        "Show info about the alexandria graph and the directory status.\n" +
+        "Show the directory status (active view, modified files, etc.).\n" +
         "\n" +
         "named arguments:\n" +
         "  -h, --help             show this help message and exit");
@@ -50,6 +97,6 @@ public class StatusCommandIntegrationTest extends CommandIntegrationTest {
 
   @Test
   public void testCommandShouldBeRunInAnInitializedDirectory() throws Exception {
-    assertCommandRunsInAnInitializedDirectory("status");
+    assertCommandRunsInAnInitializedDirectory(command);
   }
 }

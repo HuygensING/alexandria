@@ -65,6 +65,11 @@ public abstract class CommandIntegrationTest {
     mapper.findAndRegisterModules();
   }
 
+  private static final String INIT = new InitCommand().getName();
+  private static final String COMMIT = new CommitCommand().getName();
+  private static final String ADD = new AddCommand().getName();
+  private static final String CHECKOUT = new CheckOutCommand().getName();
+
   @Before
   public void setUp() {
     setupWorkDir();
@@ -83,8 +88,9 @@ public abstract class CommandIntegrationTest {
     bootstrap.addCommand(new CheckOutCommand());
     bootstrap.addCommand(new DiffCommand());
     bootstrap.addCommand(new RevertCommand());
+    bootstrap.addCommand(new StatusCommand());
     final AppInfo appInfo = new AppInfo().setVersion("$version$").setBuildDate("$buildDate$");
-    bootstrap.addCommand(new StatusCommand().withAppInfo(appInfo));
+    bootstrap.addCommand(new AboutCommand().withAppInfo(appInfo));
 
     // Redirect stdout and stderr to our byte streams
     System.setOut(new PrintStream(stdOut));
@@ -186,13 +192,13 @@ public abstract class CommandIntegrationTest {
   }
 
   void runInitCommand() throws Exception {
-    assertThat(cli.run("init")).isTrue();
+    assertThat(cli.run(INIT)).isTrue();
     resetStdOutErr();
   }
 
   void runAddCommand(String... fileNames) throws Exception {
     List<String> arguments = new ArrayList<>();
-    arguments.add("add");
+    arguments.add(ADD);
     Collections.addAll(arguments, fileNames);
     String[] argumentArray = arguments.toArray(new String[]{});
     assertThat(cli.run(argumentArray)).isTrue();
@@ -200,7 +206,7 @@ public abstract class CommandIntegrationTest {
   }
 
   void runCommitAllCommand() throws Exception {
-    final boolean success = cli.run("commit", "-a");
+    final boolean success = cli.run(COMMIT, "-a");
     SoftAssertions softly = new SoftAssertions();
     softly.assertThat(success).isTrue();
     softly.assertThat(getCliStdErrAsString()).isEmpty();
@@ -209,7 +215,7 @@ public abstract class CommandIntegrationTest {
   }
 
   void runCheckoutCommand(final String viewName) throws Exception {
-    final boolean success = cli.run("checkout", viewName);
+    final boolean success = cli.run(CHECKOUT, viewName);
     SoftAssertions softly = new SoftAssertions();
     softly.assertThat(success).isTrue();
     softly.assertThat(getCliStdErrAsString()).isEmpty();
@@ -228,12 +234,22 @@ public abstract class CommandIntegrationTest {
 
   void createFile(String filename, String content) throws IOException {
     Path file = workFilePath(filename);
-    if (!Files.exists(file)) {
-      Files.createFile(file);
-    }
+    Files.createFile(file);
     if (!content.isEmpty()) {
       Files.write(file, content.getBytes());
     }
+  }
+
+  void modifyFile(String filename, String content) throws IOException {
+    Path file = workFilePath(filename);
+    if (!content.isEmpty()) {
+      Files.write(file, content.getBytes());
+    }
+  }
+
+  void deleteFile(String filename) throws IOException {
+    Path file = workFilePath(filename);
+    Files.delete(file);
   }
 
   String readFileContents(String filename) throws IOException {

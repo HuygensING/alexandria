@@ -20,14 +20,18 @@ package nl.knaw.huygens.alexandria.dropwizard.cli;
  * #L%
  */
 
+import nl.knaw.huygens.alexandria.dropwizard.cli.commands.CheckOutCommand;
 import org.junit.Test;
 
 import static nl.knaw.huygens.alexandria.dropwizard.cli.commands.CheckOutCommand.MAIN_VIEW;
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class CheckOutCommandIntegrationTest extends CommandIntegrationTest {
+
+  private static final String command = new CheckOutCommand().getName();
+
   @Test
-  public void testCheckOutCommand() throws Exception {
+  public void testCommand() throws Exception {
     runInitCommand();
 
     String tagFilename = "transcription1.tagml";
@@ -39,7 +43,7 @@ public class CheckOutCommandIntegrationTest extends CommandIntegrationTest {
     runAddCommand(tagFilename, viewFilename);
     runCommitAllCommand();
 
-    final boolean success = cli.run("checkout", viewName);
+    final boolean success = cli.run(command, viewName);
     softlyAssertSucceedsWithExpectedStdout(success, "Checking out view v1...\n" +
         "  updating transcription1.tagml...\n" +
         "done!");
@@ -50,7 +54,7 @@ public class CheckOutCommandIntegrationTest extends CommandIntegrationTest {
     String newContent = readFileContents(tagFilename);
     assertThat(newContent).isEqualTo("[l>test<l]");
 
-    final boolean success2 = cli.run("checkout", MAIN_VIEW);
+    final boolean success2 = cli.run(command, MAIN_VIEW);
     softlyAssertSucceedsWithExpectedStdout(success2, "Checking out main view...\n" +
         "  updating transcription1.tagml...\n" +
         "done!");
@@ -65,8 +69,8 @@ public class CheckOutCommandIntegrationTest extends CommandIntegrationTest {
   // On checkout, the lastcommitted dates should be adjusted.
 
   @Test
-  public void testCheckOutCommandHelp() throws Exception {
-    final boolean success = cli.run("checkout", "-h");
+  public void testCommandHelp() throws Exception {
+    final boolean success = cli.run(command, "-h");
     assertSucceedsWithExpectedStdout(success, "usage: java -jar alexandria-app.jar\n" +
         "       checkout [-h] VIEW\n" +
         "\n" +
@@ -81,7 +85,7 @@ public class CheckOutCommandIntegrationTest extends CommandIntegrationTest {
 
   @Test
   public void testCommandShouldBeRunInAnInitializedDirectory() throws Exception {
-    assertCommandRunsInAnInitializedDirectory("checkout", "-");
+    assertCommandRunsInAnInitializedDirectory(command, "-");
   }
 
 }

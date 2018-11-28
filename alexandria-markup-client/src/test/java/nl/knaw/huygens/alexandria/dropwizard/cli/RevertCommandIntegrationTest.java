@@ -20,13 +20,17 @@ package nl.knaw.huygens.alexandria.dropwizard.cli;
  * #L%
  */
 
+import nl.knaw.huygens.alexandria.dropwizard.cli.commands.RevertCommand;
 import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class RevertCommandIntegrationTest extends CommandIntegrationTest {
+
+  private static final String command = new RevertCommand().getName();
+
   @Test
-  public void testRevertCommandInMainView() throws Exception {
+  public void testCommandInMainView() throws Exception {
     runInitCommand();
 
     // create sourcefile
@@ -39,12 +43,12 @@ public class RevertCommandIntegrationTest extends CommandIntegrationTest {
 
     // overwrite sourcefile
     String tagml2 = "[x>And now for something completely different.<x]";
-    createFile(tagFilename, tagml2);
+    modifyFile(tagFilename, tagml2);
 
     String fileContentsBeforeRevert = readFileContents(tagFilename);
     assertThat(fileContentsBeforeRevert).isEqualTo(tagml2);
 
-    final boolean success = cli.run("revert", tagFilename);
+    final boolean success = cli.run(command, tagFilename);
     assertSucceedsWithExpectedStdout(success, "Reverting " + tagFilename + "...\ndone!");
 
     String fileContentsAfterRevert = readFileContents(tagFilename);
@@ -52,7 +56,7 @@ public class RevertCommandIntegrationTest extends CommandIntegrationTest {
   }
 
   @Test
-  public void testRevertCommandInView() throws Exception {
+  public void testCommandInView() throws Exception {
     runInitCommand();
 
     // create sourcefile
@@ -72,12 +76,12 @@ public class RevertCommandIntegrationTest extends CommandIntegrationTest {
 
     // overwrite sourcefile
     String tagml2 = "[x>And now for something completely different.<x]";
-    createFile(tagFilename, tagml2);
+    modifyFile(tagFilename, tagml2);
 
     String fileContentsBeforeRevert = readFileContents(tagFilename);
     assertThat(fileContentsBeforeRevert).isEqualTo(tagml2);
 
-    final boolean success = cli.run("revert", tagFilename);
+    final boolean success = cli.run(command, tagFilename);
     assertSucceedsWithExpectedStdout(success, "Reverting " + tagFilename + "...\ndone!");
 
     String fileContentsAfterRevert = readFileContents(tagFilename);
@@ -85,8 +89,8 @@ public class RevertCommandIntegrationTest extends CommandIntegrationTest {
   }
 
   @Test
-  public void testRevertCommandHelp() throws Exception {
-    final boolean success = cli.run("revert", "-h");
+  public void testCommandHelp() throws Exception {
+    final boolean success = cli.run(command, "-h");
     assertSucceedsWithExpectedStdout(success, "usage: java -jar alexandria-app.jar\n" +
         "       revert [-h] FILE [FILE ...]\n" +
         "\n" +
@@ -101,7 +105,7 @@ public class RevertCommandIntegrationTest extends CommandIntegrationTest {
 
   @Test
   public void testCommandShouldBeRunInAnInitializedDirectory() throws Exception {
-    assertCommandRunsInAnInitializedDirectory("revert", "something");
+    assertCommandRunsInAnInitializedDirectory(command, "something");
   }
 
 }

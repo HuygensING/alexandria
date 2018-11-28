@@ -20,32 +20,19 @@ package nl.knaw.huygens.alexandria.dropwizard.cli.commands;
  * #L%
  */
 
-import io.dropwizard.cli.Command;
 import io.dropwizard.setup.Bootstrap;
 import net.sourceforge.argparse4j.inf.Namespace;
 import net.sourceforge.argparse4j.inf.Subparser;
 import nl.knaw.huygens.alexandria.dropwizard.cli.CLIContext;
-import nl.knaw.huygens.alexandria.dropwizard.cli.DocumentInfo;
-import nl.knaw.huygens.alexandria.markup.api.AppInfo;
-import nl.knaw.huygens.alexandria.storage.TAGDocument;
-import nl.knaw.huygens.alexandria.storage.TAGStore;
-import nl.knaw.huygens.alexandria.view.TAGView;
+import org.fusesource.jansi.AnsiConsole;
 
-import java.util.*;
-
-import static java.lang.String.format;
-import static java.util.stream.Collectors.joining;
+import static org.fusesource.jansi.Ansi.Color.RED;
+import static org.fusesource.jansi.Ansi.ansi;
 
 public class StatusCommand extends AlexandriaCommand {
-  private AppInfo appInfo;
 
   public StatusCommand() {
-    super("status", "Show info about the alexandria graph and the directory status.");
-  }
-
-  public Command withAppInfo(final AppInfo appInfo) {
-    this.appInfo = appInfo;
-    return this;
+    super("status", "Show the directory status (active view, modified files, etc.).");
   }
 
   @Override
@@ -54,100 +41,22 @@ public class StatusCommand extends AlexandriaCommand {
 
   @Override
   public void run(Bootstrap<?> bootstrap, Namespace namespace) {
-    System.out.printf("Alexandria version %s%n", appInfo.getVersion());
-    System.out.printf("Build date: %s%n%n", appInfo.getBuildDate());
     checkDirectoryIsInitialized();
 
     CLIContext context = readContext();
     System.out.printf("Active view: %s%n%n", context.getActiveView());
-    try (TAGStore store = getTAGStore()) {
-      showDocuments(store, context);
-      showViews(store, context);
-    }
+    showChanges(context);
   }
 
-  private void showDocuments(final TAGStore store, final CLIContext context) {
-    String documents = context.getDocumentInfo()
-        .keySet()
-        .stream()
-        .sorted()
-        .map(docName -> docInfo(docName, context.getDocumentInfo().get(docName), store))
-        .collect(joining("\n  "));
-    if (documents.isEmpty()) {
-      System.out.println("no documents");
-    } else {
-      System.out.printf("Documents:%n  %s%n%n", documents);
-    }
+  private void showChanges(final CLIContext context) {
+    AnsiConsole.systemInstall();
+    System.out.println("Changes not staged for commit:\n" +
+        "  (use \"alexandria commit <file>...\" to commit the selected changes)\n" +
+        "  (use \"alexandria commit -a\" to commit all changes)\n" +
+        "  (use \"alexandria revert <file>...\" to discard changes)\n");
+    System.out.println(ansi().fg(RED).a("    modified: ....").reset());
+    AnsiConsole.systemUninstall();
   }
 
-  private String docInfo(final String docName, final DocumentInfo documentInfo, final TAGStore store) {
-    Long docId = documentInfo.getDbId();
-    String sourceFile = documentInfo.getSourceFile();
-    return store.runInTransaction(() -> {
-      TAGDocument document = store.getDocument(docId);
-      return format("%s%n    created:  %s%n    modified: %s%n    source: %s",
-          docName,
-          document.getCreationDate(),
-          document.getModificationDate(),
-          sourceFile
-      );
-    });
-  }
-
-  private void showViews(final TAGStore store, final CLIContext context) {
-    String views = readViewMap(store, context)
-        .entrySet()
-        .stream()
-        .map(this::toString)
-        .collect(joining("\n  "));
-    if (views.isEmpty()) {
-      System.out.println("no views");
-    } else {
-      System.out.printf("Views:%n  %s%n%n", views);
-    }
-  }
-
-  private String toString(Map.Entry<String, TAGView> entry) {
-    String k = entry.getKey();
-    TAGView v = entry.getValue();
-
-    List<String> info = new ArrayList<>();
-
-    String markupRelevance = "";
-    Set<String> relevantMarkup = new TreeSet<>();
-    if (v.markupStyleIsInclude()) {
-      markupRelevance = "included";
-      relevantMarkup.addAll(v.getMarkupToInclude());
-
-    } else if (v.markupStyleIsExclude()) {
-      markupRelevance = "excluded";
-      relevantMarkup.addAll(v.getMarkupToExclude());
-    }
-    if (!relevantMarkup.isEmpty()) {
-      String markup = relevantMarkup.stream()
-          .sorted()
-          .collect(joining(" "));
-      String markupInfo = format("%s markup = %s", markupRelevance, markup);
-      info.add(markupInfo);
-    }
-
-    String layerRelevance = "";
-    Set<String> relevantLayers = new TreeSet<>();
-    if (v.layerStyleIsInclude()) {
-      layerRelevance = "included";
-      relevantLayers.addAll(v.getLayersToInclude());
-
-    } else if (v.layerStyleIsExclude()) {
-      layerRelevance = "excluded";
-      relevantLayers.addAll(v.getLayersToExclude());
-    }
-    if (!relevantLayers.isEmpty()) {
-      String layers = relevantLayers.stream()
-          .sorted()
-          .collect(joining(" "));
-      String layerInfo = format("%s layers = %s", layerRelevance, layers);
-      info.add(layerInfo);
-    }
-    return format("%s:\n    %s", k, String.join("\n    ", info));
-  }
 }
+

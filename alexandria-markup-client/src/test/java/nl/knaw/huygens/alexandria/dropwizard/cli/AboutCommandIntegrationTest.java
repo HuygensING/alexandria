@@ -20,44 +20,38 @@ package nl.knaw.huygens.alexandria.dropwizard.cli;
  * #L%
  */
 
+import nl.knaw.huygens.alexandria.dropwizard.cli.commands.AboutCommand;
 import org.junit.Test;
 
-import java.nio.file.Path;
+public class AboutCommandIntegrationTest extends CommandIntegrationTest {
 
-import static org.assertj.core.api.Assertions.assertThat;
-
-public class InitCommandIntegrationTest extends CommandIntegrationTest {
-
-  private static final String command = "init";
+  private static final String command = new AboutCommand().getName();
 
   @Test
   public void testCommand() throws Exception {
+    runInitCommand();
     final boolean success = cli.run(command);
-    softlyAssertSucceedsWithExpectedStdout(success, "initializing...\n" +
-        "done!");
-
-    Path viewsDir = workFilePath("views");
-    assertThat(viewsDir).isDirectory()
-        .isWritable();
-
-    Path transcriptionsDir = workFilePath("transcriptions");
-    assertThat(transcriptionsDir).isDirectory()
-        .isWritable();
-
-    CLIContext cliContext = readCLIContext();
-    assertThat(cliContext.getActiveView()).isEqualTo("-");
+    softlyAssertSucceedsWithExpectedStdout(success, "Alexandria version $version$\n" +
+        "Build date: $buildDate$\n" +
+        "\n" +
+        "no documents\n" +
+        "no views");
   }
 
   @Test
   public void testCommandHelp() throws Exception {
     final boolean success = cli.run(command, "-h");
     assertSucceedsWithExpectedStdout(success, "usage: java -jar alexandria-app.jar\n" +
-        "       init [-h]\n" +
+        "       about [-h]\n" +
         "\n" +
-        "Initializes current directory as an alexandria workspace\n" +
+        "Show info about the registered documents and views.\n" +
         "\n" +
         "named arguments:\n" +
         "  -h, --help             show this help message and exit");
   }
 
+  @Test
+  public void testCommandShouldBeRunInAnInitializedDirectory() throws Exception {
+    assertCommandRunsInAnInitializedDirectory(command);
+  }
 }
