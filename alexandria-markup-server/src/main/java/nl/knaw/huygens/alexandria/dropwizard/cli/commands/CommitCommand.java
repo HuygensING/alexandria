@@ -46,8 +46,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import static nl.knaw.huygens.alexandria.dropwizard.cli.commands.CheckOutCommand.MAIN_VIEW;
-
 public class CommitCommand extends AlexandriaCommand {
   public static final String ARG_FILE = "file";
   private final String ARG_ALL = "add_all";
@@ -77,7 +75,6 @@ public class CommitCommand extends AlexandriaCommand {
   @Override
   public void run(Bootstrap<?> bootstrap, Namespace namespace) {
     checkDirectoryIsInitialized();
-    checkNoViewIsActive();
     List<String> fileNames = (namespace.getBoolean(ARG_ALL))
         ? getModifiedWatchedFileNames()
         : namespace.getList(ARG_FILE);
@@ -88,12 +85,16 @@ public class CommitCommand extends AlexandriaCommand {
         String objectName = fileName;
         switch (fileType) {
           case tagmlSource:
+            checkNoViewIsActive();
             objectName = toDocName(fileName);
             processTAGMLFile(context, store, fileName, objectName);
             break;
           case viewDefinition:
             objectName = toViewName(fileName);
             processViewDefinition(store, fileName, objectName, context);
+            if (context.getActiveView().equals(objectName)) {
+              checkoutView(objectName);
+            }
             break;
           case other:
             processOtherFile(fileName);

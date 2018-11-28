@@ -30,7 +30,7 @@ public class RevertCommandIntegrationTest extends CommandIntegrationTest {
     runInitCommand();
 
     // create sourcefile
-    String tagFilename = "transcription1.tagml";
+    String tagFilename = "transcriptions/transcription.tagml";
     String tagml = "[tagml>[l>test<l]<tagml]";
     createFile(tagFilename, tagml);
 

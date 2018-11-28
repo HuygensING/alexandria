@@ -20,16 +20,32 @@ package nl.knaw.huygens.alexandria.dropwizard.cli;
  * #L%
  */
 
-import org.junit.Ignore;
 import org.junit.Test;
 
 public class DiffCommandIntegrationTest extends CommandIntegrationTest {
-  @Ignore
   @Test
   public void testDiffCommand() throws Exception {
     runInitCommand();
-    final boolean success = cli.run("diff");
-    softlyAssertSucceedsWithExpectedStdout(success, "TODO");
+
+    // create sourcefile
+    String tagFilename = "transcriptions/transcription.tagml";
+    String tagml = "[tagml>[l>test<l]<tagml]";
+    createFile(tagFilename, tagml);
+
+    runAddCommand(tagFilename);
+    runCommitAllCommand();
+
+    // overwrite sourcefile
+    String tagml2 = "[tagml>[l>example<l]<tagml]";
+    createFile(tagFilename, tagml2);
+
+    final boolean success = cli.run("diff", tagFilename);
+    String expectedOutput = "diff for transcriptions/transcription.tagml:\n" +
+        " [tagml>[l>\n" +
+        "-test\n" +
+        "+example\n" +
+        " <l]<tagml]";
+    softlyAssertSucceedsWithExpectedStdout(success, expectedOutput);
   }
 
   @Test

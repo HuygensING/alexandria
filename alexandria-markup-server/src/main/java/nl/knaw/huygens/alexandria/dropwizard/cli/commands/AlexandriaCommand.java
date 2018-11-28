@@ -28,11 +28,9 @@ import com.google.common.base.Charsets;
 import io.dropwizard.cli.Cli;
 import io.dropwizard.cli.Command;
 import net.sourceforge.argparse4j.inf.Namespace;
+import nl.knaw.huc.di.tag.TAGViews;
 import nl.knaw.huc.di.tag.tagml.exporter.TAGMLExporter;
-import nl.knaw.huygens.alexandria.dropwizard.cli.AlexandriaCommandException;
-import nl.knaw.huygens.alexandria.dropwizard.cli.CLIContext;
-import nl.knaw.huygens.alexandria.dropwizard.cli.DocumentInfo;
-import nl.knaw.huygens.alexandria.dropwizard.cli.FileType;
+import nl.knaw.huygens.alexandria.dropwizard.cli.*;
 import nl.knaw.huygens.alexandria.markup.api.AlexandriaProperties;
 import nl.knaw.huygens.alexandria.storage.TAGDocument;
 import nl.knaw.huygens.alexandria.storage.TAGStore;
@@ -49,12 +47,15 @@ import java.io.UncheckedIOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.Instant;
+import java.util.HashMap;
 import java.util.Map;
 
 import static java.util.stream.Collectors.toMap;
 
 public abstract class AlexandriaCommand extends Command {
   private static final Logger LOG = LoggerFactory.getLogger(AlexandriaCommand.class);
+
+  public static final String MAIN_VIEW = "-";
   static final String ALEXANDRIA_DIR = ".alexandria";
   final String FILE = "file";
 
@@ -194,6 +195,43 @@ public abstract class AlexandriaCommand extends Command {
     } catch (IOException e) {
       e.printStackTrace();
       throw new UncheckedIOException(e);
+    }
+  }
+
+  void checkoutView(final String viewName) {
+    boolean showAll = MAIN_VIEW.equals(viewName);
+
+    if (showAll) {
+      System.out.println("Checking out main view...");
+    } else {
+      System.out.printf("Checking out view %s...%n", viewName);
+    }
+    try (TAGStore store = getTAGStore()) {
+      CLIContext context = readContext();
+      Map<String, FileInfo> watchedTranscriptions = new HashMap<>();
+      context.getWatchedFiles().entrySet()
+          .stream()
+          .filter(e -> e.getValue().getFileType().equals(FileType.tagmlSource))
+          .forEach(e -> {
+            String fileName = e.getKey();
+            FileInfo fileInfo = e.getValue();
+            watchedTranscriptions.put(fileName, fileInfo);
+          });
+
+      Map<String, DocumentInfo> documentIndex = context.getDocumentInfo();
+      store.runInTransaction(() -> {
+        TAGView tagView = showAll
+            ? TAGViews.getShowAllMarkupView(store)
+            : getExistingView(viewName, store, context);
+        watchedTranscriptions.forEach((fileName, fileInfo) -> {
+          System.out.printf("  updating %s...%n", fileName);
+          String documentName = fileInfo.getObjectName();
+          final Long docId = documentIndex.get(documentName).getDbId();
+          exportTAGML(context, store, tagView, fileName, docId);
+        });
+      });
+      context.setActiveView(viewName);
+      storeContext(context);
     }
   }
 

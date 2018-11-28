@@ -23,21 +23,10 @@ package nl.knaw.huygens.alexandria.dropwizard.cli.commands;
 import io.dropwizard.setup.Bootstrap;
 import net.sourceforge.argparse4j.inf.Namespace;
 import net.sourceforge.argparse4j.inf.Subparser;
-import nl.knaw.huc.di.tag.TAGViews;
-import nl.knaw.huygens.alexandria.dropwizard.cli.CLIContext;
-import nl.knaw.huygens.alexandria.dropwizard.cli.DocumentInfo;
-import nl.knaw.huygens.alexandria.dropwizard.cli.FileInfo;
-import nl.knaw.huygens.alexandria.dropwizard.cli.FileType;
-import nl.knaw.huygens.alexandria.storage.TAGStore;
-import nl.knaw.huygens.alexandria.view.TAGView;
-
-import java.util.HashMap;
-import java.util.Map;
 
 public class CheckOutCommand extends AlexandriaCommand {
   private static final String VIEW = "view";
   private static final String DOCUMENT = "document";
-  public static final String MAIN_VIEW = "-";
 
   public CheckOutCommand() {
     super("checkout", "Activate or deactivate a view in this directory");
@@ -58,40 +47,7 @@ public class CheckOutCommand extends AlexandriaCommand {
     checkDirectoryIsInitialized();
 
     String viewName = namespace.getString(VIEW);
-    boolean showAll = MAIN_VIEW.equals(viewName);
-
-    if (showAll) {
-      System.out.println("Checking out main view...");
-    } else {
-      System.out.printf("Checking out view %s...%n", viewName);
-    }
-    try (TAGStore store = getTAGStore()) {
-      CLIContext context = readContext();
-      Map<String, FileInfo> watchedTranscriptions = new HashMap<>();
-      context.getWatchedFiles().entrySet()
-          .stream()
-          .filter(e -> e.getValue().getFileType().equals(FileType.tagmlSource))
-          .forEach(e -> {
-            String fileName = e.getKey();
-            FileInfo fileInfo = e.getValue();
-            watchedTranscriptions.put(fileName, fileInfo);
-          });
-
-      Map<String, DocumentInfo> documentIndex = context.getDocumentInfo();
-      store.runInTransaction(() -> {
-        TAGView tagView = showAll
-            ? TAGViews.getShowAllMarkupView(store)
-            : getExistingView(viewName, store, context);
-        watchedTranscriptions.forEach((fileName, fileInfo) -> {
-          System.out.printf("  updating %s...%n", fileName);
-          String documentName = fileInfo.getObjectName();
-          final Long docId = documentIndex.get(documentName).getDbId();
-          exportTAGML(context, store, tagView, fileName, docId);
-        });
-      });
-      context.setActiveView(viewName);
-      storeContext(context);
-    }
+    checkoutView(viewName);
     System.out.println("done!");
   }
 
