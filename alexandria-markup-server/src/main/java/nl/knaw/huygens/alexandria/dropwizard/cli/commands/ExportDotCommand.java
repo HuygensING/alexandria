@@ -38,8 +38,13 @@ public class ExportDotCommand extends AbstractGraphvizCommand {
   }
 
   @Override
-  protected void render(final String dot, final String fileName) throws IOException {
+  protected void renderToFile(final String dot, final String fileName) throws IOException {
     FileUtils.writeStringToFile(new File(fileName), dot, Charsets.UTF_8);
+  }
+
+  @Override
+  protected void renderToStdOut(final String dot) {
+    System.out.println(dot);
   }
 
 }

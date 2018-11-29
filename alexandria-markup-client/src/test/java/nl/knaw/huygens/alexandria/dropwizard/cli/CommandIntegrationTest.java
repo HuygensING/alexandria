@@ -26,7 +26,10 @@ import io.dropwizard.setup.Bootstrap;
 import io.dropwizard.util.JarLocation;
 import nl.knaw.huygens.alexandria.dropwizard.ServerApplication;
 import nl.knaw.huygens.alexandria.dropwizard.ServerConfiguration;
-import nl.knaw.huygens.alexandria.dropwizard.cli.commands.*;
+import nl.knaw.huygens.alexandria.dropwizard.cli.commands.AddCommand;
+import nl.knaw.huygens.alexandria.dropwizard.cli.commands.CheckOutCommand;
+import nl.knaw.huygens.alexandria.dropwizard.cli.commands.CommitCommand;
+import nl.knaw.huygens.alexandria.dropwizard.cli.commands.InitCommand;
 import nl.knaw.huygens.alexandria.markup.api.AppInfo;
 import org.apache.commons.io.FileUtils;
 import org.assertj.core.api.SoftAssertions;
@@ -56,8 +59,8 @@ public abstract class CommandIntegrationTest {
   private final PrintStream originalErr = System.err;
   private final InputStream originalIn = System.in;
 
-  private final ByteArrayOutputStream stdOut = new ByteArrayOutputStream();
-  private final ByteArrayOutputStream stdErr = new ByteArrayOutputStream();
+  final ByteArrayOutputStream stdOut = new ByteArrayOutputStream();
+  final ByteArrayOutputStream stdErr = new ByteArrayOutputStream();
   private Path workDirectory;
   static ObjectMapper mapper = new ObjectMapper();
 
@@ -80,17 +83,12 @@ public abstract class CommandIntegrationTest {
     when(location.toString()).thenReturn("alexandria-app.jar");
 
     // Add commands you want to test
-    final Bootstrap<ServerConfiguration> bootstrap = new Bootstrap<>(new ServerApplication());
-    bootstrap.addCommand(new HelpCommand());
-    bootstrap.addCommand(new InitCommand());
-    bootstrap.addCommand(new AddCommand());
-    bootstrap.addCommand(new CommitCommand());
-    bootstrap.addCommand(new CheckOutCommand());
-    bootstrap.addCommand(new DiffCommand());
-    bootstrap.addCommand(new RevertCommand());
-    bootstrap.addCommand(new StatusCommand());
-    final AppInfo appInfo = new AppInfo().setVersion("$version$").setBuildDate("$buildDate$");
-    bootstrap.addCommand(new AboutCommand().withAppInfo(appInfo));
+    ServerApplication serverApplication = new ServerApplication();
+    final Bootstrap<ServerConfiguration> bootstrap = new Bootstrap<>(serverApplication);
+    final AppInfo appInfo = new AppInfo()
+        .setVersion("$version$")
+        .setBuildDate("$buildDate$");
+    serverApplication.addCommands(bootstrap, appInfo);
 
     // Redirect stdout and stderr to our byte streams
     System.setOut(new PrintStream(stdOut));

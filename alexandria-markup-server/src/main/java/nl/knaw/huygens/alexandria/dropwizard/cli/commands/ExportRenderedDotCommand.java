@@ -41,12 +41,22 @@ public class ExportRenderedDotCommand extends AbstractGraphvizCommand {
   }
 
   @Override
-  protected void render(final String dot, final String fileName) {
+  protected void renderToFile(final String dot, final String fileName) {
     DotEngine dotEngine = new DotEngine(Util.detectDotPath());
     File file = new File(fileName);
     try (FileOutputStream fos = new FileOutputStream(file)) {
       file.createNewFile();
       dotEngine.renderAs(format, dot, fos);
+    } catch (IOException e) {
+      e.printStackTrace();
+    }
+  }
+
+  @Override
+  protected void renderToStdOut(String dot) {
+    DotEngine dotEngine = new DotEngine(Util.detectDotPath());
+    try {
+      dotEngine.renderAs(format, dot, System.out);
     } catch (IOException e) {
       e.printStackTrace();
     }
