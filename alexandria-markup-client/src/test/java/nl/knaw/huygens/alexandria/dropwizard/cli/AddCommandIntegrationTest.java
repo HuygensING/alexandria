@@ -56,7 +56,7 @@ public class AddCommandIntegrationTest extends CommandIntegrationTest {
   public void testCommandWithoutParametersFails() throws Exception {
     final boolean success = cli.run(command);
     assertThat(getCliStdErrAsString()).contains("too few arguments");
-    softlyAssertFailsWithExpectedStderr(success, "too few arguments\n" +
+    assertFailsWithExpectedStderr(success, "too few arguments\n" +
         "usage: java -jar alexandria-app.jar\n" +
         "       add [-h] FILE [FILE ...]\n" +
         "\n" +

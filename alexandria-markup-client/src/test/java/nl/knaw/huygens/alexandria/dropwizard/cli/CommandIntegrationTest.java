@@ -126,7 +126,8 @@ public abstract class CommandIntegrationTest {
     softly.assertThat(success).as("Exit success").isTrue();
 
     String normalizedExpectedOutput = normalize(expectedOutput);
-    softly.assertThat(stdOut.toString().trim()).as("stdout").isEqualTo(normalizedExpectedOutput);
+    String normalizedStdOut = normalize(stdOut.toString());
+    softly.assertThat(normalizedStdOut).as("stdout").isEqualTo(normalizedExpectedOutput);
     softly.assertThat(stdErr.toString().trim()).as("stderr").isEmpty();
     softly.assertAll();
     resetStdOutErr();
@@ -136,8 +137,8 @@ public abstract class CommandIntegrationTest {
     assertThat(success).as("Exit success").isTrue();
 
     String normalizedExpectedOutput = normalize(expectedOutput);
-    String normalizedOutput = stdOut.toString().trim();
-    assertThat(normalizedOutput).as("stdout").isEqualTo(normalizedExpectedOutput);
+    String normalizedStdOut = normalize(stdOut.toString());
+    assertThat(normalizedStdOut).as("stdout").isEqualTo(normalizedExpectedOutput);
 
     String normalizedErrors = stdErr.toString().trim();
     assertThat(normalizedErrors).as("stderr").isEmpty();
@@ -148,15 +149,17 @@ public abstract class CommandIntegrationTest {
     String normalizedExpectedError = normalize(expectedError);
     SoftAssertions softly = new SoftAssertions();
     softly.assertThat(success).as("Exit success").isFalse();
-    softly.assertThat(stdErr.toString().trim()).as("stderr").isEqualTo(normalizedExpectedError);
+    String normalizeStdErr = normalize(stdErr.toString());
+    softly.assertThat(normalizeStdErr).as("stderr").isEqualTo(normalizedExpectedError);
     softly.assertAll();
     resetStdOutErr();
   }
 
-  private void assertFailsWithExpectedStderr(final boolean success, final String expectedError) {
+  void assertFailsWithExpectedStderr(final boolean success, final String expectedError) {
     String normalizedExpectedError = normalize(expectedError);
     assertThat(success).as("Exit success").isFalse();
-    assertThat(stdErr.toString().trim()).as("stderr").isEqualTo(normalizedExpectedError);
+    String normalizeStdErr = normalize(stdErr.toString());
+    assertThat(normalizeStdErr).as("stderr").isEqualTo(normalizedExpectedError);
     resetStdOutErr();
   }
 
@@ -165,9 +168,9 @@ public abstract class CommandIntegrationTest {
     stdErr.reset();
   }
 
-  private String normalize(final String expectedOutput) {
-    return expectedOutput.trim()
-        .replace("\n", System.lineSeparator());
+  private String normalize(final String string) {
+    return string.trim()
+        .replace(System.lineSeparator(), "\n");
   }
 
   Path workFilePath(final String relativePath) {

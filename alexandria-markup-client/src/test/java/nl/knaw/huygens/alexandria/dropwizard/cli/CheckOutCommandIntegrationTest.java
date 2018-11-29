@@ -23,6 +23,9 @@ package nl.knaw.huygens.alexandria.dropwizard.cli;
 import nl.knaw.huygens.alexandria.dropwizard.cli.commands.CheckOutCommand;
 import org.junit.Test;
 
+import java.nio.file.Files;
+import java.time.Instant;
+
 import static nl.knaw.huygens.alexandria.dropwizard.cli.commands.CheckOutCommand.MAIN_VIEW;
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -61,6 +64,9 @@ public class CheckOutCommandIntegrationTest extends CommandIntegrationTest {
 
     CLIContext cliContext2 = readCLIContext();
     assertThat(cliContext2.getActiveView()).isEqualTo(MAIN_VIEW);
+    Instant lastCommit = cliContext2.getWatchedFiles().get(tagFilename).getLastCommit();
+    Instant lastModified = Files.getLastModifiedTime(workFilePath(tagFilename)).toInstant();
+    assertThat(lastCommit.isAfter(lastModified));
 
     String newContent2 = readFileContents(tagFilename);
     assertThat(newContent2).isEqualTo(tagml);

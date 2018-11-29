@@ -20,11 +20,12 @@ package nl.knaw.huygens.alexandria.dropwizard.cli.commands;
  * #L%
  */
 
-import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.google.common.base.Charsets;
+import com.google.common.collect.ArrayListMultimap;
+import com.google.common.collect.Multimap;
 import io.dropwizard.cli.Cli;
 import io.dropwizard.cli.Command;
 import net.sourceforge.argparse4j.inf.Namespace;
@@ -44,11 +45,16 @@ import org.slf4j.LoggerFactory;
 import java.io.File;
 import java.io.IOException;
 import java.io.UncheckedIOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.nio.file.attribute.BasicFileAttributes;
 import java.time.Instant;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
+import java.util.function.BiPredicate;
 
 import static java.util.stream.Collectors.toMap;
 
@@ -128,14 +134,6 @@ public abstract class AlexandriaCommand extends Command {
   private <T> T uncheckedRead(File file, Class<T> clazz) {
     try {
       return mapper.readValue(file, clazz);
-    } catch (IOException e) {
-      throw new UncheckedIOException(e);
-    }
-  }
-
-  private <T> T uncheckedRead(File file, TypeReference<T> typeReference) {
-    try {
-      return mapper.readValue(file, typeReference);
     } catch (IOException e) {
       throw new UncheckedIOException(e);
     }
@@ -228,10 +226,61 @@ public abstract class AlexandriaCommand extends Command {
           String documentName = fileInfo.getObjectName();
           final Long docId = documentIndex.get(documentName).getDbId();
           exportTAGML(context, store, tagView, fileName, docId);
+          try {
+            Instant lastModified = Files.getLastModifiedTime(workFilePath(fileName)).toInstant();
+            context.getWatchedFiles().get(fileName).setLastCommit(lastModified);
+          } catch (IOException e) {
+            throw new RuntimeException(e);
+          }
         });
       });
       context.setActiveView(viewName);
       storeContext(context);
+    }
+  }
+
+  enum FileStatus {
+    // all status is since last commit
+    changed, // changed, can be committed
+    unchanged, // not changed
+    deleted, // deleted, committing will remove the document
+    created, // needs to be added first
+  }
+
+  Multimap<FileStatus, String> readWorkDirStatus(CLIContext context) throws IOException {
+    Multimap<FileStatus, String> fileStatusMap = ArrayListMultimap.create();
+    Path workDir = workFilePath(".");
+    Set<String> watchedFiles = new HashSet<>(context.getWatchedFiles().keySet());
+    BiPredicate<Path, BasicFileAttributes> matcher = (filePath, fileAttr) ->
+        fileAttr.isRegularFile()
+            && !workDir.relativize(filePath).startsWith(ALEXANDRIA_DIR);
+
+    Files.find(workDir, Integer.MAX_VALUE, matcher)
+        .forEach(path ->
+            putFileStatus(workDir, path, fileStatusMap, context, watchedFiles)
+        );
+    watchedFiles.forEach(f -> fileStatusMap.put(FileStatus.deleted, f));
+    return fileStatusMap;
+  }
+
+  private void putFileStatus(Path workDir, Path filePath, Multimap<FileStatus, String> fileStatusMap, CLIContext context, Set<String> watchedFiles) {
+    String file = workDir.relativize(filePath)
+        .toString()
+        .replace("\\", "/");
+    if (watchedFiles.contains(file)) {
+      Instant lastCommit = context.getWatchedFiles().get(file).getLastCommit();
+      try {
+        Instant lastModified = Files.getLastModifiedTime(filePath).toInstant();
+        FileStatus fileStatus = lastModified.isAfter(lastCommit)
+            ? FileStatus.changed
+            : FileStatus.unchanged;
+        fileStatusMap.put(fileStatus, file);
+      } catch (IOException e) {
+        throw new RuntimeException(e);
+      }
+      watchedFiles.remove(file);
+    } else {
+      fileStatusMap.put(FileStatus.created, file);
     }
   }
 
