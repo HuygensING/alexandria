@@ -30,12 +30,12 @@ import nl.knaw.huygens.alexandria.dropwizard.cli.CLIContext;
 import nl.knaw.huygens.alexandria.storage.TAGDocument;
 import nl.knaw.huygens.alexandria.storage.TAGStore;
 import nl.knaw.huygens.alexandria.view.TAGView;
-import org.apache.commons.io.Charsets;
 import org.apache.commons.io.FileUtils;
 
 import java.io.File;
 import java.io.IOException;
 import java.io.UncheckedIOException;
+import java.nio.charset.StandardCharsets;
 import java.util.Optional;
 
 public class DiffCommand extends AlexandriaCommand {
@@ -73,7 +73,7 @@ public class DiffCommand extends AlexandriaCommand {
 
           File editedFile = workFilePath(filename).toFile();
           try {
-            String newTAGML = FileUtils.readFileToString(editedFile, Charsets.UTF_8);
+            String newTAGML = FileUtils.readFileToString(editedFile, StandardCharsets.UTF_8);
             TAGMLImporter importer = new TAGMLImporter(store);
             TAGDocument edited = importer.importTAGML(newTAGML);
 
