@@ -64,6 +64,9 @@ public abstract class AlexandriaCommand extends Command {
   private static final Logger LOG = LoggerFactory.getLogger(AlexandriaCommand.class);
 
   public static final String MAIN_VIEW = "-";
+  static final String DOCUMENT = "document";
+  static final String OUTPUTFILE = "outputfile";
+
   static final String ALEXANDRIA_DIR = ".alexandria";
   final String FILE = "file";
 

@@ -30,7 +30,6 @@ import nl.knaw.huygens.alexandria.storage.TAGStore;
 import java.io.IOException;
 
 abstract class AbstractGraphvizCommand extends AlexandriaCommand {
-  private static final String DOCUMENT = "document";
 
   public AbstractGraphvizCommand(final String name, final String description) {
     super(name, description);
@@ -38,32 +37,38 @@ abstract class AbstractGraphvizCommand extends AlexandriaCommand {
 
   @Override
   public void configure(Subparser subparser) {
-    subparser.addArgument( "DOCUMENT")//
+    subparser.addArgument("DOCUMENT")//
         .metavar("DOCUMENT")
         .dest(DOCUMENT)//
         .type(String.class)//
         .required(true)//
         .help("The name of the document to export.");
+    subparser.addArgument("-o", "--outputfile")//
+        .dest(OUTPUTFILE)//
+        .metavar("OUTPUTFILE")
+        .type(String.class)//
+        .required(false)//
+        .help("The file to export to.");
+
   }
 
   @Override
   public void run(Bootstrap<?> bootstrap, Namespace namespace) {
     checkDirectoryIsInitialized();
     String docName = namespace.getString(DOCUMENT);
-    boolean toFile = false;
+    String fileName = namespace.getString(OUTPUTFILE);
     Long docId = getIdForExistingDocument(docName);
     try (TAGStore store = getTAGStore()) {
       store.runInTransaction(() -> {
         TAGDocument document = store.getDocument(docId);
         DotFactory dotFactory = new DotFactory(); // TODO: add option to export using view
         String dot = dotFactory.toDot(document, "");
-        if (toFile) {
-          String fileName = String.format("%s.%s", docName, getFormat());
-          System.out.printf("exporting to file %s...", fileName);
+        if (fileName != null) {
+          System.out.printf("exporting to %s...", fileName);
           try {
             renderToFile(dot, fileName);
           } catch (IOException e) {
-            e.printStackTrace();
+            throw new RuntimeException(e);
           }
           System.out.println();
           System.out.println("done!");

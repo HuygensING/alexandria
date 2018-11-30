@@ -53,7 +53,7 @@ public class ExportSvgCommandIntegrationTest extends CommandIntegrationTest {
   public void testCommandHelp() throws Exception {
     final boolean success = cli.run(command, "-h");
     assertSucceedsWithExpectedStdout(success, "usage: java -jar alexandria-app.jar\n" +
-        "       export-svg [-h] DOCUMENT\n" +
+        "       export-svg [-o OUTPUTFILE] [-h] DOCUMENT\n" +
         "\n" +
         "Export the document as svg.\n" +
         "\n" +
@@ -61,6 +61,8 @@ public class ExportSvgCommandIntegrationTest extends CommandIntegrationTest {
         "  DOCUMENT               The name of the document to export.\n" +
         "\n" +
         "named arguments:\n" +
+        "  -o OUTPUTFILE, --outputfile OUTPUTFILE\n" +
+        "                         The file to export to.\n" +
         "  -h, --help             show this help message and exit");
   }
 

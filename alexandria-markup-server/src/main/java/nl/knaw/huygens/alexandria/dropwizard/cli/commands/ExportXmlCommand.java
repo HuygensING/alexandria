@@ -30,9 +30,10 @@ import nl.knaw.huygens.alexandria.storage.TAGDocument;
 import nl.knaw.huygens.alexandria.storage.TAGStore;
 import nl.knaw.huygens.alexandria.view.TAGView;
 
+import java.io.IOException;
+import java.nio.file.Files;
+
 public class ExportXmlCommand extends AlexandriaCommand {
-  private static final String DOCUMENT = "document";
-  private static final String VIEW = "view";
 
   public ExportXmlCommand() {
     super("export-xml", "Export the document as xml.");
@@ -46,6 +47,12 @@ public class ExportXmlCommand extends AlexandriaCommand {
         .type(String.class)//
         .required(true)//
         .help("The name of the document to export.");
+    subparser.addArgument("-o", "--outputfile")//
+        .dest(OUTPUTFILE)//
+        .metavar("OUTPUTFILE")
+        .type(String.class)//
+        .required(false)//
+        .help("The file to export to.");
   }
 
   @Override
@@ -53,6 +60,7 @@ public class ExportXmlCommand extends AlexandriaCommand {
     checkDirectoryIsInitialized();
 
     String docName = namespace.getString(DOCUMENT);
+    String outputFile = namespace.getString(OUTPUTFILE);
     Long docId = getIdForExistingDocument(docName);
     try (TAGStore store = getTAGStore()) {
       store.runInTransaction(() -> {
@@ -64,8 +72,23 @@ public class ExportXmlCommand extends AlexandriaCommand {
         TAGDocument document = store.getDocument(docId);
         XMLExporter xmlExporter = new XMLExporter(store, tagView);
         String xml = xmlExporter.asXML(document);
-        System.out.println(xml);
+        if (outputFile != null) {
+          writeToFile(outputFile, xml);
+        } else {
+          System.out.println(xml);
+        }
       });
+    }
+  }
+
+  private void writeToFile(final String file, final String contents) {
+    try {
+      System.out.printf("exporting to %s...", file);
+      Files.write(workFilePath(file), contents.getBytes());
+      System.out.println();
+      System.out.print("done!");
+    } catch (IOException e) {
+      throw new RuntimeException(e);
     }
   }
 
