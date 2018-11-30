@@ -38,7 +38,38 @@ public class ExportDotCommandIntegrationTest extends CommandIntegrationTest {
     runAddCommand(tagFilename);
     runCommitAllCommand();
 
-    boolean success = cli.run(command, "-d", "transcription");
+    boolean success = cli.run(command, "transcription");
+    softlyAssertSucceedsWithExpectedStdout(success, "digraph TextGraph{\n" +
+        "  node [font=\"helvetica\";style=\"filled\";fillcolor=\"white\"]\n" +
+        "  d [shape=doublecircle;label=\"\"]\n" +
+        "  subgraph{\n" +
+        "    t4 [shape=box;arrowhead=none;label=<#PCDATA<br/>test>]\n" +
+        "    rank=same\n" +
+        "  }\n" +
+        "  m2 [color=red;label=<tagml>]\n" +
+        "  m3 [color=red;label=<l>]\n" +
+        "  m2->m3[color=red;arrowhead=none]\n" +
+        "  m3->t4[color=red;arrowhead=none]\n" +
+        "  d->m2 [arrowhead=none]\n" +
+        "}");
+  }
+
+  @Test
+  public void testCommandInView() throws Exception {
+    runInitCommand();
+
+    String tagFilename = "transcriptions/transcription.tagml";
+    String tagml = "[tagml>[l>test<l]<tagml]";
+    createFile(tagFilename, tagml);
+    String viewName = "l";
+    String viewFilename = "views/" + viewName + ".json";
+    createFile(viewFilename, "{\"includeMarkup\":[\"l\"]}");
+
+    runAddCommand(tagFilename, viewFilename);
+    runCommitAllCommand();
+    runCheckoutCommand(viewName);
+
+    boolean success = cli.run(command, "transcription");
     softlyAssertSucceedsWithExpectedStdout(success, "digraph TextGraph{\n" +
         "  node [font=\"helvetica\";style=\"filled\";fillcolor=\"white\"]\n" +
         "  d [shape=doublecircle;label=\"\"]\n" +
@@ -58,18 +89,19 @@ public class ExportDotCommandIntegrationTest extends CommandIntegrationTest {
   public void testCommandHelp() throws Exception {
     final boolean success = cli.run(command, "-h");
     assertSucceedsWithExpectedStdout(success, "usage: java -jar alexandria-app.jar\n" +
-        "       export-dot -d DOCUMENT [-h]\n" +
+        "       export-dot [-h] DOCUMENT\n" +
         "\n" +
         "Export the document as .dot file.\n" +
         "\n" +
+        "positional arguments:\n" +
+        "  DOCUMENT               The name of the document to export.\n" +
+        "\n" +
         "named arguments:\n" +
-        "  -d DOCUMENT, --document DOCUMENT\n" +
-        "                         The name of the document to export.\n" +
         "  -h, --help             show this help message and exit");
   }
 
   @Test
   public void testCommandShouldBeRunInAnInitializedDirectory() throws Exception {
-    assertCommandRunsInAnInitializedDirectory(command, "-d", "document");
+    assertCommandRunsInAnInitializedDirectory(command, "document");
   }
 }

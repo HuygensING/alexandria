@@ -38,7 +38,8 @@ abstract class AbstractGraphvizCommand extends AlexandriaCommand {
 
   @Override
   public void configure(Subparser subparser) {
-    subparser.addArgument("-d", "--document")//
+    subparser.addArgument( "DOCUMENT")//
+        .metavar("DOCUMENT")
         .dest(DOCUMENT)//
         .type(String.class)//
         .required(true)//
@@ -54,7 +55,7 @@ abstract class AbstractGraphvizCommand extends AlexandriaCommand {
     try (TAGStore store = getTAGStore()) {
       store.runInTransaction(() -> {
         TAGDocument document = store.getDocument(docId);
-        DotFactory dotFactory = new DotFactory();
+        DotFactory dotFactory = new DotFactory(); // TODO: add option to export using view
         String dot = dotFactory.toDot(document, "");
         if (toFile) {
           String fileName = String.format("%s.%s", docName, getFormat());

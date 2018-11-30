@@ -41,7 +41,7 @@ public class ExportPngCommandIntegrationTest extends CommandIntegrationTest {
     runAddCommand(tagFilename);
     runCommitAllCommand();
 
-    boolean success = cli.run(command, "-d", "transcription");
+    boolean success = cli.run(command, "transcription");
     SoftAssertions softly = new SoftAssertions();
     softly.assertThat(success).as("Exit success").isTrue();
     String pngContent = stdOut.toString();
@@ -55,18 +55,19 @@ public class ExportPngCommandIntegrationTest extends CommandIntegrationTest {
   public void testCommandHelp() throws Exception {
     final boolean success = cli.run(command, "-h");
     assertSucceedsWithExpectedStdout(success, "usage: java -jar alexandria-app.jar\n" +
-        "       export-png -d DOCUMENT [-h]\n" +
+        "       export-png [-h] DOCUMENT\n" +
         "\n" +
         "Export the document as png.\n" +
         "\n" +
+        "positional arguments:\n" +
+        "  DOCUMENT               The name of the document to export.\n" +
+        "\n" +
         "named arguments:\n" +
-        "  -d DOCUMENT, --document DOCUMENT\n" +
-        "                         The name of the document to export.\n" +
         "  -h, --help             show this help message and exit");
   }
 
   @Test
   public void testCommandShouldBeRunInAnInitializedDirectory() throws Exception {
-    assertCommandRunsInAnInitializedDirectory(command, "-d", "document");
+    assertCommandRunsInAnInitializedDirectory(command, "document");
   }
 }
