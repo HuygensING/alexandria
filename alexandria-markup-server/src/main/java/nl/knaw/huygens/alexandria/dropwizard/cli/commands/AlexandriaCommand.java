@@ -142,8 +142,8 @@ public abstract class AlexandriaCommand extends Command {
   Long getIdForExistingDocument(String docName) {
     Map<String, DocumentInfo> documentIndex = readContext().getDocumentInfo();
     if (!documentIndex.containsKey(docName)) {
-      System.err.printf("ERROR: No document '%s' was registered.\n  alexandria status\nwill show you which documents and views have been registered.%n", docName);
-      throw new AlexandriaCommandException("unregistered document");
+      String message = String.format("ERROR: No document '%s' was registered.\n  alexandria about\nwill show you which documents and views have been registered.%n", docName);
+      throw new AlexandriaCommandException(message);
     }
     return documentIndex.get(docName).getDbId();
   }
@@ -151,8 +151,8 @@ public abstract class AlexandriaCommand extends Command {
   TAGView getExistingView(String viewName, final TAGStore store, final CLIContext context) {
     Map<String, TAGView> viewMap = readViewMap(store, context);
     if (!viewMap.containsKey(viewName)) {
-      System.err.printf("ERROR: No view '%s' was registered.\n  alexandria status\nwill show you which documents and views have been registered.%n", viewName);
-      throw new AlexandriaCommandException("unregistered view");
+      String message = String.format("ERROR: No view '%s' was registered.\n  alexandria about\nwill show you which documents and views have been registered.%n", viewName);
+      throw new AlexandriaCommandException(message);
     }
     return viewMap.get(viewName);
   }
