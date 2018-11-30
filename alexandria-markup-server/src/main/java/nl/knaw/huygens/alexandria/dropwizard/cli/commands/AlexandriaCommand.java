@@ -56,6 +56,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.function.BiPredicate;
 
+import static java.lang.System.lineSeparator;
+import static java.util.stream.Collectors.joining;
 import static java.util.stream.Collectors.toMap;
 
 public abstract class AlexandriaCommand extends Command {
@@ -140,9 +142,16 @@ public abstract class AlexandriaCommand extends Command {
   }
 
   Long getIdForExistingDocument(String docName) {
-    Map<String, DocumentInfo> documentIndex = readContext().getDocumentInfo();
+    CLIContext context = readContext();
+    Map<String, DocumentInfo> documentIndex = context.getDocumentInfo();
     if (!documentIndex.containsKey(docName)) {
-      String message = String.format("ERROR: No document '%s' was registered.\n  alexandria about\nwill show you which documents and views have been registered.%n", docName);
+      final String registeredDocuments = context.getDocumentInfo()
+          .keySet()
+          .stream()
+          .sorted()
+          .map(d -> "  " + d)
+          .collect(joining(lineSeparator()));
+      String message = String.format("ERROR: No document '%s' was registered.\nRegistered documents:%n%s", docName, registeredDocuments);
       throw new AlexandriaCommandException(message);
     }
     return documentIndex.get(docName).getDbId();
@@ -151,7 +160,13 @@ public abstract class AlexandriaCommand extends Command {
   TAGView getExistingView(String viewName, final TAGStore store, final CLIContext context) {
     Map<String, TAGView> viewMap = readViewMap(store, context);
     if (!viewMap.containsKey(viewName)) {
-      String message = String.format("ERROR: No view '%s' was registered.\n  alexandria about\nwill show you which documents and views have been registered.%n", viewName);
+      final String registeredViews = viewMap
+          .keySet()
+          .stream()
+          .sorted()
+          .map(v -> "  " + v)
+          .collect(joining(lineSeparator()));
+      String message = String.format("ERROR: No view '%s' was registered.\nRegistered views:%n%s", viewName, registeredViews);
       throw new AlexandriaCommandException(message);
     }
     return viewMap.get(viewName);
