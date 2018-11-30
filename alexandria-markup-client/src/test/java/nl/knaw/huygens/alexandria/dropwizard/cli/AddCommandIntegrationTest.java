@@ -58,12 +58,12 @@ public class AddCommandIntegrationTest extends CommandIntegrationTest {
     assertThat(getCliStdErrAsString()).contains("too few arguments");
     assertFailsWithExpectedStderr(success, "too few arguments\n" +
         "usage: java -jar alexandria-app.jar\n" +
-        "       add [-h] FILE [FILE ...]\n" +
+        "       add [-h] <file> [<file> ...]\n" +
         "\n" +
-        "Add file context to the index\n" +
+        "Add file context to the index.\n" +
         "\n" +
         "positional arguments:\n" +
-        "  FILE                   the files to watch\n" +
+        "  <file>                 the files to watch\n" +
         "\n" +
         "named arguments:\n" +
         "  -h, --help             show this help message and exit");
@@ -73,12 +73,12 @@ public class AddCommandIntegrationTest extends CommandIntegrationTest {
   public void testCommandHelp() throws Exception {
     final boolean success = cli.run(command, "-h");
     assertSucceedsWithExpectedStdout(success, "usage: java -jar alexandria-app.jar\n" +
-        "       add [-h] FILE [FILE ...]\n" +
+        "       add [-h] <file> [<file> ...]\n" +
         "\n" +
-        "Add file context to the index\n" +
+        "Add file context to the index.\n" +
         "\n" +
         "positional arguments:\n" +
-        "  FILE                   the files to watch\n" +
+        "  <file>                 the files to watch\n" +
         "\n" +
         "named arguments:\n" +
         "  -h, --help             show this help message and exit");

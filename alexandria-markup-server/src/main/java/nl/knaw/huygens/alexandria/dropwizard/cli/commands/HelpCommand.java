@@ -20,13 +20,16 @@ package nl.knaw.huygens.alexandria.dropwizard.cli.commands;
  * #L%
  */
 
+import io.dropwizard.cli.Command;
 import io.dropwizard.setup.Bootstrap;
 import net.sourceforge.argparse4j.inf.Namespace;
 import net.sourceforge.argparse4j.inf.Subparser;
 
+import static java.util.Comparator.comparing;
+
 public class HelpCommand extends AlexandriaCommand {
   public HelpCommand() {
-    super("help", "Show helpful information about the available commands");
+    super("help", "Show the available commands and their descriptions.");
   }
 
   @Override
@@ -36,6 +39,17 @@ public class HelpCommand extends AlexandriaCommand {
 
   @Override
   public void run(Bootstrap<?> bootstrap, Namespace namespace) {
-    System.out.println("TODO");
+    System.out.println("usage: alexandria [-h] <command> [<args>]\n" +
+        "\n" +
+        "Available commands:\n");
+    bootstrap.getCommands().stream()
+        .sorted(comparing(Command::getName))
+        .map(this::toCommandHelpLine)
+        .forEach(System.out::println);
+  }
+
+  private String toCommandHelpLine(final Command command) {
+    String commandName = command.getName();
+    return String.format("%-12s- %s", commandName, command.getDescription());
   }
 }

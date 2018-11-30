@@ -29,13 +29,13 @@ public class CheckOutCommand extends AlexandriaCommand {
   private static final String DOCUMENT = "document";
 
   public CheckOutCommand() {
-    super("checkout", "Activate or deactivate a view in this directory");
+    super("checkout", "Activate or deactivate a view in this directory.");
   }
 
   @Override
   public void configure(Subparser subparser) {
     subparser.addArgument("view")//
-        .metavar("VIEW")
+        .metavar("<view>")
         .dest(VIEW)//
         .type(String.class)//
         .required(true)//

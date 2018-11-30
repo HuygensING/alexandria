@@ -92,12 +92,12 @@ public class RevertCommandIntegrationTest extends CommandIntegrationTest {
   public void testCommandHelp() throws Exception {
     final boolean success = cli.run(command, "-h");
     assertSucceedsWithExpectedStdout(success, "usage: java -jar alexandria-app.jar\n" +
-        "       revert [-h] FILE [FILE ...]\n" +
+        "       revert [-h] <file> [<file> ...]\n" +
         "\n" +
         "Restore the document file(s).\n" +
         "\n" +
         "positional arguments:\n" +
-        "  FILE                   the file to be reverted\n" +
+        "  <file>                 the file to be reverted\n" +
         "\n" +
         "named arguments:\n" +
         "  -h, --help             show this help message and exit");

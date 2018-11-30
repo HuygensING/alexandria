@@ -78,12 +78,12 @@ public class CheckOutCommandIntegrationTest extends CommandIntegrationTest {
   public void testCommandHelp() throws Exception {
     final boolean success = cli.run(command, "-h");
     assertSucceedsWithExpectedStdout(success, "usage: java -jar alexandria-app.jar\n" +
-        "       checkout [-h] VIEW\n" +
+        "       checkout [-h] <view>\n" +
         "\n" +
-        "Activate or deactivate a view in this directory\n" +
+        "Activate or deactivate a view in this directory.\n" +
         "\n" +
         "positional arguments:\n" +
-        "  VIEW                   The name of the view to use\n" +
+        "  <view>                 The name of the view to use\n" +
         "\n" +
         "named arguments:\n" +
         "  -h, --help             show this help message and exit");

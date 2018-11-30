@@ -51,7 +51,7 @@ public class CommitCommand extends AlexandriaCommand {
   private final String ARG_ALL = "add_all";
 
   public CommitCommand() {
-    super("commit", "Record changes to the repository");
+    super("commit", "Record changes to the repository.");
   }
 
   @Override
@@ -63,7 +63,7 @@ public class CommitCommand extends AlexandriaCommand {
         .required(false)
         .help("automatically add all changed files");
     subparser.addArgument(ARG_FILE)//
-        .metavar("FILE")
+        .metavar("<file>")
         .dest(FILE)//
         .type(String.class)//
         .nargs("*")

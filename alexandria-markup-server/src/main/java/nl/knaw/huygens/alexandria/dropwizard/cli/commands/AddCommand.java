@@ -40,13 +40,13 @@ public class AddCommand extends AlexandriaCommand {
   public static final String ARG_FILE = "file";
 
   public AddCommand() {
-    super("add", "Add file context to the index");
+    super("add", "Add file context to the index.");
   }
 
   @Override
   public void configure(Subparser subparser) {
     subparser.addArgument(ARG_FILE)//
-        .metavar("FILE")
+        .metavar("<file>")
         .dest(FILE)//
         .type(String.class)//
         .nargs("+")

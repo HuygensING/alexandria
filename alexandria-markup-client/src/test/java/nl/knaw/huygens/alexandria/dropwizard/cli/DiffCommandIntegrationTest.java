@@ -58,7 +58,7 @@ public class DiffCommandIntegrationTest extends CommandIntegrationTest {
     assertSucceedsWithExpectedStdout(success, "usage: java -jar alexandria-app.jar\n" +
         "       diff [-h] file\n" +
         "\n" +
-        "Show the changes made to the view.\n" +
+        "Show the changes made to the file.\n" +
         "\n" +
         "positional arguments:\n" +
         "  file                   The file containing the edited view\n" +

@@ -33,7 +33,7 @@ import java.nio.file.Paths;
 public class InitCommand extends AlexandriaCommand {
 
   public InitCommand() {
-    super("init", "Initializes current directory as an alexandria workspace");
+    super("init", "Initializes current directory as an alexandria workspace.");
   }
 
   @Override

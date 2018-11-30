@@ -44,7 +44,7 @@ public class RevertCommand extends AlexandriaCommand {
   @Override
   public void configure(Subparser subparser) {
     subparser.addArgument(ARG_FILE)//
-        .metavar("FILE")
+        .metavar("<file>")
         .dest(FILE)//
         .type(String.class)//
         .nargs("+")

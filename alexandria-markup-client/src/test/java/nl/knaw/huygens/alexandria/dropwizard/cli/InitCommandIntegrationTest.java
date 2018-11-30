@@ -54,7 +54,7 @@ public class InitCommandIntegrationTest extends CommandIntegrationTest {
     assertSucceedsWithExpectedStdout(success, "usage: java -jar alexandria-app.jar\n" +
         "       init [-h]\n" +
         "\n" +
-        "Initializes current directory as an alexandria workspace\n" +
+        "Initializes current directory as an alexandria workspace.\n" +
         "\n" +
         "named arguments:\n" +
         "  -h, --help             show this help message and exit");

@@ -41,7 +41,7 @@ import java.util.Optional;
 public class DiffCommand extends AlexandriaCommand {
 
   public DiffCommand() {
-    super("diff", "Show the changes made to the view.");
+    super("diff", "Show the changes made to the file.");
   }
 
   @Override

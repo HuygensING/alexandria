@@ -81,12 +81,12 @@ public class CommitCommandIntegrationTest extends CommandIntegrationTest {
   public void testCommandHelp() throws Exception {
     final boolean success = cli.run(command, "-h");
     assertSucceedsWithExpectedStdout(success, "usage: java -jar alexandria-app.jar\n" +
-        "       commit [-a] [-h] [FILE [FILE ...]]\n" +
+        "       commit [-a] [-h] [<file> [<file> ...]]\n" +
         "\n" +
-        "Record changes to the repository\n" +
+        "Record changes to the repository.\n" +
         "\n" +
         "positional arguments:\n" +
-        "  FILE                   the changed file(s)\n" +
+        "  <file>                 the changed file(s)\n" +
         "\n" +
         "named arguments:\n" +
         "  -a                     automatically  add  all  changed  files  (default:\n" +

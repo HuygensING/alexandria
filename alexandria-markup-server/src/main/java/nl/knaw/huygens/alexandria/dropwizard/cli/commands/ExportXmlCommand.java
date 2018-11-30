@@ -43,13 +43,13 @@ public class ExportXmlCommand extends AlexandriaCommand {
   public void configure(Subparser subparser) {
     subparser.addArgument("document")//
         .dest(DOCUMENT)//
-        .metavar("DOCUMENT")
+        .metavar("<document>")
         .type(String.class)//
         .required(true)//
         .help("The name of the document to export.");
     subparser.addArgument("-o", "--outputfile")//
         .dest(OUTPUTFILE)//
-        .metavar("OUTPUTFILE")
+        .metavar("<file>")
         .type(String.class)//
         .required(false)//
         .help("The file to export to.");

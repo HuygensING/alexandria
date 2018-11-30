@@ -1,0 +1,15 @@
+usage: alexandria [-h] <command> [<args>]
+
+Available commands:
+   init
+   add
+   commit
+   about
+   status
+   checkout
+   diff
+   revert
+   export-dot
+   export-svg
+   export-png
+   export-xml
