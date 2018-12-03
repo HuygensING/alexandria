@@ -72,6 +72,37 @@ public class CheckOutCommandIntegrationTest extends CommandIntegrationTest {
     assertThat(newContent2).isEqualTo(tagml);
   }
 
+  @Test
+  public void testCheckoutNotPossibleWithUncommitedFilesPresent() throws Exception {
+    runInitCommand();
+
+    String tagFilename = "transcription1.tagml";
+    String tagml = "[tagml>[l>test<l]<tagml]";
+    createFile(tagFilename, tagml);
+    String viewName = "v1";
+    String viewFilename = "views/" + viewName + ".json";
+    createFile(viewFilename, "{\"includeMarkup\":[\"l\"]}");
+    runAddCommand(tagFilename, viewFilename);
+    runCommitAllCommand();
+
+    final boolean success = cli.run(command, viewName);
+    softlyAssertSucceedsWithExpectedStdout(success, "Checking out view v1...\n" +
+        "  updating transcription1.tagml...\n" +
+        "done!");
+
+    CLIContext cliContext = readCLIContext();
+    assertThat(cliContext.getActiveView()).isEqualTo(viewName);
+
+    String newContent = readFileContents(tagFilename);
+    assertThat(newContent).isEqualTo("[l>test<l]");
+
+    // now, change the file contents
+    modifyFile(tagFilename, "[l>foo bar<l]");
+
+    final boolean success2 = cli.run(command, MAIN_VIEW);
+    softlyAssertFailsWithExpectedStderr(success2, "Uncommited changes found, cannot checkout another view.");
+  }
+
   // On checkout, the lastcommitted dates should be adjusted.
 
   @Test

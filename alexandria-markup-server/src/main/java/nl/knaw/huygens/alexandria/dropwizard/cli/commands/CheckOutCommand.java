@@ -20,9 +20,14 @@ package nl.knaw.huygens.alexandria.dropwizard.cli.commands;
  * #L%
  */
 
+import com.google.common.collect.Multimap;
 import io.dropwizard.setup.Bootstrap;
 import net.sourceforge.argparse4j.inf.Namespace;
 import net.sourceforge.argparse4j.inf.Subparser;
+import nl.knaw.huygens.alexandria.dropwizard.cli.AlexandriaCommandException;
+
+import java.io.IOException;
+import java.util.Collection;
 
 public class CheckOutCommand extends AlexandriaCommand {
   private static final String VIEW = "view";
@@ -43,12 +48,24 @@ public class CheckOutCommand extends AlexandriaCommand {
   }
 
   @Override
-  public void run(Bootstrap<?> bootstrap, Namespace namespace) {
+  public void run(Bootstrap<?> bootstrap, Namespace namespace) throws IOException {
     checkDirectoryIsInitialized();
+    checkDirectoryHasNoUnCommitedChanges();
 
     String viewName = namespace.getString(VIEW);
     checkoutView(viewName);
     System.out.println("done!");
+  }
+
+  private void checkDirectoryHasNoUnCommitedChanges() throws IOException {
+    Multimap<FileStatus, String> fileStatus = readWorkDirStatus(readContext());
+    Collection<String> changedFiles = fileStatus.get(FileStatus.changed);
+    Collection<String> deletedFiles = fileStatus.get(FileStatus.deleted);
+    if (!(changedFiles.isEmpty() && deletedFiles.isEmpty())) {
+      showChanges(fileStatus);
+      String message = "Uncommited changes found, cannot checkout another view.";
+      throw new AlexandriaCommandException(message);
+    }
   }
 
 }

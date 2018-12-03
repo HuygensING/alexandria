@@ -39,6 +39,7 @@ import nl.knaw.huygens.alexandria.view.TAGView;
 import nl.knaw.huygens.alexandria.view.TAGViewDefinition;
 import nl.knaw.huygens.alexandria.view.TAGViewFactory;
 import org.apache.commons.io.FileUtils;
+import org.fusesource.jansi.AnsiConsole;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -50,15 +51,14 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.time.Instant;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.function.BiPredicate;
 
 import static java.lang.System.lineSeparator;
 import static java.util.stream.Collectors.joining;
 import static java.util.stream.Collectors.toMap;
+import static org.fusesource.jansi.Ansi.Color.RED;
+import static org.fusesource.jansi.Ansi.ansi;
 
 public abstract class AlexandriaCommand extends Command {
   private static final Logger LOG = LoggerFactory.getLogger(AlexandriaCommand.class);
@@ -300,6 +300,40 @@ public abstract class AlexandriaCommand extends Command {
     } else {
       fileStatusMap.put(FileStatus.created, file);
     }
+  }
+
+   void showChanges(Multimap<FileStatus, String> fileStatusMap) {
+    AnsiConsole.systemInstall();
+
+    Set<String> changedFiles = new HashSet<>(fileStatusMap.get(FileStatus.changed));
+    Set<String> deletedFiles = new HashSet<>(fileStatusMap.get(FileStatus.deleted));
+    if (!(changedFiles.isEmpty() && deletedFiles.isEmpty())) {
+      System.out.printf("Uncommitted changes:%n" +
+          "  (use \"alexandria commit <file>...\" to commit the selected changes)%n" +
+          "  (use \"alexandria commit -a\" to commit all changes)%n" +
+          "  (use \"alexandria revert <file>...\" to discard changes)%n%n");
+      Set<String> changedOrDeletedFiles = new TreeSet<>();
+      changedOrDeletedFiles.addAll(changedFiles);
+      changedOrDeletedFiles.addAll(deletedFiles);
+      changedOrDeletedFiles.forEach(file -> {
+            String status = changedFiles.contains(file)
+                ? "        modified: "
+                : "        deleted:  ";
+            System.out.println(ansi().fg(RED).a(status).a(file).reset());
+          }
+      );
+    }
+
+    Collection<String> createdFiles = fileStatusMap.get(FileStatus.created);
+    if (!createdFiles.isEmpty()) {
+      System.out.printf("Untracked files:%n" +
+          "  (use \"alexandria add <file>...\" to start tracking this file.)%n%n");
+      createdFiles.stream().sorted().forEach(f ->
+          System.out.println(ansi().fg(RED).a("        ").a(f).reset())
+      );
+    }
+
+    AnsiConsole.systemUninstall();
   }
 
 }

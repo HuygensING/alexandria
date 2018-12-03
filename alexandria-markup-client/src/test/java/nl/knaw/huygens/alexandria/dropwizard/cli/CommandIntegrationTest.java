@@ -41,7 +41,6 @@ import org.slf4j.LoggerFactory;
 import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.time.Instant;
 import java.util.*;
 
@@ -57,7 +56,7 @@ public abstract class CommandIntegrationTest {
 
   private final PrintStream originalOut = System.out;
   private final PrintStream originalErr = System.err;
-  private final InputStream originalIn = System.in;
+//  private final InputStream originalIn = System.in;
 
   final ByteArrayOutputStream stdOut = new ByteArrayOutputStream();
   final ByteArrayOutputStream stdErr = new ByteArrayOutputStream();
@@ -74,7 +73,7 @@ public abstract class CommandIntegrationTest {
   private static final String CHECKOUT = new CheckOutCommand().getName();
 
   @Before
-  public void setUp() {
+  public void setUp() throws IOException {
     setupWorkDir();
 
     // Setup necessary mock
@@ -98,9 +97,10 @@ public abstract class CommandIntegrationTest {
     cli = new Cli(location, bootstrap, stdOut, stdErr);
   }
 
-  private void setupWorkDir() {
-    String tmpDir = System.getProperty("java.io.tmpdir");
-    workDirectory = Paths.get(tmpDir, "alexandria_testdir");
+  private void setupWorkDir() throws IOException {
+    workDirectory = Files.createTempDirectory("alexandria");
+//    String tmpDir = System.getProperty("java.io.tmpdir");
+//    workDirectory = Paths.get(tmpDir, "alexandria_testdir");
     FileUtils.deleteQuietly(workDirectory.toFile());
     workDirectory.toFile().mkdir();
     System.setProperty(WORKDIR, workDirectory.toAbsolutePath().toString());
@@ -110,7 +110,7 @@ public abstract class CommandIntegrationTest {
   public void tearDown() throws IOException {
     System.setOut(originalOut);
     System.setErr(originalErr);
-    System.setIn(originalIn);
+//    System.setIn(originalIn);
     tearDownWorkDir();
   }
 
@@ -235,9 +235,13 @@ public abstract class CommandIntegrationTest {
 
   void createFile(String filename, String content) throws IOException {
     Path file = workFilePath(filename);
-    Files.createFile(file);
+    Path result = Files.createFile(file);
+    assertThat(result).isNotNull();
+    assertThat(result).hasContent("");
     if (!content.isEmpty()) {
-      Files.write(file, content.getBytes());
+      Path writeResult = Files.write(file, content.getBytes());
+      assertThat(writeResult).isNotNull();
+      assertThat(writeResult).hasContent(content);
     }
   }
 
