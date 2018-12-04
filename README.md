@@ -36,7 +36,11 @@ Unpack the zip to a new directory of your choice. Now you have to make sure that
 
 #### 2.c. Add the directory your `PATH`
 
-### Background and tutorial
+## Background and tutorial
 If you're curious to learn more about _Alexandria_, you can take a look at the tutorial. 
 
 We have created a tutorial for _Alexandria_ in the form of a [Jupyter Notebook](http://nbviewer.jupyter.org/github/DiXiT-eu/collatex-tutorial/blob/master/unit1/Jupyter_notebook.ipynb). The notebook contains blocks of text and small snippets of code: commands that you give to your version of Alexandria. You can run these commands from within the notebook. The notebook, in other words, is a secure environment for you to play around with and get to know Alexandria. 
+
+## Literature
+
+- list of publications
