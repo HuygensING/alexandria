@@ -19,10 +19,10 @@ Install Sublime Text 3, a cross-platform editor that has syntax highlighting for
 
 ## Installation instructions
 
-### Download
+### 1.a. Download
 An up-to-date version of _Alexandria_ can be downloaded from [https://cdn.huygens.knaw.nl/alexandria/alexandria-app.zip]
 
-### Build
+### 1.b. Build
 Alternatively, you can build it yourself with `mvn package`  
 The .zip in `alexandria-markup-server/target` contains a `lib` dir with the fat jar,  a `bin` dir with the alexandria scripts for linux and windows, and an `example` dir. **UPDATE the directories of the zip?**
 
