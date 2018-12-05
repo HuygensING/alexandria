@@ -11,8 +11,8 @@ Do make sure you follow the checklist below:
 
 - Check if you have [installed Alexandria](https://cdn.huygens.knaw.nl/alexandria/alexandria-app.zip). 
 
-- Download the [tutorial](link to zip) and unpack the zip file in a logical place in your filesystem.
+- Download the [tutorial](https://cdn.huygens.knaw.nl/alexandria/alexandria-tutorial.zip) and unpack the zip file in a logical place in your filesystem.
 
 - Make sure you are running this notebook within the `tutorial` folder. 
 
-- Install [Sublime Text 3](https://github.com/HuygensING/TAG/blob/develop/TAGML/syntax-hilite.README.md). Sublime Text 3 is a cross-platform editor that has syntax highlighting for TAGML. In this tutorial we work with a number of example TAGML transcriptions. We recommend you use it to view and create TAGML transcriptions; it makes your work a lot easier. 
+- Install [Sublime Text 3](http://www.sublimetext.com/) and the [custom TAGML syntax highlighting package](https://huygensing.github.io/tagml-sublime-syntax/). Sublime Text 3 is a cross-platform editor that has syntax highlighting for TAGML. In this tutorial we work with a number of example TAGML transcriptions. We recommend you use it to view and create TAGML transcriptions; it makes your work a lot easier. 
