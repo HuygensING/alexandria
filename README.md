@@ -59,9 +59,10 @@ lrwxr-xr-x  1 veryv  wheel  5 Mar  7 22:01 alexandria -> Users/alexandria-markup
 Notice the `->` that indicates the link between the link name and the file.
 
 ## Background and tutorial
-For an overview of the _Alexandria_ commands, see [here](https://github.com/HuygensING/alexandria-markup-server/commands.md)
 
-If you're curious to learn more about _Alexandria_, you can take a look at a tutorial we created. The tutorial takes the form of a [Jupyter Notebook](http://nbviewer.jupyter.org/github/DiXiT-eu/collatex-tutorial/blob/master/unit1/Jupyter_notebook.ipynb). The notebook contains blocks of text and small snippets of code: commands that you give to your version of Alexandria. You can run these commands from within the notebook. The notebook, in other words, is a secure environment for you to play around with and get to know Alexandria. 
+Here we provide [an overview](https://github.com/HuygensING/alexandria-markup-server/commands.md) of the commands with which you interact with _Alexandria_.
+
+We also created a [tutorial](https://github.com/HuygensING/alexandria-markup-server/tutorial-alexandria.ipynb), if you're curious to learn more about _Alexandria_ and experiment with the tool. The tutorial takes the form of a [Jupyter Notebook](http://nbviewer.jupyter.org/github/DiXiT-eu/collatex-tutorial/blob/master/unit1/Jupyter_notebook.ipynb). The notebook contains blocks of text and small snippets of code: commands that you give to your version of Alexandria. You can run these commands from within the notebook. The notebook, in other words, is a secure environment for you to play around with and get to know Alexandria. 
 
 ## Literature
 
