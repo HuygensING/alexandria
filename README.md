@@ -1,7 +1,7 @@
 # _Alexandria_: A Command-line Application for Digital Text Editing
 
 ## What is it?
-In short: _Alexandria_ is a text repository system in which you can store and edit documents. It is the reference implementation of [TAG](https://github.com/HuygensING/TAG) (Text-as-Graph), a flexible graph data model for text. TAG and _Alexandria_ are under active development at the Research and Development group of the Humanities Cluster.
+In short: _Alexandria_ is a text repository system in which you can store and edit documents. It is the reference implementation of [TAG](https://huygensing.github.io/TAG/) (Text-as-Graph), a flexible graph data model for text. TAG and _Alexandria_ are under active development at the [Research & Development group](https://huc.knaw.nl/research/infrastructure-rd/) of the Humanities Cluster.
 
 ## What's the difference?
 You may wonder, why use _Alexandria_ if you already have a text editing tool? Well, if you'd like to carry out advanced text analysis and you don't mind a little command-line work, Alexandria is the tool for you. If you're used to working with XML, you'll find it enlightening to work with a data model like TAG in which you can easily model overlapping structures, discontinuous elements, and nonlinear text without having to resort to workarounds.
@@ -59,9 +59,9 @@ lrwxr-xr-x  1 veryv  wheel  5 Mar  7 22:01 alexandria -> Users/alexandria-markup
 Notice the `->` that indicates the link between the link name and the file.
 
 ## Background and tutorial
-If you're curious to learn more about _Alexandria_, you can take a look at the tutorial. 
+For an overview of the _Alexandria_ commands, see [here](https://github.com/HuygensING/alexandria-markup-server/commands.md)
 
-We have created a tutorial for _Alexandria_ in the form of a [Jupyter Notebook](http://nbviewer.jupyter.org/github/DiXiT-eu/collatex-tutorial/blob/master/unit1/Jupyter_notebook.ipynb). The notebook contains blocks of text and small snippets of code: commands that you give to your version of Alexandria. You can run these commands from within the notebook. The notebook, in other words, is a secure environment for you to play around with and get to know Alexandria. 
+If you're curious to learn more about _Alexandria_, you can take a look at a tutorial we created. The tutorial takes the form of a [Jupyter Notebook](http://nbviewer.jupyter.org/github/DiXiT-eu/collatex-tutorial/blob/master/unit1/Jupyter_notebook.ipynb). The notebook contains blocks of text and small snippets of code: commands that you give to your version of Alexandria. You can run these commands from within the notebook. The notebook, in other words, is a secure environment for you to play around with and get to know Alexandria. 
 
 ## Literature
 
