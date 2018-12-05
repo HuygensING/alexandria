@@ -26,6 +26,7 @@ import net.sourceforge.argparse4j.inf.Subparser;
 import nl.knaw.huc.di.tag.TAGViews;
 import nl.knaw.huc.di.tag.tagml.importer.TAGMLImporter;
 import nl.knaw.huygens.alexandria.compare.TAGComparison;
+import nl.knaw.huygens.alexandria.dropwizard.cli.AlexandriaCommandException;
 import nl.knaw.huygens.alexandria.dropwizard.cli.CLIContext;
 import nl.knaw.huygens.alexandria.storage.TAGDocument;
 import nl.knaw.huygens.alexandria.storage.TAGStore;
@@ -63,41 +64,45 @@ public class DiffCommand extends AlexandriaCommand {
         String filename = namespace.getString(FILE);
         Optional<String> documentName = context.getDocumentName(filename);
         if (documentName.isPresent()) {
-          Long documentId = getIdForExistingDocument(documentName.get());
-          TAGDocument original = store.getDocument(documentId);
-
-          String viewName = context.getActiveView();
-          TAGView tagView = MAIN_VIEW.equals(viewName)
-              ? TAGViews.getShowAllMarkupView(store)
-              : getExistingView(viewName, store, context);
-
-          File editedFile = workFilePath(filename).toFile();
-          try {
-            String newTAGML = FileUtils.readFileToString(editedFile, StandardCharsets.UTF_8);
-            TAGMLImporter importer = new TAGMLImporter(store);
-            TAGDocument edited = importer.importTAGML(newTAGML);
-
-            TAGComparison comparison = new TAGComparison(original, tagView, edited);
-
-            if (MAIN_VIEW.equals(viewName)) {
-              System.out.printf("diff for %s:%n", filename);
-            } else {
-              System.out.printf("diff for %s, using view %s:%n", filename, viewName);
-            }
-            if (comparison.hasDifferences()) {
-              System.out.printf("%s%n", String.join(System.lineSeparator(), comparison.getDiffLines()));
-            } else {
-              System.out.println("no changes");
-            }
-
-          } catch (IOException e) {
-            e.printStackTrace();
-            throw new UncheckedIOException(e);
-          }
+          doDiff(store, context, filename, documentName);
         } else {
-          // TODO
+          throw new AlexandriaCommandException("No document registered for " + filename);
         }
       });
+    }
+  }
+
+  private void doDiff(final TAGStore store, final CLIContext context, final String filename, final Optional<String> documentName) {
+    Long documentId = getIdForExistingDocument(documentName.get());
+    TAGDocument original = store.getDocument(documentId);
+
+    String viewName = context.getActiveView();
+    TAGView tagView = MAIN_VIEW.equals(viewName)
+        ? TAGViews.getShowAllMarkupView(store)
+        : getExistingView(viewName, store, context);
+
+    File editedFile = workFilePath(filename).toFile();
+    try {
+      String newTAGML = FileUtils.readFileToString(editedFile, StandardCharsets.UTF_8);
+      TAGMLImporter importer = new TAGMLImporter(store);
+      TAGDocument edited = importer.importTAGML(newTAGML);
+
+      TAGComparison comparison = new TAGComparison(original, tagView, edited);
+
+      if (MAIN_VIEW.equals(viewName)) {
+        System.out.printf("diff for %s:%n", filename);
+      } else {
+        System.out.printf("diff for %s, using view %s:%n", filename, viewName);
+      }
+      if (comparison.hasDifferences()) {
+        System.out.printf("%s%n", String.join(System.lineSeparator(), comparison.getDiffLines()));
+      } else {
+        System.out.println("no changes");
+      }
+
+    } catch (IOException e) {
+      e.printStackTrace();
+      throw new UncheckedIOException(e);
     }
   }
 }
