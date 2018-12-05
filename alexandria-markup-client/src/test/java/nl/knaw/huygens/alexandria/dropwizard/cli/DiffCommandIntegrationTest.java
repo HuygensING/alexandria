@@ -23,6 +23,9 @@ package nl.knaw.huygens.alexandria.dropwizard.cli;
 import nl.knaw.huygens.alexandria.dropwizard.cli.commands.DiffCommand;
 import org.junit.Test;
 
+import static java.lang.String.format;
+import static nl.knaw.huygens.alexandria.dropwizard.cli.commands.AlexandriaCommand.SOURCE_DIR;
+
 public class DiffCommandIntegrationTest extends CommandIntegrationTest {
 
   private static final String command = new DiffCommand().getName();
@@ -32,7 +35,7 @@ public class DiffCommandIntegrationTest extends CommandIntegrationTest {
     runInitCommand();
 
     // create sourcefile
-    String tagFilename = "transcriptions/transcription.tagml";
+    String tagFilename = createTagmlFileName("transcription");
     String tagml = "[tagml>[l>test<l]<tagml]";
     createFile(tagFilename, tagml);
 
@@ -44,7 +47,7 @@ public class DiffCommandIntegrationTest extends CommandIntegrationTest {
     modifyFile(tagFilename, tagml2);
 
     final boolean success = cli.run(command, tagFilename);
-    String expectedOutput = "diff for transcriptions/transcription.tagml:\n" +
+    String expectedOutput = "diff for tagml/transcription.tagml:\n" +
         " [tagml>[l>\n" +
         "-test\n" +
         "+example\n" +

@@ -64,6 +64,9 @@ public abstract class AlexandriaCommand extends Command {
   private static final Logger LOG = LoggerFactory.getLogger(AlexandriaCommand.class);
 
   public static final String MAIN_VIEW = "-";
+
+  public static final String SOURCE_DIR = "tagml";
+  public static final String VIEWS_DIR = "views";
   static final String DOCUMENT = "document";
   static final String OUTPUTFILE = "outputfile";
 
@@ -271,7 +274,7 @@ public abstract class AlexandriaCommand extends Command {
     Set<String> watchedFiles = new HashSet<>(context.getWatchedFiles().keySet());
     BiPredicate<Path, BasicFileAttributes> matcher = (filePath, fileAttr) ->
         fileAttr.isRegularFile()
-            && !workDir.relativize(filePath).startsWith(ALEXANDRIA_DIR);
+            && (isTagmlFile(workDir, filePath) || isViewDefinition(workDir, filePath));
 
     Files.find(workDir, Integer.MAX_VALUE, matcher)
         .forEach(path ->
@@ -279,6 +282,16 @@ public abstract class AlexandriaCommand extends Command {
         );
     watchedFiles.forEach(f -> fileStatusMap.put(FileStatus.deleted, f));
     return fileStatusMap;
+  }
+
+  private boolean isTagmlFile(final Path workDir, final Path filePath) {
+    return workDir.relativize(filePath).startsWith(Paths.get(SOURCE_DIR))
+        && fileType(filePath.toString()).equals(FileType.tagmlSource);
+  }
+
+  private boolean isViewDefinition(final Path workDir, final Path filePath) {
+    return workDir.relativize(filePath).startsWith(Paths.get(VIEWS_DIR))
+        && fileType(filePath.toString()).equals(FileType.viewDefinition);
   }
 
   private void putFileStatus(Path workDir, Path filePath, Multimap<FileStatus, String> fileStatusMap, CLIContext context, Set<String> watchedFiles) {
@@ -302,7 +315,7 @@ public abstract class AlexandriaCommand extends Command {
     }
   }
 
-   void showChanges(Multimap<FileStatus, String> fileStatusMap) {
+  void showChanges(Multimap<FileStatus, String> fileStatusMap) {
     AnsiConsole.systemInstall();
 
     Set<String> changedFiles = new HashSet<>(fileStatusMap.get(FileStatus.changed));

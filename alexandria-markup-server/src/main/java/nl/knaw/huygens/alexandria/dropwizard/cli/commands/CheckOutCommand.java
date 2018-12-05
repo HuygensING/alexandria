@@ -50,20 +50,20 @@ public class CheckOutCommand extends AlexandriaCommand {
   @Override
   public void run(Bootstrap<?> bootstrap, Namespace namespace) throws IOException {
     checkDirectoryIsInitialized();
-    checkDirectoryHasNoUnCommitedChanges();
+    checkDirectoryHasNoUnCommittedChanges();
 
     String viewName = namespace.getString(VIEW);
     checkoutView(viewName);
     System.out.println("done!");
   }
 
-  private void checkDirectoryHasNoUnCommitedChanges() throws IOException {
+  private void checkDirectoryHasNoUnCommittedChanges() throws IOException {
     Multimap<FileStatus, String> fileStatus = readWorkDirStatus(readContext());
     Collection<String> changedFiles = fileStatus.get(FileStatus.changed);
     Collection<String> deletedFiles = fileStatus.get(FileStatus.deleted);
     if (!(changedFiles.isEmpty() && deletedFiles.isEmpty())) {
       showChanges(fileStatus);
-      String message = "Uncommited changes found, cannot checkout another view.";
+      String message = "Uncommitted changes found, cannot checkout another view.";
       throw new AlexandriaCommandException(message);
     }
   }

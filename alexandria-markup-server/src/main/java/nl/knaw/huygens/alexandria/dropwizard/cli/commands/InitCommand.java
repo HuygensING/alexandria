@@ -45,9 +45,9 @@ public class InitCommand extends AlexandriaCommand {
   public void run(Bootstrap<?> bootstrap, Namespace namespace) throws IOException {
     System.out.println("initializing...");
 
-    Path transcriptionsPath = Paths.get(workDir, "transcriptions");
+    Path transcriptionsPath = Paths.get(workDir, SOURCE_DIR);
     mkdir(transcriptionsPath);
-    Path viewsPath = Paths.get(workDir, "views");
+    Path viewsPath = Paths.get(workDir, VIEWS_DIR);
     mkdir(viewsPath);
 
     CLIContext context = new CLIContext();

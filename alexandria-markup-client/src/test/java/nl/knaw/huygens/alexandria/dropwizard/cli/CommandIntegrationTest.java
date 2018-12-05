@@ -38,12 +38,18 @@ import org.junit.Before;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.*;
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.IOException;
+import java.io.PrintStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.Instant;
 import java.util.*;
 
+import static java.lang.String.format;
+import static nl.knaw.huygens.alexandria.dropwizard.cli.commands.AlexandriaCommand.SOURCE_DIR;
+import static nl.knaw.huygens.alexandria.dropwizard.cli.commands.AlexandriaCommand.VIEWS_DIR;
 import static nl.knaw.huygens.alexandria.markup.api.AlexandriaProperties.WORKDIR;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -267,4 +273,13 @@ public abstract class CommandIntegrationTest {
     Map<String, FileInfo> watchedFiles = cliContext.getWatchedFiles();
     return watchedFiles.get(filename).getLastCommit();
   }
+
+  String createViewFileName(final String viewName) {
+    return format("%s/%s.json", VIEWS_DIR, viewName);
+  }
+
+  String createTagmlFileName(final String documentName) {
+    return format("%s/%s.tagml", SOURCE_DIR, documentName);
+  }
+
 }

@@ -26,6 +26,8 @@ import org.junit.Test;
 import java.nio.file.Files;
 import java.time.Instant;
 
+import static java.lang.String.format;
+import static nl.knaw.huygens.alexandria.dropwizard.cli.commands.AlexandriaCommand.SOURCE_DIR;
 import static nl.knaw.huygens.alexandria.dropwizard.cli.commands.CheckOutCommand.MAIN_VIEW;
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -37,18 +39,20 @@ public class CheckOutCommandIntegrationTest extends CommandIntegrationTest {
   public void testCommand() throws Exception {
     runInitCommand();
 
-    String tagFilename = "transcription1.tagml";
+    String tagFilename = createTagmlFileName("transcription");
     String tagml = "[tagml>[l>test<l]<tagml]";
     createFile(tagFilename, tagml);
+
     String viewName = "v1";
-    String viewFilename = "views/" + viewName + ".json";
+    String viewFilename = createViewFileName(viewName);
     createFile(viewFilename, "{\"includeMarkup\":[\"l\"]}");
+
     runAddCommand(tagFilename, viewFilename);
     runCommitAllCommand();
 
     final boolean success = cli.run(command, viewName);
     softlyAssertSucceedsWithExpectedStdout(success, "Checking out view v1...\n" +
-        "  updating transcription1.tagml...\n" +
+        "  updating tagml/transcription.tagml...\n" +
         "done!");
 
     CLIContext cliContext = readCLIContext();
@@ -59,7 +63,7 @@ public class CheckOutCommandIntegrationTest extends CommandIntegrationTest {
 
     final boolean success2 = cli.run(command, MAIN_VIEW);
     softlyAssertSucceedsWithExpectedStdout(success2, "Checking out main view...\n" +
-        "  updating transcription1.tagml...\n" +
+        "  updating tagml/transcription.tagml...\n" +
         "done!");
 
     CLIContext cliContext2 = readCLIContext();
@@ -73,21 +77,21 @@ public class CheckOutCommandIntegrationTest extends CommandIntegrationTest {
   }
 
   @Test
-  public void testCheckoutNotPossibleWithUncommitedFilesPresent() throws Exception {
+  public void testCheckoutNotPossibleWithUncommittedFilesPresent() throws Exception {
     runInitCommand();
 
-    String tagFilename = "transcription1.tagml";
+    String tagFilename = createTagmlFileName("transcription1");
     String tagml = "[tagml>[l>test<l]<tagml]";
     createFile(tagFilename, tagml);
     String viewName = "v1";
-    String viewFilename = "views/" + viewName + ".json";
+    String viewFilename = createViewFileName(viewName);
     createFile(viewFilename, "{\"includeMarkup\":[\"l\"]}");
     runAddCommand(tagFilename, viewFilename);
     runCommitAllCommand();
 
     final boolean success = cli.run(command, viewName);
     softlyAssertSucceedsWithExpectedStdout(success, "Checking out view v1...\n" +
-        "  updating transcription1.tagml...\n" +
+        "  updating tagml/transcription1.tagml...\n" +
         "done!");
 
     CLIContext cliContext = readCLIContext();
@@ -100,7 +104,7 @@ public class CheckOutCommandIntegrationTest extends CommandIntegrationTest {
     modifyFile(tagFilename, "[l>foo bar<l]");
 
     final boolean success2 = cli.run(command, MAIN_VIEW);
-    softlyAssertFailsWithExpectedStderr(success2, "Uncommited changes found, cannot checkout another view.");
+    softlyAssertFailsWithExpectedStderr(success2, "Uncommitted changes found, cannot checkout another view.");
   }
 
   // On checkout, the lastcommitted dates should be adjusted.

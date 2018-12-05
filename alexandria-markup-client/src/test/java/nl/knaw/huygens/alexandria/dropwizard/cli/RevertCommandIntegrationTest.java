@@ -34,7 +34,7 @@ public class RevertCommandIntegrationTest extends CommandIntegrationTest {
     runInitCommand();
 
     // create sourcefile
-    String tagFilename = "transcriptions/transcription.tagml";
+    String tagFilename = createTagmlFileName("transcription");
     String tagml = "[tagml>[l>test<l]<tagml]";
     createFile(tagFilename, tagml);
 
@@ -60,13 +60,13 @@ public class RevertCommandIntegrationTest extends CommandIntegrationTest {
     runInitCommand();
 
     // create sourcefile
-    String tagFilename = "transcription1.tagml";
+    String tagFilename = createTagmlFileName("transcription1");
     String tagml = "[tagml>[l>test<l]<tagml]";
     createFile(tagFilename, tagml);
 
     // create viewfile
     String viewName = "l";
-    String viewFilename = "views/" + viewName + ".json";
+    String viewFilename = createViewFileName(viewName);
     createFile(viewFilename, "{\"includeMarkup\":[\"l\"]}");
     runAddCommand(tagFilename, viewFilename);
     runCommitAllCommand();

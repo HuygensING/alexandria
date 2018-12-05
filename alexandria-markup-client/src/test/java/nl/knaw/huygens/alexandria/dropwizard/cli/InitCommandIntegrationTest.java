@@ -24,6 +24,8 @@ import org.junit.Test;
 
 import java.nio.file.Path;
 
+import static nl.knaw.huygens.alexandria.dropwizard.cli.commands.AlexandriaCommand.SOURCE_DIR;
+import static nl.knaw.huygens.alexandria.dropwizard.cli.commands.AlexandriaCommand.VIEWS_DIR;
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class InitCommandIntegrationTest extends CommandIntegrationTest {
@@ -36,11 +38,11 @@ public class InitCommandIntegrationTest extends CommandIntegrationTest {
     softlyAssertSucceedsWithExpectedStdout(success, "initializing...\n" +
         "done!");
 
-    Path viewsDir = workFilePath("views");
+    Path viewsDir = workFilePath(VIEWS_DIR);
     assertThat(viewsDir).isDirectory()
         .isWritable();
 
-    Path transcriptionsDir = workFilePath("transcriptions");
+    Path transcriptionsDir = workFilePath(SOURCE_DIR);
     assertThat(transcriptionsDir).isDirectory()
         .isWritable();
 

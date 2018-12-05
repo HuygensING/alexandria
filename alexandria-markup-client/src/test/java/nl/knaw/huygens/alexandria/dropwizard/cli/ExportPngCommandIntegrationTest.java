@@ -34,7 +34,7 @@ public class ExportPngCommandIntegrationTest extends CommandIntegrationTest {
   public void testCommand() throws Exception {
     runInitCommand();
 
-    String tagFilename = "transcriptions/transcription.tagml";
+    String tagFilename = createTagmlFileName("transcription");
     String tagml = "[tagml>[l>test<l]<tagml]";
     createFile(tagFilename, tagml);
 

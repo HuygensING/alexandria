@@ -43,11 +43,11 @@ public class StatusCommandIntegrationTest extends CommandIntegrationTest {
     softlyAssertSucceedsWithExpectedStdout(success, "Active view: -\n");
 
     // add a sourcefile and a view definition
-    String tagFilename = "transcriptions/transcription.tagml";
+    String tagFilename = createTagmlFileName("transcription");
     String tagml = "[tagml>[l>test<l]<tagml]";
     createFile(tagFilename, tagml);
     String viewName = "l";
-    String viewFilename = "views/" + viewName + ".json";
+    String viewFilename = createViewFileName(viewName);
     createFile(viewFilename, "{\"includeMarkup\":[\"l\"]}");
     success = cli.run(command);
     softlyAssertSucceedsWithExpectedStdout(success, "Active view: -\n" +
@@ -55,7 +55,7 @@ public class StatusCommandIntegrationTest extends CommandIntegrationTest {
         "Untracked files:\n" +
         "  (use \"alexandria add <file>...\" to start tracking this file.)\n" +
         "\n" +
-        "        transcriptions/transcription.tagml\n" +
+        "        tagml/transcription.tagml\n" +
         "        views/l.json");
 
     // add files
@@ -68,7 +68,7 @@ public class StatusCommandIntegrationTest extends CommandIntegrationTest {
         "  (use \"alexandria commit -a\" to commit all changes)\n" +
         "  (use \"alexandria revert <file>...\" to discard changes)\n" +
         "\n" +
-        "        modified: transcriptions/transcription.tagml\n" +
+        "        modified: tagml/transcription.tagml\n" +
         "        modified: views/l.json");
 
     // commit files
@@ -99,7 +99,7 @@ public class StatusCommandIntegrationTest extends CommandIntegrationTest {
         "  (use \"alexandria commit -a\" to commit all changes)\n" +
         "  (use \"alexandria revert <file>...\" to discard changes)\n" +
         "\n" +
-        "        modified: transcriptions/transcription.tagml");
+        "        modified: tagml/transcription.tagml");
 
     // delete file
     deleteFile(tagFilename);
@@ -111,7 +111,7 @@ public class StatusCommandIntegrationTest extends CommandIntegrationTest {
         "  (use \"alexandria commit -a\" to commit all changes)\n" +
         "  (use \"alexandria revert <file>...\" to discard changes)\n" +
         "\n" +
-        "        deleted:  transcriptions/transcription.tagml");
+        "        deleted:  tagml/transcription.tagml");
   }
 
   @Test

@@ -158,13 +158,13 @@ public class CommitCommand extends AlexandriaCommand {
 
   private String toDocName(String fileName) {
     return fileName
-        .replaceAll("^.*transcriptions/", "")
+        .replaceAll("^.*" + SOURCE_DIR + "/", "")
         .replaceAll(".tag(ml)?", "");
   }
 
   private String toViewName(String fileName) {
     return fileName
-        .replaceAll("^.*views/", "")
+        .replaceAll("^.*" + VIEWS_DIR + "/", "")
         .replaceAll(".json", "");
   }
 

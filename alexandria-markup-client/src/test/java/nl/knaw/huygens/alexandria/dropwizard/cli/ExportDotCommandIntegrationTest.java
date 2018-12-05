@@ -23,6 +23,10 @@ package nl.knaw.huygens.alexandria.dropwizard.cli;
 import nl.knaw.huygens.alexandria.dropwizard.cli.commands.ExportDotCommand;
 import org.junit.Test;
 
+import static java.lang.String.format;
+import static nl.knaw.huygens.alexandria.dropwizard.cli.commands.AlexandriaCommand.SOURCE_DIR;
+import static nl.knaw.huygens.alexandria.dropwizard.cli.commands.AlexandriaCommand.VIEWS_DIR;
+
 public class ExportDotCommandIntegrationTest extends CommandIntegrationTest {
 
   private static final String command = new ExportDotCommand().getName();
@@ -31,7 +35,7 @@ public class ExportDotCommandIntegrationTest extends CommandIntegrationTest {
   public void testCommand() throws Exception {
     runInitCommand();
 
-    String tagFilename = "transcriptions/transcription.tagml";
+    String tagFilename = createTagmlFileName("transcription");
     String tagml = "[tagml>[l>test<l]<tagml]";
     createFile(tagFilename, tagml);
 
@@ -58,11 +62,11 @@ public class ExportDotCommandIntegrationTest extends CommandIntegrationTest {
   public void testCommandInView() throws Exception {
     runInitCommand();
 
-    String tagFilename = "transcriptions/transcription.tagml";
+    String tagFilename = createTagmlFileName("transcription");
     String tagml = "[tagml>[l>test<l]<tagml]";
     createFile(tagFilename, tagml);
     String viewName = "l";
-    String viewFilename = "views/" + viewName + ".json";
+    String viewFilename = createViewFileName(viewName);
     createFile(viewFilename, "{\"includeMarkup\":[\"l\"]}");
 
     runAddCommand(tagFilename, viewFilename);

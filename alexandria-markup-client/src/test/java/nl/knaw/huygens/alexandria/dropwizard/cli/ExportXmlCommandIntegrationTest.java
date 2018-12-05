@@ -31,7 +31,7 @@ public class ExportXmlCommandIntegrationTest extends CommandIntegrationTest {
   public void testCommand() throws Exception {
     runInitCommand();
 
-    String tagFilename = "transcriptions/transcription.tagml";
+    String tagFilename = createTagmlFileName("transcription");
     String tagml = "[tagml>[l>test<l]<tagml]";
     createFile(tagFilename, tagml);
 
@@ -49,11 +49,11 @@ public class ExportXmlCommandIntegrationTest extends CommandIntegrationTest {
   public void testCommandInView() throws Exception {
     runInitCommand();
 
-    String tagFilename = "transcriptions/transcription.tagml";
+    String tagFilename = createTagmlFileName("transcription");
     String tagml = "[tagml>[l>test<l]<tagml]";
     createFile(tagFilename, tagml);
     String viewName = "l";
-    String viewFilename = "views/" + viewName + ".json";
+    String viewFilename = createViewFileName(viewName);
     createFile(viewFilename, "{\"includeMarkup\":[\"l\"]}");
 
     runAddCommand(tagFilename, viewFilename);
