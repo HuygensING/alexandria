@@ -1,142 +1,18 @@
-# alexandria command-line app
+## About the tutorial
+This _Alexandria_ tutorial is a Jupyter Notebook. The notebook contains blocks of text and small snippets of code: commands that you give to your version of _Alexandria_. You can run these commands from within the notebook. The notebook, in other words, is a secure environment for you to play around with and get to know _Alexandria_.
 
-## download
+Do make sure you follow the checklist below:
 
-An up-to-date version can be downloaded from [https://cdn.huygens.knaw.nl/alexandria/alexandria-app.zip]
+### Requirements
 
-Alternatively, you can build it yourself:
+- Make sure you are okay with working on the [command line](http://nbviewer.jupyter.org/github/DiXiT-eu/collatex-tutorial/blob/master/unit1/Command_line.ipynb).
 
-## build
-- `mvn package`
+- Get familiar with the [Jupyter Notebook](http://nbviewer.jupyter.org/github/DiXiT-eu/collatex-tutorial/blob/master/unit1/Jupyter_notebook.ipynb) environment.
 
-The .zip in `alexandria-markup-server/target` contains a `lib` dir with the fat jar,
- a `bin` dir with the alexandria scripts for linux and windows,
- and an `example` dir.
+- Check if you have [installed Alexandria](https://cdn.huygens.knaw.nl/alexandria/alexandria-app.zip). 
 
-## install from zip
+- Download the [tutorial](link to zip) and unpack the zip file in a logical place in your filesystem.
 
-Unpack the zip to a new directory of your choice, and add the `bin` directory to your `PATH`
+- Make sure you are running this notebook within the `tutorial` folder. 
 
-## usage: example
-
-Go to the directory that you unpacked the zip into, and enter:
-
-* `cd example`
-
-* `alexandria init`
-
-  This will prepare the directory for alexandria usage.
-
-* `alexandria register-document -n d -f frost-quote.tagml`  
-  or  
-  `alexandria register-document --name d --file frost-quote.tagml`
-
-  This will set up a TAG document from the tagml in the frost-quote file.
-  
-  This document can later be referred to by its name: `d`
-
-* `alexandria define-view -n l -f view-l-markup.json`  
-  or  
-  `alexandria define-view --name l --file view-l-markup.json`
-  
-  In `view-l-markup.json` we've defined a view that only shows the `[l>` markup.
-  
-  The view definition registered by this command can later be referred to by its name: `l`
-
-* `alexandria define-view -n s -f view-s-layer.json`  
-  or  
-  `alexandria define-view --name s --file view-s-layer.json`
-
-  In `view-s-layer.json` we've defined a view that only shows the `S` layer.
-  
-  The view definition registered by this command can later be referred to by its name: `s`
-
-* `alexandria checkout -d d -v s`  
-  or  
-  `alexandria checkout --document d --view s`
-
-  This will export a view of document `d` using view definition `s`.
-  
-  The view will be exported to file `d-s.tagml`
-  
-* `alexandria diff d-s.tagml`
-
-  This will show the changes made to the view in file `d-s.tagml`.
-  
-* `alexandria revert d-s.tagml`
-
-  This will revert the changes made to the view in file `d-s.tagml`.
-
-* `alexandria info`
-
-  This will show the version and build date of the app, and the names of the documents and views that are registered.
-
-* `alexandria export-dot -d d`  
-  or  
-  `alexandria export-dot --document d`
-  
-  This will export the graph of document `d` using the dot format, to file d.dot.
-
-* `alexandria export-svg -d d`  
-  or  
-  `alexandria export-svg --document d`
-  
-  This will export the graph of document `d` as svg to file d.svg.
-  For this command, graphviz needs to be installed.
-
-* `alexandria export-png -d d`  
-  or  
-  `alexandria export-png --document d`
-  
-  This will export the graph of document `d` as png to file d.png.
-  For this command, graphviz needs to be installed.
-
-* `alexandria export-xml -d d -v v`  
-  or  
-  `alexandria export-xml --document d --view v`
-  
-  This will export view `v` on document `d` as xml, to file d-v.xml.
-  
-* `alexandria export-tagml -d d [-f frost-quote.tagml]`  
-  or  
-  `alexandria export-tagml --document d [--file frost-quote.tagml]`
-
-  This will export document `d` as a TAGML.  
-  The `-f` / `--file` parameter is optional, when omitted the document will be exported to `{document name}.tagml`, so `d.tagml` in this case.
-
-* `alexandria import-tagml -d d [-f edited.tagml]`  
-  or  
-  `alexandria import-tagml --document d [--file edited.tagml]`
-
-  This will import the `edited.tagml` TAGML file into document `d`.  
-  The `-f` / `--file` parameter is optional, when omitted the document will be imported from `d.tagml`
-  
-* `alexandria -h`
-  or
-  `alexandria --help`
-  
-  This will show a list of the available commands (positional arguments)
-
-####NOTE:
- In all of the previous commands, the parameters are order independent, so   
-  `alexandria register-document -n d -f frost-quote.tagml`  
-  gives the same result as  
-  `alexandria register-document -f frost-quote.tagml -n d`
-  
-  To show more information about an alexandria command, add `-h` or `--help`
-  
-  For example:
-  ```
-   alexandria register-document -h
-   usage: java -jar alexandria.jar
-          register-document -n NAME -f FILE [-h]
-   
-   Parse a TAGML document and store it as TAG
-   
-   named arguments:
-     -n NAME, --name NAME   The name of the document
-     -f FILE, --file FILE   The file containing the document TAGML source
-     -h, --help             show this help message and exit
-```
-  
-  
+- Install [Sublime Text 3](https://github.com/HuygensING/TAG/blob/develop/TAGML/syntax-hilite.README.md). Sublime Text 3 is a cross-platform editor that has syntax highlighting for TAGML. In this tutorial we work with a number of example TAGML transcriptions. We recommend you use it to view and create TAGML transcriptions; it makes your work a lot easier. 
