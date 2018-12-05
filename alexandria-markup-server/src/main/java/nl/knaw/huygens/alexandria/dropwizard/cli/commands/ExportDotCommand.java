@@ -1,8 +1,6 @@
-package nl.knaw.huygens.alexandria.dropwizard.cli;
+package nl.knaw.huygens.alexandria.dropwizard.cli.commands;
 
-import java.time.Instant;
-
-/*-
+/*
  * #%L
  * alexandria-markup-server
  * =======
@@ -21,35 +19,32 @@ import java.time.Instant;
  * limitations under the License.
  * #L%
  */
-public class FileInfo {
-  private FileType fileType;
-  private String objectName;
-  private Instant lastCommit;
 
-  public FileType getFileType() {
-    return fileType;
+import com.google.common.base.Charsets;
+import org.apache.commons.io.FileUtils;
+
+import java.io.File;
+import java.io.IOException;
+
+public class ExportDotCommand extends AbstractGraphvizCommand {
+
+  public ExportDotCommand() {
+    super("export-dot", "Export the document as .dot file.");
   }
 
-  public FileInfo setFileType(FileType fileType) {
-    this.fileType = fileType;
-    return this;
+  @Override
+  protected String getFormat() {
+    return "dot";
   }
 
-  public String getObjectName() {
-    return objectName;
+  @Override
+  protected void renderToFile(final String dot, final String fileName) throws IOException {
+    FileUtils.writeStringToFile(new File(fileName), dot, Charsets.UTF_8);
   }
 
-  public FileInfo setObjectName(String objectName) {
-    this.objectName = objectName;
-    return this;
+  @Override
+  protected void renderToStdOut(final String dot) {
+    System.out.println(dot);
   }
 
-  public Instant getLastCommit() {
-    return lastCommit;
-  }
-
-  public FileInfo setLastCommit(Instant lastCommit) {
-    this.lastCommit = lastCommit;
-    return this;
-  }
 }

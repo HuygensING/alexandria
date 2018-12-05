@@ -2,8 +2,6 @@ package nl.knaw.huygens.alexandria.markup.client;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.fasterxml.jackson.jaxrs.json.JacksonJaxbJsonProvider;
 import nl.knaw.huygens.alexandria.markup.api.AppInfo;
 import nl.knaw.huygens.alexandria.markup.api.ResourcePaths;
@@ -59,9 +57,8 @@ public class AlexandriaMarkupClient implements AutoCloseable {
 
   public AlexandriaMarkupClient(final URI alexandriaMarkupURI, SSLContext sslContext) {
     this.alexandriaMarkupURI = alexandriaMarkupURI;
-    final ObjectMapper objectMapper = new ObjectMapper()//
-        .registerModule(new Jdk8Module())//
-        .registerModule(new JavaTimeModule());
+    final ObjectMapper objectMapper = new ObjectMapper();
+    objectMapper.findAndRegisterModules();
 
     final JacksonJaxbJsonProvider jacksonProvider = new JacksonJaxbJsonProvider();
     jacksonProvider.setMapper(objectMapper);

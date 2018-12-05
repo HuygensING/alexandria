@@ -32,7 +32,7 @@ import nl.knaw.huc.di.tag.tagml.exporter.TAGMLExporter;
 import nl.knaw.huc.di.tag.tagml.importer.TAGMLImporter;
 import nl.knaw.huygens.alexandria.dropwizard.api.DocumentService;
 import nl.knaw.huygens.alexandria.dropwizard.api.PropertiesConfiguration;
-import nl.knaw.huygens.alexandria.dropwizard.cli.*;
+import nl.knaw.huygens.alexandria.dropwizard.cli.commands.*;
 import nl.knaw.huygens.alexandria.dropwizard.health.ServerHealthCheck;
 import nl.knaw.huygens.alexandria.dropwizard.resources.AboutResource;
 import nl.knaw.huygens.alexandria.dropwizard.resources.DocumentsResource;
@@ -86,21 +86,24 @@ public class ServerApplication extends Application<ServerConfiguration> {
         return configuration.swaggerBundleConfiguration;
       }
     });
+    addCommands(bootstrap, appInfo);
+  }
+
+  public void addCommands(Bootstrap<ServerConfiguration> bootstrap, AppInfo appInfo) {
     bootstrap.addCommand(new InitCommand());
-    bootstrap.addCommand(new InfoCommand().withAppInfo(appInfo));
-    bootstrap.addCommand(new RegisterDocumentCommand());
-    bootstrap.addCommand(new QueryCommand());
-    bootstrap.addCommand(new DefineViewCommand());
+    bootstrap.addCommand(new AddCommand());
+    bootstrap.addCommand(new CommitCommand());
+    bootstrap.addCommand(new AboutCommand().withAppInfo(appInfo));
+    bootstrap.addCommand(new StatusCommand());
     bootstrap.addCommand(new CheckOutCommand());
     bootstrap.addCommand(new DiffCommand());
+    bootstrap.addCommand(new HelpCommand());
     bootstrap.addCommand(new RevertCommand());
-    bootstrap.addCommand(new CheckInCommand());
     bootstrap.addCommand(new ExportDotCommand());
     bootstrap.addCommand(new ExportRenderedDotCommand("svg"));
     bootstrap.addCommand(new ExportRenderedDotCommand("png"));
     bootstrap.addCommand(new ExportXmlCommand());
-    bootstrap.addCommand(new ExportTagmlCommand());
-    bootstrap.addCommand(new ImportTagmlCommand());
+//    bootstrap.addCommand(new QueryCommand());
   }
 
   @Override

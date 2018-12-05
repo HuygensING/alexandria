@@ -20,39 +20,60 @@ package nl.knaw.huygens.alexandria.dropwizard.cli;
  * #L%
  */
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonProperty;
+import nl.knaw.huygens.alexandria.view.TAGViewDefinition;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 
 public class CLIContext {
 
-  @JsonProperty("fileContextMap")
-  private Map<String, FileInfo> fileContextMap = new HashMap<>();
+  private String activeView = "-";
+  private Map<String, FileInfo> watchedFiles = new HashMap<>();
+  private Map<String, TAGViewDefinition> tagViewDefinitions = new HashMap<>();
+  private Map<String, DocumentInfo> documentInfo = new HashMap<>();
 
-  @JsonIgnore
-  public CLIContext setDocumentName(String filename, String docName) {
-    fileContextMap.putIfAbsent(filename, new FileInfo());
-    fileContextMap.get(filename).setDocumentName(docName);
+  public CLIContext setActiveView(final String activeView) {
+    this.activeView = activeView;
     return this;
   }
 
-  @JsonIgnore
-  public String getDocumentName(String filename) {
-    return fileContextMap.get(filename).getDocumentName();
+  public String getActiveView() {
+    return activeView;
   }
 
-  @JsonIgnore
-  public CLIContext setViewName(String filename, String viewName) {
-    fileContextMap.putIfAbsent(filename, new FileInfo());
-    fileContextMap.get(filename).setViewName(viewName);
+  public CLIContext setWatchedFiles(final Map<String, FileInfo> watchedFiles) {
+    this.watchedFiles = watchedFiles;
     return this;
   }
 
-  @JsonIgnore
-  public String getViewName(String filename) {
-    return fileContextMap.get(filename).getViewName();
+  public Map<String, FileInfo> getWatchedFiles() {
+    return watchedFiles;
   }
 
+  public Map<String, TAGViewDefinition> getTagViewDefinitions() {
+    return tagViewDefinitions;
+  }
+
+  public CLIContext setTagViewDefinitions(final Map<String, TAGViewDefinition> tagViewDefinitions) {
+    this.tagViewDefinitions = tagViewDefinitions;
+    return this;
+  }
+
+  public Map<String, DocumentInfo> getDocumentInfo() {
+    return documentInfo;
+  }
+
+  public CLIContext setDocumentInfo(final Map<String, DocumentInfo> documentInfo) {
+    this.documentInfo = documentInfo;
+    return this;
+  }
+
+  public Optional<String> getDocumentName(final String fileName) {
+    return documentInfo.values()
+        .stream()
+        .filter(di -> di.getSourceFile().equals(fileName))
+        .findFirst()
+        .map(DocumentInfo::getDocumentName);
+  }
 }
