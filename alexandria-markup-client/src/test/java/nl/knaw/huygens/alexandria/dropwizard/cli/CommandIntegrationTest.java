@@ -153,8 +153,12 @@ public abstract class CommandIntegrationTest {
     String normalizedExpectedError = normalize(expectedError);
     SoftAssertions softly = new SoftAssertions();
     softly.assertThat(success).as("Exit success").isFalse();
+
     String normalizeStdErr = normalize(stdErr.toString());
     softly.assertThat(normalizeStdErr).as("stderr").isEqualTo(normalizedExpectedError);
+
+//    String normalizedStdOut = normalize(stdOut.toString());
+//    assertThat(normalizedStdOut).as("stdout").isEqualTo("");
     softly.assertAll();
     resetStdOutErr();
   }
@@ -172,7 +176,7 @@ public abstract class CommandIntegrationTest {
     stdErr.reset();
   }
 
-  private String normalize(final String string) {
+  String normalize(final String string) {
     return string.trim()
         .replace(System.lineSeparator(), "\n");
   }

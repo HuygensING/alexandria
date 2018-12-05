@@ -102,6 +102,13 @@ public class CheckOutCommandIntegrationTest extends CommandIntegrationTest {
     modifyFile(tagFilename, "[l>foo bar<l]");
 
     final boolean success2 = cli.run(command, MAIN_VIEW);
+    String stdOut = normalize(getCliStdOutAsString());
+    assertThat(stdOut).isEqualTo("Uncommitted changes:\n" +
+        "  (use \"alexandria commit <file>...\" to commit the selected changes)\n" +
+        "  (use \"alexandria commit -a\" to commit all changes)\n" +
+        "  (use \"alexandria revert <file>...\" to discard changes)\n" +
+        "\n" +
+        "        modified: tagml/transcription1.tagml");
     softlyAssertFailsWithExpectedStderr(success2, "Uncommitted changes found, cannot checkout another view.");
   }
 
