@@ -15,16 +15,20 @@ Keep in mind that both the TAG data model and the _Alexandria_ implementation ar
 As noted above, _Alexandria_ is a command-line tool. In practice this means that it doesn't have an interface: you run Alexandria from your command line (sometimes also called the shell, the terminal, or the command prompt) and interact with it by typing out instructions in words and then hitting the Enter key. Not just any instructions, of course: the command line is very particular about how and what you tell it. If you're unfamiliar with the command line, you'll find a good tutorial [here](http://nbviewer.jupyter.org/github/DiXiT-eu/collatex-tutorial/blob/master/unit1/Command_line.ipynb) or [here](https://pittsburgh-neh-institute.github.io/Institute-Materials-2017/schedule/week_1/command_resources.html). 
 
 ## Sublime Text Editor
-Install Sublime Text 3, a cross-platform editor that has syntax highlighting for TAGML. We recommend you use it to view and create TAGML transcriptions; it makes your work a lot easier. Instructions about how to download Sublime and add the TAGML package for TAGML syntax highlighting can be found [here](https://github.com/HuygensING/TAG/blob/develop/TAGML/syntax-hilite.README.md).
+Install [Sublime Text 3](http://www.sublimetext.com/), a cross-platform editor that has syntax highlighting for TAGML. We recommend you use it to view and create TAGML transcriptions; it makes your work a lot easier. Instructions on adding the Sublime package for TAGML syntax highlighting can be found [here](https://huygensing.github.io/tagml-sublime-syntax/).
 
 ## Installation instructions
 
 ### 1.a. Download
-An up-to-date version of _Alexandria_ can be downloaded from [https://cdn.huygens.knaw.nl/alexandria/alexandria-app.zip]
+An up-to-date version of _Alexandria_ can be downloaded from <https://cdn.huygens.knaw.nl/alexandria/alexandria-app.zip>
 
 ### 1.b. Build
-Alternatively, you can build it yourself with `mvn package`  
-The .zip in `alexandria-markup-server/target` contains a `lib` dir with the fat jar,  a `bin` dir with the alexandria scripts for linux and windows, and an `example` dir. **UPDATE the directories of the zip?**
+Alternatively, you can build it yourself with
+```
+mvn package
+```
+   
+The .zip in `alexandria-markup-server/target` contains a `lib` dir with the fat jar,  a `bin` dir with the alexandria scripts for linux and windows, and an `example` dir.
 
 ### 2. Install _Alexandria_ from the zip
 
@@ -36,33 +40,52 @@ Open your .bash_profile. If you're on a Unix machine, you can type `open -a "Sub
 You can create an alias for _Alexandria_ by writing `alias alexandria="<path to alexandria>"`. For instance, your alias could say `alias alexandria="/Users/alexandria-markup-server/bin/alexandria"`. Save and close your bash_profile. Before the alias works, you have to resource the bash_profile: type `source ~/.bash_profile` in your terminal.
 
 #### 2.b. Add the directory your `PATH`
-In your terminal window, type: `export PATH=$PATH:<path to alexandria>`. For example: `export PATH=$PATH:/Users/alexandria-markup-server/bin/alexandria` if that's where you've stored _Alexandria_. You can check if it works by typing `echo $PATH` in your terminal window. It should return something like the following, with the path to _Alexandria_ directory newly added at the end:
-`/usr/bin:/bin:/usr/sbin:/sbin:/usr/local/bin:/Users/alexandria-markup-server/bin/alexandria`
+In your terminal window, type: 
+```
+export PATH=$PATH:<path to alexandria>
+```
+For example:
+```
+export PATH=$PATH:/Users/alexandria-markup-server/bin/alexandria
+```
+if that's where you've stored _Alexandria_. You can check if it works by typing
+```
+echo $PATH
+```
+in your terminal window. It should return something like the following, with the path to _Alexandria_ directory newly added at the end:
+```
+/usr/bin:/bin:/usr/sbin:/sbin:/usr/local/bin:/Users/alexandria-markup-server/bin/alexandria
+```
 
 #### 2.c.
 If you don't like to change your path, you can create a softlink.
 
 A soft link (also known as a symbolic link or symlink) consists of a special type of file that serves as a reference to another file or directory. You can create them on your command line: 
-`$ ln -s {source-filename} {symbolic-filename}`
+```
+$ ln -s {source-filename} {symbolic-filename}
+```
 
 For example: 
-`$ ln -s /Users/alexandria-markup-server/bin/alexandria /usr/local/bin/alexandria`
+```
+$ ln -s /Users/alexandria-markup-server/bin/alexandria /usr/local/bin/alexandria
+```
 
 Verify if it works by running 
-`$ ls -l /Users/alexandria-markup-server/bin/alexandria /usr/local/bin/alexandria`
+```
+$ ls -l /usr/local/bin/alexandria
+```
 
 Your output will look something like:
 ```
--rw-r--r--  1 veryv  wheel  0 Mar  7 22:01 file1
 lrwxr-xr-x  1 veryv  wheel  5 Mar  7 22:01 alexandria -> Users/alexandria-markup-server/bin/alexandria
 ```
 Notice the `->` that indicates the link between the link name and the file.
 
 ## Background and tutorial
 
-Here we provide [an overview](https://github.com/HuygensING/alexandria-markup-server/commands.md) of the commands with which you interact with _Alexandria_.
+Here we provide [an overview](commands.md) of the commands with which you interact with _Alexandria_.
 
-We also created a [tutorial](https://github.com/HuygensING/alexandria-markup-server/tutorial-alexandria.ipynb), if you're curious to learn more about _Alexandria_ and experiment with the tool. The tutorial takes the form of a [Jupyter Notebook](http://nbviewer.jupyter.org/github/DiXiT-eu/collatex-tutorial/blob/master/unit1/Jupyter_notebook.ipynb). The notebook contains blocks of text and small snippets of code: commands that you give to your version of Alexandria. You can run these commands from within the notebook. The notebook, in other words, is a secure environment for you to play around with and get to know Alexandria. 
+We also created a [tutorial](https://huygensing.github.io/alexandria-markup-server/tutorial/), if you're curious to learn more about _Alexandria_ and experiment with the tool. The tutorial takes the form of a [Jupyter Notebook](http://nbviewer.jupyter.org/github/DiXiT-eu/collatex-tutorial/blob/master/unit1/Jupyter_notebook.ipynb). The notebook contains blocks of text and small snippets of code: commands that you give to your version of Alexandria. You can run these commands from within the notebook. The notebook, in other words, is a secure environment for you to play around with and get to know Alexandria. 
 
 ## Literature
 
