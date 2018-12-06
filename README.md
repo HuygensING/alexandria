@@ -7,11 +7,30 @@ You may wonder, why use _Alexandria_ if you already have a text editing tool? We
 
 ## News
 
-### Latest release: _Alexandria 2.1_
-[date + text here]
+### Latest release: _Alexandria 2.1_ (December 2018)
+
+##### New features:
+
+- [AlexandriaStep for use in Calabash](https://huygensing.github.io/TAG/TAGML/CALABASH-README)
+- [TAGML Syntax highlighting in Sublime Text 3](https://huygensing.github.io/tagml-sublime-syntax/)
+
+###### [New/Changed commands for the command-line app](https://huygensing.github.io/alexandria/commands)
+- about
+- add
+- commit
+- export-dot
+- export-svg
+- export-png
+- export-xml 
+
+##### Bugfixes:
+
+- The first markup is now always the root markup for the default layer, even if new layers are defined on that markup.
+- This means that this first markup tag must correspond with the last closing markup tag, and suspending/resuming of this markup is not allowed.
+ 
 
 ### Upcoming presentation
-[date + text here]
+Haentjens Dekker, Ronald. Invited talk at the Workshop on Scholarly Digital Editions, Graph Data-Models and Semantic Web Technologies, Université de Lausanne, 3 June 2019.
 
 ## Documentation
 Below we explain how you can download and install _Alexandria_ on your local machine, and what you need to operate it. We'll also provide links to a comprehensive tutorial and other helpful sites.
@@ -90,11 +109,11 @@ Notice the `->` that indicates the link between the link name and the file.
 
 If you'd like to get started right away, take a look at [an overview](commands.md) of the commands with which you interact with _Alexandria_.
 
-We also created a [tutorial](https://huygensing.github.io/alexandria-markup-server/tutorial/). The tutorial takes the form of a [Jupyter Notebook](http://nbviewer.jupyter.org/github/DiXiT-eu/collatex-tutorial/blob/master/unit1/Jupyter_notebook.ipynb). The notebook contains blocks of text and small snippets of code: commands that you give to your version of Alexandria. You can run these commands from within the notebook. The notebook, in other words, is a secure environment for you to play around with and get to know Alexandria. 
+We also created a [tutorial](https://huygensing.github.io/alexandria/tutorial/). The tutorial takes the form of a [Jupyter Notebook](http://nbviewer.jupyter.org/github/DiXiT-eu/collatex-tutorial/blob/master/unit1/Jupyter_notebook.ipynb). The notebook contains blocks of text and small snippets of code: commands that you give to your version of Alexandria. You can run these commands from within the notebook. The notebook, in other words, is a secure environment for you to play around with and get to know Alexandria. 
 
 ## Presentations and publications
 
-* Bleeker, Elli. 2018. “Adressing Ancient Promises: Text Modeling and _Alexandria_”. Invited talk at the DH-Kolloquium of the Berlin Brandenburgische Akademie der Wissenschaften, 2 November 2018. Slides [here](https://edoc.bbaw.de/frontdoor/index/index/searchtype/latest/docId/2932/).
+* Bleeker, Elli. 2018. “Adressing Ancient Promises: Text Modeling and _Alexandria_”. Invited talk at the DH-Kolloquium of the Berlin Brandenburgische Akademie der Wissenschaften, 2 November 2018. [Slides](https://edoc.bbaw.de/frontdoor/index/index/searchtype/latest/docId/2932/).
 
 * Bleeker, Elli. 2018. "Advanced Text Modeling in _Alexandria_." [Presentation](https://www.huygens.knaw.nl/koning-bezoekt-het-humanities-cluster-en-het-nias-van-de-knaw/) for his Majesty the King of the Netherlands during his visit of the Royal Academy of Arts and Sciences in the Netherlands. 
  
