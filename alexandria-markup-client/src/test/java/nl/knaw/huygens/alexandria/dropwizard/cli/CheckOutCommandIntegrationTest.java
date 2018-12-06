@@ -34,7 +34,6 @@ public class CheckOutCommandIntegrationTest extends CommandIntegrationTest {
 
   private static final String command = new CheckOutCommand().getName();
 
-  @Ignore("race condition? fails on Jenkins")
   @Test
   public void testCommand() throws Exception {
     runInitCommand();
@@ -76,6 +75,7 @@ public class CheckOutCommandIntegrationTest extends CommandIntegrationTest {
     assertThat(newContent2).isEqualTo(tagml);
   }
 
+  @Ignore("race condition? fails on Jenkins")
   @Test
   public void testCheckoutNotPossibleWithUncommittedFilesPresent() throws Exception {
     runInitCommand();
