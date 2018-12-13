@@ -47,7 +47,7 @@ public class Util {
           return dotPath;
         }
       } catch (Throwable t) {
-//        LOG.log(Level.FINE, detectionCommand, t);
+        return null;
       }
     }
     return null;

@@ -20,6 +20,7 @@ package nl.knaw.huygens.alexandria.dropwizard.cli.commands;
  * #L%
  */
 
+import nl.knaw.huygens.alexandria.dropwizard.cli.AlexandriaCommandException;
 import nl.knaw.huygens.alexandria.dropwizard.cli.DotEngine;
 import nl.knaw.huygens.alexandria.dropwizard.cli.Util;
 
@@ -42,7 +43,7 @@ public class ExportRenderedDotCommand extends AbstractGraphvizCommand {
 
   @Override
   protected void renderToFile(final String dot, final String fileName) {
-    DotEngine dotEngine = new DotEngine(Util.detectDotPath());
+    DotEngine dotEngine = setupDotEngine();
     File file = new File(fileName);
     try (FileOutputStream fos = new FileOutputStream(file)) {
       file.createNewFile();
@@ -54,12 +55,23 @@ public class ExportRenderedDotCommand extends AbstractGraphvizCommand {
 
   @Override
   protected void renderToStdOut(String dot) {
-    DotEngine dotEngine = new DotEngine(Util.detectDotPath());
+    DotEngine dotEngine = setupDotEngine();
     try {
       dotEngine.renderAs(format, dot, System.out);
     } catch (IOException e) {
       e.printStackTrace();
     }
+  }
+
+  private DotEngine setupDotEngine() {
+    String dotPath = Util.detectDotPath();
+    if (dotPath == null) {
+      throw new AlexandriaCommandException(
+          "This command needs access to the GraphViz dot command, which was not found.\n" +
+              "See https://www.graphviz.org/ for installation instructions."
+      );
+    }
+    return new DotEngine(dotPath);
   }
 
 }

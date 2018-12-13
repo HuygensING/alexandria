@@ -27,6 +27,7 @@ import org.junit.Test;
 import java.nio.file.Files;
 import java.time.Instant;
 
+import static junit.framework.TestCase.fail;
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class StatusCommandIntegrationTest extends CommandIntegrationTest {
