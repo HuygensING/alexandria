@@ -2,7 +2,7 @@
   #%L
   alexandria-markup-server
   =======
-  Copyright (C) 2015 - 2018 Huygens ING (KNAW)
+  Copyright (C) 2015 - 2019 Huygens ING (KNAW)
   =======
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -18,31 +18,31 @@
   #L%
   -->
 <assembly
-        xmlns="http://maven.apache.org/plugins/maven-assembly-plugin/assembly/1.1.2"
-        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-        xsi:schemaLocation="http://maven.apache.org/plugins/maven-assembly-plugin/assembly/1.1.2 http://maven.apache.org/xsd/assembly-1.1.2.xsd">
-    <id>fat-jar</id>
-    <formats>
-        <format>zip</format>
-    </formats>
-    <includeBaseDirectory>false</includeBaseDirectory>
-    <fileSets>
-        <fileSet>
-            <directory>${project.basedir}/src/assembly/bin</directory>
-            <outputDirectory>/bin</outputDirectory>
-            <fileMode>0755</fileMode>
-        </fileSet>
-        <fileSet>
-            <directory>${project.basedir}/src/assembly/example</directory>
-            <outputDirectory>/example</outputDirectory>
-            <fileMode>0644</fileMode>
-        </fileSet>
-    </fileSets>
-    <files>
-        <file>
-            <source>${project.build.directory}/${project.name}-${project.version}-jar-with-dependencies.jar</source>
-            <outputDirectory>lib</outputDirectory>
-            <destName>alexandria.jar</destName>
-        </file>
-    </files>
+    xmlns="http://maven.apache.org/plugins/maven-assembly-plugin/assembly/1.1.2"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://maven.apache.org/plugins/maven-assembly-plugin/assembly/1.1.2 http://maven.apache.org/xsd/assembly-1.1.2.xsd">
+  <id>fat-jar</id>
+  <formats>
+    <format>zip</format>
+  </formats>
+  <includeBaseDirectory>false</includeBaseDirectory>
+  <fileSets>
+    <fileSet>
+      <directory>${project.basedir}/src/assembly/bin</directory>
+      <outputDirectory>/bin</outputDirectory>
+      <fileMode>0755</fileMode>
+    </fileSet>
+    <fileSet>
+      <directory>${project.basedir}/src/assembly/example</directory>
+      <outputDirectory>/example</outputDirectory>
+      <fileMode>0644</fileMode>
+    </fileSet>
+  </fileSets>
+  <files>
+    <file>
+      <source>${project.build.directory}/${project.name}-${project.version}-jar-with-dependencies.jar</source>
+      <outputDirectory>lib</outputDirectory>
+      <destName>alexandria.jar</destName>
+    </file>
+  </files>
 </assembly>
