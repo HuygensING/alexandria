@@ -33,23 +33,30 @@ public class DiffCommandIntegrationTest extends CommandIntegrationTest {
 
     // create sourcefile
     String tagFilename = createTagmlFileName("transcription");
-    String tagml = "[tagml>[l>test<l]<tagml]";
+    String tagml = "[tagml>[l>test [w>word<w]<l]<tagml]";
     createFile(tagFilename, tagml);
 
     runAddCommand(tagFilename);
     runCommitAllCommand();
 
     // overwrite sourcefile
-    String tagml2 = "[tagml>[l>example<l]<tagml]";
+    String tagml2 = "[tagml>[l>example [x>word<x]<l]<tagml]";
     modifyFile(tagFilename, tagml2);
 
     final boolean success = cli.run(command, tagFilename);
     String expectedOutput = "diff for tagml/transcription.tagml:\n" +
         " [tagml>[l>\n" +
-        "-test\n" +
-        "+example\n" +
-        " <l]<tagml]";
-    softlyAssertSucceedsWithExpectedStdout(success, expectedOutput);
+        "-test [w>\n" +
+        "+example [x>\n" +
+        " word\n" +
+        "-<w]\n" +
+        "+<x]\n" +
+        " <l]<tagml]\n" +
+        "\n" +
+        "markup diff:\n" +
+        "[w](2-2) replaced by [x](2-2)";
+//    softlyAssertSucceedsWithExpectedStdout(success, expectedOutput);
+    assertSucceedsWithExpectedStdout(success, expectedOutput);
   }
 
   @Test

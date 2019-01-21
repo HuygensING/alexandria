@@ -26,6 +26,7 @@ import net.sourceforge.argparse4j.inf.Subparser;
 import nl.knaw.huc.di.tag.TAGViews;
 import nl.knaw.huc.di.tag.tagml.importer.TAGMLImporter;
 import nl.knaw.huygens.alexandria.compare.TAGComparison;
+import nl.knaw.huygens.alexandria.compare.TAGComparison2;
 import nl.knaw.huygens.alexandria.dropwizard.cli.AlexandriaCommandException;
 import nl.knaw.huygens.alexandria.dropwizard.cli.CLIContext;
 import nl.knaw.huygens.alexandria.storage.TAGDocument;
@@ -88,6 +89,7 @@ public class DiffCommand extends AlexandriaCommand {
       TAGDocument edited = importer.importTAGML(newTAGML);
 
       TAGComparison comparison = new TAGComparison(original, tagView, edited);
+      TAGComparison2 comparison2 = new TAGComparison2(original, tagView, edited, store);
 
       if (MAIN_VIEW.equals(viewName)) {
         System.out.printf("diff for %s:%n", filename);
@@ -96,6 +98,12 @@ public class DiffCommand extends AlexandriaCommand {
       }
       if (comparison.hasDifferences()) {
         System.out.printf("%s%n", String.join(System.lineSeparator(), comparison.getDiffLines()));
+      } else {
+        System.out.println("no changes");
+      }
+      System.out.printf("%nmarkup diff:%n", filename);
+      if (comparison2.hasDifferences()) {
+        System.out.printf("%s%n\t", String.join(System.lineSeparator() + "\t", comparison2.getDiffLines()));
       } else {
         System.out.println("no changes");
       }
