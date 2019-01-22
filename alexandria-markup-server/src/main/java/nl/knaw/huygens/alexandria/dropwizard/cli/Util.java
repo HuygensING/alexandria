@@ -33,7 +33,8 @@ public class Util {
   private static final Logger LOG = LoggerFactory.getLogger(Util.class);
 
   public static String detectDotPath() {
-    for (String detectionCommand : new String[]{"where dot.exe", "which dot"}) {
+    for (String detectionCommand : new String[]{"which dot", "where dot.exe"}) {
+//      for (String detectionCommand : new String[]{"where dot.exe", "which dot"}) {
       try {
         final Process process = Runtime.getRuntime().exec(detectionCommand);
         try (BufferedReader processReader = new BufferedReader(new InputStreamReader(process.getInputStream(), Charset.defaultCharset()))) {
