@@ -72,4 +72,5 @@ public class ExportPngCommandIntegrationTest extends CommandIntegrationTest {
   public void testCommandShouldBeRunInAnInitializedDirectory() throws Exception {
     assertCommandRunsInAnInitializedDirectory(command, "document");
   }
+
 }

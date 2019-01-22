@@ -66,4 +66,5 @@ public class CLIContextTest {
     assertThat(cliContext1).isEqualToComparingFieldByFieldRecursively(cliContext);
     assertThat(cliContext1.getTagViewDefinitions().get("exclude-a-layer").getExcludeLayers()).containsExactly("a");
   }
+
 }
