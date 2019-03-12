@@ -60,10 +60,32 @@ public class DiffCommandIntegrationTest extends CommandIntegrationTest {
   }
 
   @Test
+  public void testCommandWithMachineReadableOutput() throws Exception {
+    runInitCommand();
+
+    // create sourcefile
+    String tagFilename = createTagmlFileName("transcription");
+    String tagml = "[tagml>[l>test [w>word<w]<l]<tagml]";
+    createFile(tagFilename, tagml);
+
+    runAddCommand(tagFilename);
+    runCommitAllCommand();
+
+    // overwrite sourcefile
+    String tagml2 = "[tagml>[l>example [x>word<x]<l]<tagml]";
+    modifyFile(tagFilename, tagml2);
+
+    final boolean success = cli.run(command, "-m", tagFilename);
+    String expectedOutput = "~[5,x]";
+//    softlyAssertSucceedsWithExpectedStdout(success, expectedOutput);
+    assertSucceedsWithExpectedStdout(success, expectedOutput);
+  }
+
+  @Test
   public void testCommandHelp() throws Exception {
     final boolean success = cli.run(command, "-h");
     assertSucceedsWithExpectedStdout(success, "usage: java -jar alexandria-app.jar\n" +
-        "       diff [-h] file\n" +
+        "       diff [-m] [-h] file\n" +
         "\n" +
         "Show the changes made to the file.\n" +
         "\n" +
@@ -71,6 +93,8 @@ public class DiffCommandIntegrationTest extends CommandIntegrationTest {
         "  file                   The file containing the edited view\n" +
         "\n" +
         "named arguments:\n" +
+        "  -m                     Output  the  diff  in  a  machine-readable  format\n" +
+        "                         (default: false)\n" +
         "  -h, --help             show this help message and exit");
   }
 

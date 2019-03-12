@@ -21,6 +21,7 @@ package nl.knaw.huygens.alexandria.dropwizard.cli.commands;
  */
 
 import io.dropwizard.setup.Bootstrap;
+import net.sourceforge.argparse4j.impl.Arguments;
 import net.sourceforge.argparse4j.inf.Namespace;
 import net.sourceforge.argparse4j.inf.Subparser;
 import nl.knaw.huc.di.tag.TAGViews;
@@ -42,12 +43,20 @@ import java.util.Optional;
 
 public class DiffCommand extends AlexandriaCommand {
 
+  private static final String ARG_MACHINE_READABLE = "machine_readable";
+
   public DiffCommand() {
     super("diff", "Show the changes made to the file.");
   }
 
   @Override
   public void configure(Subparser subparser) {
+    subparser.addArgument("-m")
+        .dest(ARG_MACHINE_READABLE)
+        .action(Arguments.storeTrue())
+        .setDefault(false)
+        .required(false)
+        .help("Output the diff in a machine-readable format");
     subparser.addArgument("file")//
         .dest(FILE)//
         .type(String.class)//
@@ -58,6 +67,7 @@ public class DiffCommand extends AlexandriaCommand {
   @Override
   public void run(Bootstrap<?> bootstrap, Namespace namespace) {
     checkDirectoryIsInitialized();
+    boolean machineReadable = namespace.getBoolean(ARG_MACHINE_READABLE);
     try (TAGStore store = getTAGStore()) {
       store.runInTransaction(() -> {
         CLIContext context = readContext();
@@ -65,7 +75,7 @@ public class DiffCommand extends AlexandriaCommand {
         String filename = namespace.getString(FILE);
         Optional<String> documentName = context.getDocumentName(filename);
         if (documentName.isPresent()) {
-          doDiff(store, context, filename, documentName);
+          doDiff(store, context, filename, documentName, machineReadable);
         } else {
           throw new AlexandriaCommandException("No document registered for " + filename);
         }
@@ -73,7 +83,7 @@ public class DiffCommand extends AlexandriaCommand {
     }
   }
 
-  private void doDiff(final TAGStore store, final CLIContext context, final String filename, final Optional<String> documentName) {
+  private void doDiff(final TAGStore store, final CLIContext context, final String filename, final Optional<String> documentName, final boolean machineReadable) {
     Long documentId = getIdForExistingDocument(documentName.get());
     TAGDocument original = store.getDocument(documentId);
 
@@ -88,24 +98,31 @@ public class DiffCommand extends AlexandriaCommand {
       TAGMLImporter importer = new TAGMLImporter(store);
       TAGDocument edited = importer.importTAGML(newTAGML);
 
-      TAGComparison comparison = new TAGComparison(original, tagView, edited);
       TAGComparison2 comparison2 = new TAGComparison2(original, tagView, edited, store);
+      if (machineReadable) {
+        if (comparison2.hasDifferences()) {
+          System.out.printf("%s%n\t", String.join(System.lineSeparator() + "\t", comparison2.getMRDiffLines()));
+        }
 
-      if (MAIN_VIEW.equals(viewName)) {
-        System.out.printf("diff for %s:%n", filename);
       } else {
-        System.out.printf("diff for %s, using view %s:%n", filename, viewName);
-      }
-      if (comparison.hasDifferences()) {
-        System.out.printf("%s%n", String.join(System.lineSeparator(), comparison.getDiffLines()));
-      } else {
-        System.out.println("no changes");
-      }
-      System.out.printf("%nmarkup diff:%n", filename);
-      if (comparison2.hasDifferences()) {
-        System.out.printf("%s%n\t", String.join(System.lineSeparator() + "\t", comparison2.getDiffLines()));
-      } else {
-        System.out.println("no changes");
+        TAGComparison comparison = new TAGComparison(original, tagView, edited);
+
+        if (MAIN_VIEW.equals(viewName)) {
+          System.out.printf("diff for %s:%n", filename);
+        } else {
+          System.out.printf("diff for %s, using view %s:%n", filename, viewName);
+        }
+        if (comparison.hasDifferences()) {
+          System.out.printf("%s%n", String.join(System.lineSeparator(), comparison.getDiffLines()));
+        } else {
+          System.out.println("no changes");
+        }
+        System.out.printf("%nmarkup diff:%n", filename);
+        if (comparison2.hasDifferences()) {
+          System.out.printf("%s%n\t", String.join(System.lineSeparator() + "\t", comparison2.getDiffLines()));
+        } else {
+          System.out.println("no changes");
+        }
       }
 
     } catch (IOException e) {
