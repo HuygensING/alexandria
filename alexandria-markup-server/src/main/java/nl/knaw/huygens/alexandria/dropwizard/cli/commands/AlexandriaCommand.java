@@ -33,6 +33,7 @@ import nl.knaw.huc.di.tag.TAGViews;
 import nl.knaw.huc.di.tag.tagml.exporter.TAGMLExporter;
 import nl.knaw.huygens.alexandria.dropwizard.cli.*;
 import nl.knaw.huygens.alexandria.markup.api.AlexandriaProperties;
+import nl.knaw.huygens.alexandria.storage.BDBTAGStore;
 import nl.knaw.huygens.alexandria.storage.TAGDocument;
 import nl.knaw.huygens.alexandria.storage.TAGStore;
 import nl.knaw.huygens.alexandria.view.TAGView;
@@ -183,7 +184,7 @@ public abstract class AlexandriaCommand extends Command {
   }
 
   TAGStore getTAGStore() {
-    return new TAGStore(alexandriaDir, false);
+    return new BDBTAGStore(alexandriaDir, false);
   }
 
   FileType fileType(String fileName) {

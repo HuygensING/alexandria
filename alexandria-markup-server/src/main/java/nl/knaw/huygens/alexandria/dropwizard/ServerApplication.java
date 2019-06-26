@@ -38,6 +38,7 @@ import nl.knaw.huygens.alexandria.dropwizard.resources.AboutResource;
 import nl.knaw.huygens.alexandria.dropwizard.resources.DocumentsResource;
 import nl.knaw.huygens.alexandria.dropwizard.resources.HomePageResource;
 import nl.knaw.huygens.alexandria.markup.api.AppInfo;
+import nl.knaw.huygens.alexandria.storage.BDBTAGStore;
 import nl.knaw.huygens.alexandria.storage.TAGStore;
 import nl.knaw.huygens.alexandria.texmecs.importer.TexMECSImporter;
 import org.slf4j.Logger;
@@ -109,7 +110,7 @@ public class ServerApplication extends Application<ServerConfiguration> {
   @Override
   public void run(ServerConfiguration configuration, Environment environment) {
     DocumentService documentService = new DocumentService(configuration);
-    TAGStore store = new TAGStore(configuration.getDbDir(), false);
+    TAGStore store = new BDBTAGStore(configuration.getDbDir(), false);
     configuration.setStore(store);
     TAGMLImporter tagmlImporter = new TAGMLImporter(store);
     TAGMLExporter tagmlExporter = new TAGMLExporter(store);

@@ -26,6 +26,7 @@ import nl.knaw.huygens.alexandria.dropwizard.ServerConfiguration;
 import nl.knaw.huygens.alexandria.dropwizard.api.DocumentService;
 import nl.knaw.huygens.alexandria.dropwizard.resources.AboutResource;
 import nl.knaw.huygens.alexandria.dropwizard.resources.DocumentsResource;
+import nl.knaw.huygens.alexandria.storage.BDBTAGStore;
 import nl.knaw.huygens.alexandria.storage.TAGStore;
 import nl.knaw.huygens.alexandria.texmecs.importer.TexMECSImporter;
 import org.glassfish.grizzly.http.server.HttpServer;
@@ -59,7 +60,7 @@ public abstract class AlexandriaTestWithTestMarkupServer {
   public static void startTestServer() throws IOException {
     ServerConfiguration config = new ServerConfiguration();
     config.setBaseURI(BASEURI);
-    config.setStore(new TAGStore(tmpFolder.newFolder("db").getPath(), false));
+    config.setStore(new BDBTAGStore(tmpFolder.newFolder("db").getPath(), false));
 
     ResourceConfig resourceConfig = new ResourceConfig();
     resourceConfig.register(new AboutResource());
