@@ -104,6 +104,7 @@ public class ServerApplication extends Application<ServerConfiguration> {
     bootstrap.addCommand(new ExportRenderedDotCommand("svg"));
     bootstrap.addCommand(new ExportRenderedDotCommand("png"));
     bootstrap.addCommand(new ExportXmlCommand());
+    bootstrap.addCommand(new SPARQLQueryCommand());
 //    bootstrap.addCommand(new QueryCommand());
   }
 

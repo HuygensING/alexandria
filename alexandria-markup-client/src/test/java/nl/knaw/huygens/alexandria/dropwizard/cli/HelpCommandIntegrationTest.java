@@ -45,6 +45,7 @@ public class HelpCommandIntegrationTest extends CommandIntegrationTest {
         "export-xml  - Export the document as xml.\n" +
         "help        - Show the available commands and their descriptions.\n" +
         "init        - Initializes current directory as an alexandria workspace.\n" +
+        "query       - Query the document using SPARQL.\n" +
         "revert      - Restore the document file(s).\n" +
         "status      - Show the directory status (active view, modified files, etc.).");
   }
