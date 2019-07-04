@@ -27,7 +27,7 @@ public class SPARQLQueryCommandIntegrationTest extends CommandIntegrationTest {
 
   private static final String command = new SPARQLQueryCommand().getName();
 
-  @Test
+//  @Test
   public void testCommand() throws Exception {
     runInitCommand();
 

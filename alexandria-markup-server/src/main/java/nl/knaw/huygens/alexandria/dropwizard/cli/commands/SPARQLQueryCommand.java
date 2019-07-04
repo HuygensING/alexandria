@@ -73,8 +73,11 @@ public class SPARQLQueryCommand extends AlexandriaCommand {
             System.out.printf("document: %s%n", docName);
             System.out.printf("query:%n  %s%n", sparqlQuery.replaceAll("\\n", "\n  "));
             TAGDocument document = store.getDocument(docId);
+            System.out.println("#1");
             SPARQLQueryHandler h = new SPARQLQueryHandler(document);
+            System.out.println("#2");
             SPARQLResult result = h.execute(sparqlQuery);
+            System.out.println("#3");
             System.out.printf("result:%n%s%n", result.getValues().stream()
                 .map(Object::toString)
                 .collect(joining("\n")));
