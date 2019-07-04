@@ -9,9 +9,9 @@ package nl.knaw.huygens.alexandria.dropwizard.cli.commands;
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -71,7 +71,7 @@ public class SPARQLQueryCommand extends AlexandriaCommand {
         try (TAGStore store = getTAGStore()) {
           store.runInTransaction(() -> {
             System.out.printf("document: %s%n", docName);
-            System.out.printf("query: %s%n", sparqlQuery);
+            System.out.printf("query:%n  %s%n", sparqlQuery.replaceAll("\\n", "\n  "));
             TAGDocument document = store.getDocument(docId);
             SPARQLQueryHandler h = new SPARQLQueryHandler(document);
             SPARQLResult result = h.execute(sparqlQuery);
