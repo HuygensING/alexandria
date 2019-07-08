@@ -9,9 +9,9 @@ package nl.knaw.huygens.alexandria.dropwizard.cli.commands;
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- *
+ * 
  *      http://www.apache.org/licenses/LICENSE-2.0
- *
+ * 
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -59,6 +59,18 @@ public class SPARQLQueryCommand extends AlexandriaCommand {
 
   @Override
   public void run(Bootstrap<?> bootstrap, Namespace namespace) {
+//    System.out.println("Resource annotationP = TAG.annotation;");
+//    Resource annotationP = TAG.annotation;
+//    System.out.println("Resource alt = RDF.Alt;");
+//    Resource alt = RDF.Alt;
+//    System.out.println("String uri = SKOS.getURI();");
+//    String uri = SKOS.getURI();
+//    System.out.println("Property altLabel = SKOS.altLabel");
+//    Property altLabel = SKOS.altLabel;
+//    System.out.println("Resource collection = SKOS.Collection;");
+//    Resource collection = SKOS.Collection;
+//    System.out.println("Resource annotation = TAG.Annotation");
+//    Resource annotation = TAG.Annotation;
     checkDirectoryIsInitialized();
     String docName = namespace.getString(DOCUMENT);
     String sparqlFile = namespace.getString(QUERY);
@@ -73,11 +85,8 @@ public class SPARQLQueryCommand extends AlexandriaCommand {
             System.out.printf("document: %s%n", docName);
             System.out.printf("query:%n  %s%n", sparqlQuery.replaceAll("\\n", "\n  "));
             TAGDocument document = store.getDocument(docId);
-            System.out.println("#1");
             SPARQLQueryHandler h = new SPARQLQueryHandler(document);
-            System.out.println("#2");
             SPARQLResult result = h.execute(sparqlQuery);
-            System.out.println("#3");
             System.out.printf("result:%n%s%n", result.getValues().stream()
                 .map(Object::toString)
                 .collect(joining("\n")));
