@@ -45,12 +45,14 @@ public class SPARQLQueryCommand extends AlexandriaCommand {
 
   @Override
   public void configure(Subparser subparser) {
-    subparser.addArgument("-d", "--document")//
+    subparser.addArgument("DOCUMENT")//
+        .metavar("<document>")
         .dest(DOCUMENT)//
         .type(String.class)//
         .required(true)//
         .help("The name of the document to query.");
     subparser.addArgument("-q", "--query")//
+        .metavar("<sparql-file>")
         .dest(QUERY)
         .type(String.class)//
         .required(true)//
@@ -59,18 +61,6 @@ public class SPARQLQueryCommand extends AlexandriaCommand {
 
   @Override
   public void run(Bootstrap<?> bootstrap, Namespace namespace) {
-//    System.out.println("Resource annotationP = TAG.annotation;");
-//    Resource annotationP = TAG.annotation;
-//    System.out.println("Resource alt = RDF.Alt;");
-//    Resource alt = RDF.Alt;
-//    System.out.println("String uri = SKOS.getURI();");
-//    String uri = SKOS.getURI();
-//    System.out.println("Property altLabel = SKOS.altLabel");
-//    Property altLabel = SKOS.altLabel;
-//    System.out.println("Resource collection = SKOS.Collection;");
-//    Resource collection = SKOS.Collection;
-//    System.out.println("Resource annotation = TAG.Annotation");
-//    Resource annotation = TAG.Annotation;
     checkDirectoryIsInitialized();
     String docName = namespace.getString(DOCUMENT);
     String sparqlFile = namespace.getString(QUERY);
@@ -82,8 +72,8 @@ public class SPARQLQueryCommand extends AlexandriaCommand {
         Long docId = getIdForExistingDocument(docName);
         try (TAGStore store = getTAGStore()) {
           store.runInTransaction(() -> {
-            System.out.printf("document: %s%n", docName);
-            System.out.printf("query:%n  %s%n", sparqlQuery.replaceAll("\\n", "\n  "));
+            System.out.printf("document: %s%n%n", docName);
+            System.out.printf("query:%n  %s%n%n", sparqlQuery.replaceAll("\\n", "\n  "));
             TAGDocument document = store.getDocument(docId);
             SPARQLQueryHandler h = new SPARQLQueryHandler(document);
             SPARQLResult result = h.execute(sparqlQuery);

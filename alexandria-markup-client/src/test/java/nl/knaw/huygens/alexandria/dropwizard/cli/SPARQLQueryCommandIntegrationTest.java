@@ -49,15 +49,15 @@ public class SPARQLQueryCommandIntegrationTest extends CommandIntegrationTest {
     runAddCommand(tagFilename);
     runCommitAllCommand();
 
-    final boolean success = cli.run(command, "-d", "transcription", "-q", "query.sparql");
-    String expectedOutput = "document: transcription\n" +
+    final boolean success = cli.run(command, "transcription", "-q", "query.sparql");
+    String expectedOutput = "document: transcription\n\n" +
         "query:\n" +
         "  prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>" +
         " prefix tag: <https://huygensing.github.io/TAG/TAGML/ontology/tagml.ttl#>" +
         " select ?markup (count(?markup) as ?count)" +
         " where { [] tag:markup_name ?markup . }" +
         " group by ?markup" +
-        " order by ?markup\n" +
+        " order by ?markup\n\n" +
         "result:\n" +
         "-------------------\n" +
         "| markup  | count |\n" +
@@ -74,14 +74,15 @@ public class SPARQLQueryCommandIntegrationTest extends CommandIntegrationTest {
   public void testCommandHelp() throws Exception {
     final boolean success = cli.run(command, "-h");
     assertSucceedsWithExpectedStdout(success, "usage: java -jar alexandria-app.jar\n" +
-        "       query -d DOCUMENT -q QUERY [-h]\n" +
+        "       query -q <sparql-file> [-h] <document>\n" +
         "\n" +
         "Query the document using SPARQL.\n" +
         "\n" +
+        "positional arguments:\n" +
+        "  <document>             The name of the document to query.\n" +
+        "\n" +
         "named arguments:\n" +
-        "  -d DOCUMENT, --document DOCUMENT\n" +
-        "                         The name of the document to query.\n" +
-        "  -q QUERY, --query QUERY\n" +
+        "  -q <sparql-file>, --query <sparql-file>\n" +
         "                         The file containing the SPARQL query.\n" +
         "  -h, --help             show this help message and exit");
   }

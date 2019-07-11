@@ -72,7 +72,7 @@ if "%JAVACMD%"=="" set JAVACMD=java
 
 if "%REPO%"=="" set REPO=%BASEDIR%\lib
 
-set CLASSPATH="%BASEDIR%"\conf;"%REPO%"\alexandria.jar
+set CLASSPATH="%BASEDIR%"\conf;"%REPO%"
 
 set ENDORSED_DIR=
 if NOT "%ENDORSED_DIR%" == "" set CLASSPATH="%BASEDIR%"\%ENDORSED_DIR%\*;%CLASSPATH%
@@ -82,7 +82,7 @@ if NOT "%CLASSPATH_PREFIX%" == "" set CLASSPATH=%CLASSPATH_PREFIX%;%CLASSPATH%
 @REM Reaching here means variables are defined and arguments have been captured
 :endInit
 
-%JAVACMD% %JAVA_OPTS% -Xms128m -classpath %CLASSPATH% -Dapp.name="alexandria" -Dapp.repo="%REPO%" -Dapp.home="%BASEDIR%" -Dbasedir="%BASEDIR%" nl.knaw.huygens.alexandria.dropwizard.ServerApplication %CMD_LINE_ARGS%
+%JAVACMD% %JAVA_OPTS% -Xms128m -classpath %CLASSPATH%\* -Dapp.name="alexandria" -Dapp.repo="%REPO%" -Dapp.home="%BASEDIR%" -Dbasedir="%BASEDIR%" nl.knaw.huygens.alexandria.dropwizard.ServerApplication %CMD_LINE_ARGS%
 if %ERRORLEVEL% NEQ 0 goto error
 goto end
 

@@ -81,6 +81,10 @@ Go to the directory that you unpacked the zip into. The zip contained three subd
   
   This will show a list of the available commands and their short descriptions.
 
+* `alexandria query frost-quote -q sparql/markup-count.sparql`
+  
+  This will execute the `markup-count` SPARQL query on the knowledge graph of document `frost-quote`
+
 #### NOTE:
 - In all of the previous commands with multiple parameters, those parameters are order independent, so   
   `alexandria export-xml frost-quote -o fq.xml`  

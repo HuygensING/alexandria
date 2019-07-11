@@ -9,9 +9,9 @@ package nl.knaw.huygens.alexandria.dropwizard.cli.commands;
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -117,7 +117,8 @@ public class DiffCommand extends AlexandriaCommand {
         } else {
           System.out.println("no changes");
         }
-        System.out.printf("%nmarkup diff:%n", filename);
+//        System.out.printf("%nmarkup diff:%n", filename);
+        System.out.println("\nmarkup diff:");
         if (comparison2.hasDifferences()) {
           System.out.printf("%s%n\t", String.join(System.lineSeparator() + "\t", comparison2.getDiffLines()));
         } else {
