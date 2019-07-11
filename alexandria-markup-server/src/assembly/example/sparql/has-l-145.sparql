@@ -1,0 +1,11 @@
+#Is there a line 145 in this graph?
+prefix tag: <https://huygensing.github.io/TAG/TAGML/ontology/tagml.ttl#>
+prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+
+ask {
+  ?m tag:markup_name 'l' ;
+     tag:annotation ?a .
+
+  ?a tag:annotation_name 'n' ;
+     tag:value "145.0"^^<http://www.w3.org/2001/XMLSchema#double> .
+}

@@ -1,7 +1,7 @@
+#what statements do you have about the excerpt node?
 prefix tag: <https://huygensing.github.io/TAG/TAGML/ontology/tagml.ttl#>
 prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
-
-select ?markup (count(?markup) as ?count)
-where { [] tag:markup_name ?markup . }
-group by ?markup
-order by ?markup
+describe ?e
+where {
+  ?e tag:markup_name 'excerpt' .
+}
