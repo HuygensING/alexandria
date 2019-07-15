@@ -21,6 +21,7 @@ package nl.knaw.huygens.alexandria.dropwizard.cli;
  */
 
 import nl.knaw.huygens.alexandria.dropwizard.cli.commands.RevertCommand;
+import nl.knaw.huygens.alexandria.dropwizard.cli.commands.StatusCommand;
 import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -53,6 +54,11 @@ public class RevertCommandIntegrationTest extends CommandIntegrationTest {
 
     String fileContentsAfterRevert = readFileContents(tagFilename);
     assertThat(fileContentsAfterRevert).isEqualTo(tagml);
+
+    Boolean statusSuccess = cli.run(new StatusCommand().getName());
+    assertThat(statusSuccess).isTrue();
+    String stdOut = normalize(this.stdOut.toString());
+    assertThat(stdOut).doesNotContain("tagml/transcription.tagml");
   }
 
   @Test

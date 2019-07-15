@@ -25,13 +25,16 @@ import net.sourceforge.argparse4j.inf.Namespace;
 import net.sourceforge.argparse4j.inf.Subparser;
 import nl.knaw.huc.di.tag.TAGViews;
 import nl.knaw.huygens.alexandria.dropwizard.cli.CLIContext;
+import nl.knaw.huygens.alexandria.dropwizard.cli.FileInfo;
 import nl.knaw.huygens.alexandria.storage.TAGStore;
 import nl.knaw.huygens.alexandria.view.TAGView;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.attribute.FileTime;
 import java.util.List;
 import java.util.Optional;
-
-import static nl.knaw.huygens.alexandria.dropwizard.cli.commands.CheckOutCommand.MAIN_VIEW;
 
 public class RevertCommand extends AlexandriaCommand {
 
@@ -73,11 +76,20 @@ public class RevertCommand extends AlexandriaCommand {
             System.out.printf("Reverting %s...%n", fileName);
             Long docId = getIdForExistingDocument(documentName.get());
             exportTAGML(context, store, tagView, fileName, docId);
+            FileInfo fileInfo = context.getWatchedFiles().get(fileName);
+            try {
+              Path file = workFilePath(fileName);
+              FileTime lastModifiedTime = Files.getLastModifiedTime(file);
+              fileInfo.setLastCommit(lastModifiedTime.toInstant());
+            } catch (IOException e) {
+              e.printStackTrace();
+            }
 
           } else {
             System.out.printf("%s is not linked to a document, not reverting.%n", fileName);
           }
         });
+        storeContext(context);
       });
     }
     System.out.println("done!");
