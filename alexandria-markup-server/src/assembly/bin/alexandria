@@ -117,7 +117,7 @@ if $cygwin; then
   [ -n "$REPO" ] && REPO=`cygpath --path --windows "$REPO"`
 fi
 
-CLASSPATH="$CLASSPATH\*"
+CLASSPATH="$CLASSPATH/*"
 
 # echo exec "$JAVACMD" $JAVA_OPTS -Xms128m \
 #   -classpath "$CLASSPATH" \
