@@ -61,7 +61,7 @@ public class SPARQLQueryCommand extends AlexandriaCommand {
 
   @Override
   public void run(Bootstrap<?> bootstrap, Namespace namespace) {
-    checkDirectoryIsInitialized();
+    checkAlexandriaIsInitialized();
     String docName = namespace.getString(DOCUMENT);
     String sparqlFile = namespace.getString(QUERY);
     Path filePath = workFilePath(sparqlFile);

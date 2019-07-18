@@ -54,7 +54,7 @@ public class QueryCommand extends AlexandriaCommand {
 
   @Override
   public void run(Bootstrap<?> bootstrap, Namespace namespace) {
-    checkDirectoryIsInitialized();
+    checkAlexandriaIsInitialized();
     String docName = namespace.getString(DOCUMENT);
     String statement = namespace.getString(QUERY);
     Long docId = getIdForExistingDocument(docName);

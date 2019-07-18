@@ -105,7 +105,7 @@ public class ServerApplication extends Application<ServerConfiguration> {
     bootstrap.addCommand(new ExportRenderedDotCommand("png"));
     bootstrap.addCommand(new ExportXmlCommand());
     bootstrap.addCommand(new SPARQLQueryCommand());
-//    bootstrap.addCommand(new QueryCommand());
+    bootstrap.addCommand(new ShowWorkdirCommand());
   }
 
   @Override

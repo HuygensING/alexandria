@@ -33,7 +33,7 @@ public class StatusCommandIntegrationTest extends CommandIntegrationTest {
 
   private static final String command = new StatusCommand().getName();
 
-  @Ignore("race condition? passes in isolation, fails in alltests")
+//  @Ignore("race condition? passes in isolation, fails in alltests")
   @Test
   public void testCommand() throws Exception {
     runInitCommand();

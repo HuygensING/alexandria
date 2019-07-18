@@ -49,7 +49,7 @@ public class CheckOutCommand extends AlexandriaCommand {
 
   @Override
   public void run(Bootstrap<?> bootstrap, Namespace namespace) throws IOException {
-    checkDirectoryIsInitialized();
+    checkAlexandriaIsInitialized();
     checkDirectoryHasNoUnCommittedChanges();
 
     String viewName = namespace.getString(VIEW);

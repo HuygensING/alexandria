@@ -66,7 +66,7 @@ public class DiffCommand extends AlexandriaCommand {
 
   @Override
   public void run(Bootstrap<?> bootstrap, Namespace namespace) {
-    checkDirectoryIsInitialized();
+    checkAlexandriaIsInitialized();
     boolean machineReadable = namespace.getBoolean(ARG_MACHINE_READABLE);
     try (TAGStore store = getTAGStore()) {
       store.runInTransaction(() -> {

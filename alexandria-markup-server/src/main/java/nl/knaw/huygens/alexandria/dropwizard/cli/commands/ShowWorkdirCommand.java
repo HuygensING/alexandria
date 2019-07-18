@@ -23,44 +23,31 @@ package nl.knaw.huygens.alexandria.dropwizard.cli.commands;
 import io.dropwizard.setup.Bootstrap;
 import net.sourceforge.argparse4j.inf.Namespace;
 import net.sourceforge.argparse4j.inf.Subparser;
-import nl.knaw.huygens.alexandria.dropwizard.cli.CLIContext;
 
-import java.io.File;
 import java.io.IOException;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Optional;
 
-public class InitCommand extends AlexandriaCommand {
+public class ShowWorkdirCommand extends AlexandriaCommand {
 
-  public InitCommand() {
-    super("init", "Initializes current directory as an alexandria workspace.");
+  public ShowWorkdirCommand() {
+    super("workdir", "Show the workdirectory .");
   }
 
   @Override
   public void configure(Subparser subparser) {
-
   }
 
   @Override
   public void run(Bootstrap<?> bootstrap, Namespace namespace) throws IOException {
-    System.out.println("initializing...");
-
-    new File(alexandriaDir).mkdir();
-    Path transcriptionsPath = Paths.get(workDir, SOURCE_DIR);
-    mkdir(transcriptionsPath);
-    Path viewsPath = Paths.get(workDir, VIEWS_DIR);
-    mkdir(viewsPath);
-
-    CLIContext context = new CLIContext();
-    storeContext(context);
-
-    System.out.println("done!");
-  }
-
-  private void mkdir(final Path path) throws IOException {
-    if (!Files.exists(path)) {
-      Files.createDirectory(path);
+    Optional<Path> workingDirectory = getWorkingDirectory();
+    if (workingDirectory.isPresent()) {
+      System.out.println(workingDirectory.get());
+    } else {
+      System.err.println("No " + ALEXANDRIA_DIR + " directory found in this directory or any of its ancestors.");
     }
   }
+
 }
+

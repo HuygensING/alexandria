@@ -32,7 +32,7 @@ public class ExportRenderedDotCommand extends AbstractGraphvizCommand {
   private String format;
 
   public ExportRenderedDotCommand(String format) {
-    super("export-" + format, "Export the document as " + format + ".");
+    super("export-" + format, "Export the document as " + format + ". (Requires access to Graphviz' dot command)");
     this.format = format;
   }
 
@@ -67,7 +67,7 @@ public class ExportRenderedDotCommand extends AbstractGraphvizCommand {
     String dotPath = Util.detectDotPath();
     if (dotPath == null) {
       throw new AlexandriaCommandException(
-          "This command needs access to the GraphViz dot command, which was not found.\n" +
+          "This command needs access to the Graphviz dot command, which was not found.\n" +
               "See https://www.graphviz.org/ for installation instructions."
       );
     }

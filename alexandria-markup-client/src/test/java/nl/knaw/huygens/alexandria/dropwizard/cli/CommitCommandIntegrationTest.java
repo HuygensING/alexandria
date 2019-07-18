@@ -36,8 +36,8 @@ public class CommitCommandIntegrationTest extends CommandIntegrationTest {
     runInitCommand();
 
     String filename = "transcription1.tagml";
-    createFile(filename, "[tagml>test<tagml]");
-    runAddCommand(filename);
+    String absolutePath = createFile(filename, "[tagml>test<tagml]");
+    runAddCommand(absolutePath);
 
     Instant dateAfterAdd = readLastCommittedInstant(filename);
     assertThat(dateAfterAdd).isNotNull();

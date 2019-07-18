@@ -40,13 +40,13 @@ public class CheckOutCommandIntegrationTest extends CommandIntegrationTest {
 
     String tagFilename = createTagmlFileName("transcription");
     String tagml = "[tagml>[l>test<l]<tagml]";
-    createFile(tagFilename, tagml);
+    String absoluteTagmlPath = createFile(tagFilename, tagml);
 
     String viewName = "v1";
     String viewFilename = createViewFileName(viewName);
-    createFile(viewFilename, "{\"includeMarkup\":[\"l\"]}");
+    String absoluteViewPath = createFile(viewFilename, "{\"includeMarkup\":[\"l\"]}");
 
-    runAddCommand(tagFilename, viewFilename);
+    runAddCommand(absoluteTagmlPath, absoluteViewPath);
     runCommitAllCommand();
 
     final boolean success = cli.run(command, viewName);

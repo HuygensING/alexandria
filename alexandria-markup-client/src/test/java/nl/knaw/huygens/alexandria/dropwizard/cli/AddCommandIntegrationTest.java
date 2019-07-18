@@ -23,6 +23,9 @@ package nl.knaw.huygens.alexandria.dropwizard.cli;
 import nl.knaw.huygens.alexandria.dropwizard.cli.commands.AddCommand;
 import org.junit.Test;
 
+import java.nio.file.Path;
+import java.nio.file.Paths;
+
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class AddCommandIntegrationTest extends CommandIntegrationTest {
@@ -34,9 +37,9 @@ public class AddCommandIntegrationTest extends CommandIntegrationTest {
     runInitCommand();
     String filename1 = "transcription1.tagml";
     String filename2 = "transcription2.tagml";
-    createFile(filename1, "");
-    createFile(filename2, "");
-    final boolean success = cli.run(command, filename1, filename2);
+    String absolutePath1 = createFile(filename1, "");
+    String absolutePath2 = createFile(filename2, "");
+    final boolean success = cli.run(command, absolutePath1, absolutePath2);
     softlyAssertSucceedsWithExpectedStdout(success, "");
 
     CLIContext cliContext = readCLIContext();
