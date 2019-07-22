@@ -37,9 +37,9 @@ public class RevertCommandIntegrationTest extends CommandIntegrationTest {
     // create sourcefile
     String tagFilename = createTagmlFileName("transcription");
     String tagml = "[tagml>[l>test<l]<tagml]";
-    createFile(tagFilename, tagml);
+    String tagPath = createFile(tagFilename, tagml);
 
-    runAddCommand(tagFilename);
+    runAddCommand(tagPath);
     runCommitAllCommand();
 
     // overwrite sourcefile
@@ -49,7 +49,7 @@ public class RevertCommandIntegrationTest extends CommandIntegrationTest {
     String fileContentsBeforeRevert = readFileContents(tagFilename);
     assertThat(fileContentsBeforeRevert).isEqualTo(tagml2);
 
-    final boolean success = cli.run(command, tagFilename);
+    final boolean success = cli.run(command, tagPath);
     assertSucceedsWithExpectedStdout(success, "Reverting " + tagFilename + "...\ndone!");
 
     String fileContentsAfterRevert = readFileContents(tagFilename);
@@ -68,13 +68,13 @@ public class RevertCommandIntegrationTest extends CommandIntegrationTest {
     // create sourcefile
     String tagFilename = createTagmlFileName("transcription1");
     String tagml = "[tagml>[l>test<l]<tagml]";
-    createFile(tagFilename, tagml);
+    String tagPath = createFile(tagFilename, tagml);
 
     // create viewfile
     String viewName = "l";
     String viewFilename = createViewFileName(viewName);
-    createFile(viewFilename, "{\"includeMarkup\":[\"l\"]}");
-    runAddCommand(tagFilename, viewFilename);
+    String viewPath = createFile(viewFilename, "{\"includeMarkup\":[\"l\"]}");
+    runAddCommand(tagPath, viewPath);
     runCommitAllCommand();
     runCheckoutCommand(viewName);
 
@@ -87,7 +87,7 @@ public class RevertCommandIntegrationTest extends CommandIntegrationTest {
     String fileContentsBeforeRevert = readFileContents(tagFilename);
     assertThat(fileContentsBeforeRevert).isEqualTo(tagml2);
 
-    final boolean success = cli.run(command, tagFilename);
+    final boolean success = cli.run(command, tagPath);
     assertSucceedsWithExpectedStdout(success, "Reverting " + tagFilename + "...\ndone!");
 
     String fileContentsAfterRevert = readFileContents(tagFilename);

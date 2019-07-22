@@ -26,7 +26,6 @@ import net.sourceforge.argparse4j.inf.Subparser;
 
 import java.io.IOException;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.Optional;
 
 public class ShowWorkdirCommand extends AlexandriaCommand {

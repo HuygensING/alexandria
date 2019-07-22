@@ -287,7 +287,7 @@ public abstract class AlexandriaCommand extends Command {
 
   Multimap<FileStatus, String> readWorkDirStatus(CLIContext context) throws IOException {
     Multimap<FileStatus, String> fileStatusMap = ArrayListMultimap.create();
-    Path workDir = workFilePath(".");
+    Path workDir = workFilePath("");
     Set<String> watchedFiles = new HashSet<>(context.getWatchedFiles().keySet());
     BiPredicate<Path, BasicFileAttributes> matcher = (filePath, fileAttr) ->
         fileAttr.isRegularFile()
@@ -337,6 +337,8 @@ public abstract class AlexandriaCommand extends Command {
 
     Set<String> changedFiles = new HashSet<>(fileStatusMap.get(FileStatus.changed));
     Set<String> deletedFiles = new HashSet<>(fileStatusMap.get(FileStatus.deleted));
+    Path currentPath = Paths.get("").toAbsolutePath();
+    Path workdirPath = Paths.get(workDir);
     if (!(changedFiles.isEmpty() && deletedFiles.isEmpty())) {
       System.out.printf("Uncommitted changes:%n" +
           "  (use \"alexandria commit <file>...\" to commit the selected changes)%n" +
@@ -345,8 +347,6 @@ public abstract class AlexandriaCommand extends Command {
       Set<String> changedOrDeletedFiles = new TreeSet<>();
       changedOrDeletedFiles.addAll(changedFiles);
       changedOrDeletedFiles.addAll(deletedFiles);
-      Path currentPath = Paths.get("");
-      Path workdirPath = Paths.get(workDir);
       changedOrDeletedFiles.forEach(file -> {
             String status = changedFiles.contains(file)
                 ? "        modified: "
@@ -364,8 +364,11 @@ public abstract class AlexandriaCommand extends Command {
     if (!createdFiles.isEmpty()) {
       System.out.printf("Untracked files:%n" +
           "  (use \"alexandria add <file>...\" to start tracking this file.)%n%n");
-      createdFiles.stream().sorted().forEach(f ->
-          System.out.println(ansi().fg(RED).a("        ").a(f).reset())
+      createdFiles.stream().sorted().forEach(file -> {
+            Path filePath = workdirPath.resolve(file);
+            Path relativeToCurrentPath = currentPath.relativize(filePath);
+            System.out.println(ansi().fg(RED).a("        ").a(relativeToCurrentPath).reset());
+          }
       );
     }
 
@@ -384,7 +387,11 @@ public abstract class AlexandriaCommand extends Command {
     Path absolutePath = path.isAbsolute()
         ? path
         : Paths.get("").toAbsolutePath().resolve(pathString);
-    return Paths.get(workDir).toAbsolutePath().relativize(absolutePath).toString();
+    return Paths.get(workDir)
+        .toAbsolutePath()
+        .relativize(absolutePath)
+        .toString()
+        .replaceAll("\\\\", "/");
   }
 
 }

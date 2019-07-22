@@ -67,7 +67,7 @@ public abstract class CommandIntegrationTest {
 
   final ByteArrayOutputStream stdOut = new ByteArrayOutputStream();
   final ByteArrayOutputStream stdErr = new ByteArrayOutputStream();
-  private Path workDirectory;
+  Path workDirectory;
   static ObjectMapper mapper = new ObjectMapper();
 
   static {

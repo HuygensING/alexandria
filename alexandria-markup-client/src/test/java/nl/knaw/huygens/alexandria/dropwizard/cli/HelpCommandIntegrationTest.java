@@ -21,7 +21,6 @@ package nl.knaw.huygens.alexandria.dropwizard.cli;
  */
 
 import nl.knaw.huygens.alexandria.dropwizard.cli.commands.HelpCommand;
-import org.junit.Test;
 
 public class HelpCommandIntegrationTest extends CommandIntegrationTest {
 

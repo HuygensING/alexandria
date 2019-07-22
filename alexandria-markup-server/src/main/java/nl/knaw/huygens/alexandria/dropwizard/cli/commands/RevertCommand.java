@@ -56,7 +56,7 @@ public class RevertCommand extends AlexandriaCommand {
   @Override
   public void run(Bootstrap<?> bootstrap, Namespace namespace) {
     checkAlexandriaIsInitialized();
-    List<String> files = relativeFilePaths(namespace);;
+    List<String> files = relativeFilePaths(namespace);
 
     CLIContext context = readContext();
 

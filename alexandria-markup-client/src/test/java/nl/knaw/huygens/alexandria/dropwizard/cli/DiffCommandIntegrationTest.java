@@ -34,9 +34,9 @@ public class DiffCommandIntegrationTest extends CommandIntegrationTest {
     // create sourcefile
     String tagFilename = createTagmlFileName("transcription");
     String tagml = "[tagml>[l>test [w>word<w]<l]<tagml]";
-    createFile(tagFilename, tagml);
+    String file = createFile(tagFilename, tagml);
 
-    runAddCommand(tagFilename);
+    runAddCommand(file);
     runCommitAllCommand();
 
     // overwrite sourcefile
@@ -66,9 +66,9 @@ public class DiffCommandIntegrationTest extends CommandIntegrationTest {
     // create sourcefile
     String tagFilename = createTagmlFileName("transcription");
     String tagml = "[tagml>[l>test [w>word<w]<l]<tagml]";
-    createFile(tagFilename, tagml);
+    String filePath = createFile(tagFilename, tagml);
 
-    runAddCommand(tagFilename);
+    runAddCommand(filePath);
     runCommitAllCommand();
 
     // overwrite sourcefile

@@ -33,9 +33,9 @@ public class ExportXmlCommandIntegrationTest extends CommandIntegrationTest {
 
     String tagFilename = createTagmlFileName("transcription");
     String tagml = "[tagml>[l>test<l]<tagml]";
-    createFile(tagFilename, tagml);
+    String tagPath = createFile(tagFilename, tagml);
 
-    runAddCommand(tagFilename);
+    runAddCommand(tagPath);
     runCommitAllCommand();
 
     boolean success = cli.run(command, "transcription");
@@ -51,12 +51,13 @@ public class ExportXmlCommandIntegrationTest extends CommandIntegrationTest {
 
     String tagFilename = createTagmlFileName("transcription");
     String tagml = "[tagml>[l>test<l]<tagml]";
-    createFile(tagFilename, tagml);
+    String tagPath = createFile(tagFilename, tagml);
+
     String viewName = "l";
     String viewFilename = createViewFileName(viewName);
-    createFile(viewFilename, "{\"includeMarkup\":[\"l\"]}");
+    String viewPath = createFile(viewFilename, "{\"includeMarkup\":[\"l\"]}");
 
-    runAddCommand(tagFilename, viewFilename);
+    runAddCommand(tagPath, viewPath);
     runCommitAllCommand();
     runCheckoutCommand(viewName);
 

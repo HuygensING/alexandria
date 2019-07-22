@@ -23,9 +23,6 @@ package nl.knaw.huygens.alexandria.dropwizard.cli;
 import nl.knaw.huygens.alexandria.dropwizard.cli.commands.AddCommand;
 import org.junit.Test;
 
-import java.nio.file.Path;
-import java.nio.file.Paths;
-
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class AddCommandIntegrationTest extends CommandIntegrationTest {
