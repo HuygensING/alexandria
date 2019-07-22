@@ -40,7 +40,7 @@ public class StatusCommand extends AlexandriaCommand {
 
   @Override
   public void run(Bootstrap<?> bootstrap, Namespace namespace) throws IOException {
-    checkDirectoryIsInitialized();
+    checkAlexandriaIsInitialized();
 
     CLIContext context = readContext();
     System.out.printf("Active view: %s%n%n", context.getActiveView());

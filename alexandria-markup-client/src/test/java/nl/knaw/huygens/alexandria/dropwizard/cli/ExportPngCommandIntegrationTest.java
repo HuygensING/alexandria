@@ -36,9 +36,9 @@ public class ExportPngCommandIntegrationTest extends CommandIntegrationTest {
 
     String tagFilename = createTagmlFileName("transcription");
     String tagml = "[tagml>[l>test<l]<tagml]";
-    createFile(tagFilename, tagml);
+    String tagPath = createFile(tagFilename, tagml);
 
-    runAddCommand(tagFilename);
+    runAddCommand(tagPath);
     runCommitAllCommand();
 
     boolean success = cli.run(command, "transcription");
@@ -57,7 +57,7 @@ public class ExportPngCommandIntegrationTest extends CommandIntegrationTest {
     assertSucceedsWithExpectedStdout(success, "usage: java -jar alexandria-app.jar\n" +
         "       export-png [-o <file>] [-h] <document>\n" +
         "\n" +
-        "Export the document as png.\n" +
+        "Export the document as png. (Requires access to Graphviz' dot command)\n" +
         "\n" +
         "positional arguments:\n" +
         "  <document>             The name of the document to export.\n" +

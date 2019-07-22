@@ -54,7 +54,7 @@ abstract class AbstractGraphvizCommand extends AlexandriaCommand {
 
   @Override
   public void run(Bootstrap<?> bootstrap, Namespace namespace) {
-    checkDirectoryIsInitialized();
+    checkAlexandriaIsInitialized();
     String docName = namespace.getString(DOCUMENT);
     String fileName = namespace.getString(OUTPUTFILE);
     Long docId = getIdForExistingDocument(docName);

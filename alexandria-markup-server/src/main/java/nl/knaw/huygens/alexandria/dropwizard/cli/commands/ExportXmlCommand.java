@@ -57,7 +57,7 @@ public class ExportXmlCommand extends AlexandriaCommand {
 
   @Override
   public void run(Bootstrap<?> bootstrap, Namespace namespace) {
-    checkDirectoryIsInitialized();
+    checkAlexandriaIsInitialized();
 
     String docName = namespace.getString(DOCUMENT);
     String outputFile = namespace.getString(OUTPUTFILE);

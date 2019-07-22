@@ -25,6 +25,8 @@ import org.junit.Ignore;
 import org.junit.Test;
 
 import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.time.Instant;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -33,7 +35,7 @@ public class StatusCommandIntegrationTest extends CommandIntegrationTest {
 
   private static final String command = new StatusCommand().getName();
 
-  @Ignore("race condition? passes in isolation, fails in alltests")
+  @Ignore("race condition? passes in isolation, fails when running all tests")
   @Test
   public void testCommand() throws Exception {
     runInitCommand();
@@ -42,24 +44,29 @@ public class StatusCommandIntegrationTest extends CommandIntegrationTest {
     boolean success = cli.run(command);
     softlyAssertSucceedsWithExpectedStdout(success, "Active view: -\n");
 
+    Path currentPath = Paths.get("").toAbsolutePath();
+
     // add a sourcefile and a view definition
     String tagFilename = createTagmlFileName("transcription");
-    String tagml = "[tagml>[l>test<l]<tagml]";
-    createFile(tagFilename, tagml);
+    String tagPath = createFile(tagFilename, "[tagml>[l>test<l]<tagml]");
+    Path tagPathRelativeToCurrentDir = currentPath.relativize(Paths.get(tagPath));
+
     String viewName = "l";
     String viewFilename = createViewFileName(viewName);
-    createFile(viewFilename, "{\"includeMarkup\":[\"l\"]}");
+    String viewPath = createFile(viewFilename, "{\"includeMarkup\":[\"l\"]}");
+    Path viewPathRelativeToCurrentDir = currentPath.relativize(Paths.get(viewPath));
+
     success = cli.run(command);
-    softlyAssertSucceedsWithExpectedStdout(success, "Active view: -\n" +
-        "\n" +
+    assertSucceedsWithExpectedStdout(success, "Active view: -\n" +
+        "\n\n" +
         "Untracked files:\n" +
         "  (use \"alexandria add <file>...\" to start tracking this file.)\n" +
         "\n" +
-        "        tagml/transcription.tagml\n" +
-        "        views/l.json");
+        "        " + tagPathRelativeToCurrentDir + "\n" +
+        "        " + viewPathRelativeToCurrentDir);
 
     // add files
-    runAddCommand(tagFilename, viewFilename);
+    runAddCommand(tagPath, viewPath);
     success = cli.run(command);
     softlyAssertSucceedsWithExpectedStdout(success, "Active view: -\n" +
         "\n" +
@@ -68,8 +75,8 @@ public class StatusCommandIntegrationTest extends CommandIntegrationTest {
         "  (use \"alexandria commit -a\" to commit all changes)\n" +
         "  (use \"alexandria revert <file>...\" to discard changes)\n" +
         "\n" +
-        "        modified: tagml/transcription.tagml\n" +
-        "        modified: views/l.json");
+        "        modified: " + tagPathRelativeToCurrentDir + "\n" +
+        "        modified: " + viewPathRelativeToCurrentDir);
 
     // commit files
     runCommitAllCommand();
@@ -99,7 +106,7 @@ public class StatusCommandIntegrationTest extends CommandIntegrationTest {
         "  (use \"alexandria commit -a\" to commit all changes)\n" +
         "  (use \"alexandria revert <file>...\" to discard changes)\n" +
         "\n" +
-        "        modified: tagml/transcription.tagml");
+        "        modified: " + tagPathRelativeToCurrentDir);
 
     // delete file
     deleteFile(tagFilename);
@@ -111,7 +118,7 @@ public class StatusCommandIntegrationTest extends CommandIntegrationTest {
         "  (use \"alexandria commit -a\" to commit all changes)\n" +
         "  (use \"alexandria revert <file>...\" to discard changes)\n" +
         "\n" +
-        "        deleted:  tagml/transcription.tagml");
+        "        deleted:  " + tagPathRelativeToCurrentDir);
   }
 
   @Test

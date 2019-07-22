@@ -36,15 +36,15 @@ public class CommitCommandIntegrationTest extends CommandIntegrationTest {
     runInitCommand();
 
     String filename = "transcription1.tagml";
-    createFile(filename, "[tagml>test<tagml]");
-    runAddCommand(filename);
+    String absolutePath = createFile(filename, "[tagml>test<tagml]");
+    runAddCommand(absolutePath);
 
     Instant dateAfterAdd = readLastCommittedInstant(filename);
     assertThat(dateAfterAdd).isNotNull();
 
     LOG.info("{}", dateAfterAdd);
 
-    final boolean success = cli.run(command, filename);
+    final boolean success = cli.run(command, absolutePath);
 
     softlyAssertSucceedsWithExpectedStdout(success, "Parsing transcription1.tagml to document transcription1...\ndone!");
     Instant dateAfterCommit = readLastCommittedInstant(filename);
@@ -55,11 +55,11 @@ public class CommitCommandIntegrationTest extends CommandIntegrationTest {
   public void testCommandWithAllOption() throws Exception {
     runInitCommand();
     String tagFilename = createTagmlFileName("transcription1");
-    createFile(tagFilename, "[tagml>[l>test<l]<tagml]");
+    String tagPath = createFile(tagFilename, "[tagml>[l>test<l]<tagml]");
     String viewFilename = createViewFileName("v1");
-    createFile(viewFilename, "{\"includeMarkup\":[\"l\"]}");
+    String viewPath = createFile(viewFilename, "{\"includeMarkup\":[\"l\"]}");
 
-    runAddCommand(tagFilename, viewFilename);
+    runAddCommand(tagPath, viewPath);
 
     Instant tagDateAfterAdd = readLastCommittedInstant(tagFilename);
     assertThat(tagDateAfterAdd).isNotNull();

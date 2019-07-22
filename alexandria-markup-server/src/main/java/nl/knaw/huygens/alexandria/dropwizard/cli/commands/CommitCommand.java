@@ -40,6 +40,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.nio.file.attribute.FileTime;
 import java.time.Instant;
 import java.util.ArrayList;
@@ -47,7 +48,6 @@ import java.util.List;
 import java.util.Map;
 
 public class CommitCommand extends AlexandriaCommand {
-  public static final String ARG_FILE = "file";
   private final String ARG_ALL = "add_all";
 
   public CommitCommand() {
@@ -74,10 +74,11 @@ public class CommitCommand extends AlexandriaCommand {
 
   @Override
   public void run(Bootstrap<?> bootstrap, Namespace namespace) {
-    checkDirectoryIsInitialized();
+    checkAlexandriaIsInitialized();
     List<String> fileNames = (namespace.getBoolean(ARG_ALL))
         ? getModifiedWatchedFileNames()
-        : namespace.getList(ARG_FILE);
+        : relativeFilePaths(namespace);
+
     try (TAGStore store = getTAGStore()) {
       CLIContext context = readContext();
       fileNames.forEach(fileName -> {
@@ -172,7 +173,7 @@ public class CommitCommand extends AlexandriaCommand {
     List<String> modifiedFiles = new ArrayList<>();
     CLIContext cliContext = readContext();
     cliContext.getWatchedFiles().forEach((k, v) -> {
-      Path filePath = workFilePath(k);
+      Path filePath = Paths.get(workDir).resolve(k);
       Instant lastCommitted = v.getLastCommit();
       try {
         FileTime lastModifiedTime = Files.getLastModifiedTime(filePath);

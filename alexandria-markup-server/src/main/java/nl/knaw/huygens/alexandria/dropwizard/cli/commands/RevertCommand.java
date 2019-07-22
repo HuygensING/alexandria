@@ -38,8 +38,6 @@ import java.util.Optional;
 
 public class RevertCommand extends AlexandriaCommand {
 
-  public static final String ARG_FILE = "file";
-
   public RevertCommand() {
     super("revert", "Restore the document file(s).");
   }
@@ -57,8 +55,8 @@ public class RevertCommand extends AlexandriaCommand {
 
   @Override
   public void run(Bootstrap<?> bootstrap, Namespace namespace) {
-    checkDirectoryIsInitialized();
-    List<String> files = namespace.getList(ARG_FILE);
+    checkAlexandriaIsInitialized();
+    List<String> files = relativeFilePaths(namespace);
 
     CLIContext context = readContext();
 

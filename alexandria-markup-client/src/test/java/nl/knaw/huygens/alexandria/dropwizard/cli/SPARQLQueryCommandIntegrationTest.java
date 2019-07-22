@@ -34,7 +34,7 @@ public class SPARQLQueryCommandIntegrationTest extends CommandIntegrationTest {
     // create sourcefile
     String tagFilename = createTagmlFileName("transcription");
     String tagml = "[tagml>[l>test [w>word<w]<l]<tagml]";
-    createFile(tagFilename, tagml);
+    String tagPath = createFile(tagFilename, tagml);
 
     // create sourcefile
     String queryFilename = "query.sparql";
@@ -46,7 +46,7 @@ public class SPARQLQueryCommandIntegrationTest extends CommandIntegrationTest {
         "order by ?markup";
     createFile(queryFilename, sparql);
 
-    runAddCommand(tagFilename);
+    runAddCommand(tagPath);
     runCommitAllCommand();
 
     final boolean success = cli.run(command, "transcription", "-q", "query.sparql");
