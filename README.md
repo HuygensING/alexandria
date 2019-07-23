@@ -63,14 +63,14 @@ Open your .bash_profile. If you're on a Unix machine, you can type `open -a "Sub
 
 You can create an alias for _Alexandria_ by writing `alias alexandria="<path to alexandria>"`. For instance, your alias could say `alias alexandria="/Users/alexandria-markup-server/bin/alexandria"`. Save and close your bash_profile. Before the alias works, you have to resource the bash_profile: type `source ~/.bash_profile` in your terminal.
 
-#### 2b. Add the directory your `PATH`
+#### 2b. Add the directory to your `PATH`
 In your terminal window, type: 
 ```
-export PATH=$PATH:<path to alexandria>
+export PATH=$PATH:<path to the alexandria bin directory>
 ```
 For example:
 ```
-export PATH=$PATH:/Users/alexandria-markup-server/bin/alexandria
+export PATH=$PATH:/Users/alexandria-markup-server/bin
 ```
 if that's where you've stored _Alexandria_. You can check if it works by typing
 ```
@@ -82,7 +82,7 @@ in your terminal window. It should return something like the following, with the
 ```
 
 #### 2c.
-If you don't like to change your path, you can create a softlink.
+If you don't want to change your path, you can create a softlink.
 
 A soft link (also known as a symbolic link or symlink) consists of a special type of file that serves as a reference to another file or directory. You can create them on your command line: 
 ```
