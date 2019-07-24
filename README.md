@@ -7,6 +7,16 @@ You may wonder, why use _Alexandria_ if you already have a text editing tool? We
 
 ## News
 
+### Latest release: _Alexandria 2.2_ (July 2018)
+
+###### [New/Changed commands for the command-line app](https://huygensing.github.io/alexandria/commands)
+- query
+
+##### Bugfixes:
+
+- After a revert, the reverted file is now no longer shown as modified.
+- It is now possible to run alexandria commands from any directory, provided one of its parent directories has been initialized.
+
 ### Latest release: _Alexandria 2.1_ (December 2018)
 
 ##### New features:
