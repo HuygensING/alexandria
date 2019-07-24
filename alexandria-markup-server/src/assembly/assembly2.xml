@@ -21,7 +21,7 @@
     xmlns="http://maven.apache.org/plugins/maven-assembly-plugin/assembly/1.1.2"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:schemaLocation="http://maven.apache.org/plugins/maven-assembly-plugin/assembly/1.1.2 http://maven.apache.org/xsd/assembly-1.1.2.xsd">
-  <id>fat-jar</id>
+  <id>simple</id>
   <formats>
     <format>zip</format>
   </formats>
@@ -38,11 +38,14 @@
       <fileMode>0644</fileMode>
     </fileSet>
   </fileSets>
-  <files>
-    <file>
-      <source>${project.build.directory}/${project.name}-${project.version}-jar-with-dependencies.jar</source>
+  <dependencySets>
+    <dependencySet>
       <outputDirectory>lib</outputDirectory>
-      <destName>alexandria.jar</destName>
-    </file>
-  </files>
+      <unpack>false</unpack>
+      <scope>runtime</scope>
+      <excludes>
+        <exclude>junit:junit</exclude>
+      </excludes>
+    </dependencySet>
+  </dependencySets>
 </assembly>

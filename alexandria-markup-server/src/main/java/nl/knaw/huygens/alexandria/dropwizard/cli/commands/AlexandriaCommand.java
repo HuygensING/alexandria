@@ -4,7 +4,7 @@ package nl.knaw.huygens.alexandria.dropwizard.cli.commands;
  * #%L
  * alexandria-markup-server
  * =======
- * Copyright (C) 2015 - 2018 Huygens ING (KNAW)
+ * Copyright (C) 2015 - 2019 Huygens ING (KNAW)
  * =======
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -33,6 +33,7 @@ import nl.knaw.huc.di.tag.TAGViews;
 import nl.knaw.huc.di.tag.tagml.exporter.TAGMLExporter;
 import nl.knaw.huygens.alexandria.dropwizard.cli.*;
 import nl.knaw.huygens.alexandria.markup.api.AlexandriaProperties;
+import nl.knaw.huygens.alexandria.storage.BDBTAGStore;
 import nl.knaw.huygens.alexandria.storage.TAGDocument;
 import nl.knaw.huygens.alexandria.storage.TAGStore;
 import nl.knaw.huygens.alexandria.view.TAGView;
@@ -55,8 +56,7 @@ import java.util.*;
 import java.util.function.BiPredicate;
 
 import static java.lang.System.lineSeparator;
-import static java.util.stream.Collectors.joining;
-import static java.util.stream.Collectors.toMap;
+import static java.util.stream.Collectors.*;
 import static org.fusesource.jansi.Ansi.Color.RED;
 import static org.fusesource.jansi.Ansi.ansi;
 
@@ -67,13 +67,16 @@ public abstract class AlexandriaCommand extends Command {
 
   public static final String SOURCE_DIR = "tagml";
   public static final String VIEWS_DIR = "views";
+
+  public static final String ARG_FILE = "file";
+
   static final String DOCUMENT = "document";
   static final String OUTPUTFILE = "outputfile";
 
   static final String ALEXANDRIA_DIR = ".alexandria";
   final String FILE = "file";
 
-  private final String alexandriaDir;
+  final String alexandriaDir;
   private final File contextFile;
   final String workDir;
   static ObjectMapper mapper = new ObjectMapper()
@@ -82,15 +85,24 @@ public abstract class AlexandriaCommand extends Command {
 
   public AlexandriaCommand(String name, String description) {
     super(name, description);
-    workDir = System.getProperty(AlexandriaProperties.WORKDIR, ".");
+    Path workPath = getWorkingDirectory().orElse(Paths.get(""));
+    workDir = System.getProperty(AlexandriaProperties.WORKDIR, workPath.toString());
     alexandriaDir = workDir + "/" + ALEXANDRIA_DIR;
-    initProjectDir();
-
     contextFile = new File(alexandriaDir, "context.json");
   }
 
-  private void initProjectDir() {
-    new File(alexandriaDir).mkdir();
+  protected Optional<Path> getWorkingDirectory() {
+    return getWorkingDirectory(Paths.get("").toAbsolutePath());
+  }
+
+  private Optional<Path> getWorkingDirectory(final Path path) {
+    if (path == null) return Optional.empty();
+    Path alexandriaDir = path.resolve(ALEXANDRIA_DIR);
+    if (alexandriaDir.toFile().exists()) {
+      return Optional.ofNullable(path);
+    } else {
+      return getWorkingDirectory(path.getParent());
+    }
   }
 
   Map<String, TAGView> readViewMap(TAGStore store, final CLIContext context) {
@@ -122,11 +134,11 @@ public abstract class AlexandriaCommand extends Command {
     uncheckedStore(contextFile, context);
   }
 
-  void checkDirectoryIsInitialized() {
+  void checkAlexandriaIsInitialized() {
     if (!contextFile.exists()) {
-      System.out.println("This directory has not been initialized, run ");
+      System.out.println("This directory (or any of its parents) has not been initialized for alexandria, run ");
       System.out.println("  alexandria init");
-      System.out.println("first.");
+      System.out.println("first. (In this, or a parent directory)");
       throw new AlexandriaCommandException("not initialized");
     }
   }
@@ -179,11 +191,16 @@ public abstract class AlexandriaCommand extends Command {
   }
 
   Path workFilePath(final String relativePath) {
-    return Paths.get(workDir).resolve(relativePath);
+    return Paths.get(workDir).toAbsolutePath().resolve(relativePath);
+  }
+
+  Path pathRelativeToWorkDir(final String relativePath) {
+    Path other = Paths.get("").resolve(relativePath).toAbsolutePath();
+    return Paths.get(workDir).toAbsolutePath().relativize(other);
   }
 
   TAGStore getTAGStore() {
-    return new TAGStore(alexandriaDir, false);
+    return new BDBTAGStore(alexandriaDir, false);
   }
 
   FileType fileType(String fileName) {
@@ -270,7 +287,7 @@ public abstract class AlexandriaCommand extends Command {
 
   Multimap<FileStatus, String> readWorkDirStatus(CLIContext context) throws IOException {
     Multimap<FileStatus, String> fileStatusMap = ArrayListMultimap.create();
-    Path workDir = workFilePath(".");
+    Path workDir = workFilePath("");
     Set<String> watchedFiles = new HashSet<>(context.getWatchedFiles().keySet());
     BiPredicate<Path, BasicFileAttributes> matcher = (filePath, fileAttr) ->
         fileAttr.isRegularFile()
@@ -320,6 +337,8 @@ public abstract class AlexandriaCommand extends Command {
 
     Set<String> changedFiles = new HashSet<>(fileStatusMap.get(FileStatus.changed));
     Set<String> deletedFiles = new HashSet<>(fileStatusMap.get(FileStatus.deleted));
+    Path currentPath = Paths.get("").toAbsolutePath();
+    Path workdirPath = Paths.get(workDir);
     if (!(changedFiles.isEmpty() && deletedFiles.isEmpty())) {
       System.out.printf("Uncommitted changes:%n" +
           "  (use \"alexandria commit <file>...\" to commit the selected changes)%n" +
@@ -332,21 +351,47 @@ public abstract class AlexandriaCommand extends Command {
             String status = changedFiles.contains(file)
                 ? "        modified: "
                 : "        deleted:  ";
-            System.out.println(ansi().fg(RED).a(status).a(file).reset());
+            Path filePath = workdirPath.resolve(file);
+            Path relativeToCurrentPath = currentPath.relativize(filePath);
+            System.out.println(ansi().fg(RED).a(status).a(relativeToCurrentPath).reset());
           }
       );
     }
+
+    System.out.println();
 
     Collection<String> createdFiles = fileStatusMap.get(FileStatus.created);
     if (!createdFiles.isEmpty()) {
       System.out.printf("Untracked files:%n" +
           "  (use \"alexandria add <file>...\" to start tracking this file.)%n%n");
-      createdFiles.stream().sorted().forEach(f ->
-          System.out.println(ansi().fg(RED).a("        ").a(f).reset())
+      createdFiles.stream().sorted().forEach(file -> {
+            Path filePath = workdirPath.resolve(file);
+            Path relativeToCurrentPath = currentPath.relativize(filePath);
+            System.out.println(ansi().fg(RED).a("        ").a(relativeToCurrentPath).reset());
+          }
       );
     }
 
     AnsiConsole.systemUninstall();
+  }
+
+  List<String> relativeFilePaths(final Namespace namespace) {
+    return namespace.getList(ARG_FILE).stream()
+        .map(String.class::cast)
+        .map(this::relativeToWorkDir)
+        .collect(toList());
+  }
+
+  private String relativeToWorkDir(final String pathString) {
+    Path path = Paths.get(pathString);
+    Path absolutePath = path.isAbsolute()
+        ? path
+        : Paths.get("").toAbsolutePath().resolve(pathString);
+    return Paths.get(workDir)
+        .toAbsolutePath()
+        .relativize(absolutePath)
+        .toString()
+        .replaceAll("\\\\", "/");
   }
 
 }

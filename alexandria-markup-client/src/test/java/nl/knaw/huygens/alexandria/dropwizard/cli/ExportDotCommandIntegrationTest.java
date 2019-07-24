@@ -4,7 +4,7 @@ package nl.knaw.huygens.alexandria.dropwizard.cli;
  * #%L
  * alexandria-markup-client
  * =======
- * Copyright (C) 2015 - 2018 Huygens ING (KNAW)
+ * Copyright (C) 2015 - 2019 Huygens ING (KNAW)
  * =======
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -33,9 +33,9 @@ public class ExportDotCommandIntegrationTest extends CommandIntegrationTest {
 
     String tagFilename = createTagmlFileName("transcription");
     String tagml = "[tagml>[l>test<l]<tagml]";
-    createFile(tagFilename, tagml);
+    String file = createFile(tagFilename, tagml);
 
-    runAddCommand(tagFilename);
+    runAddCommand(file);
     runCommitAllCommand();
 
     boolean success = cli.run(command, "transcription");
@@ -60,12 +60,12 @@ public class ExportDotCommandIntegrationTest extends CommandIntegrationTest {
 
     String tagFilename = createTagmlFileName("transcription");
     String tagml = "[tagml>[l>test<l]<tagml]";
-    createFile(tagFilename, tagml);
+    String tagPath = createFile(tagFilename, tagml);
     String viewName = "l";
     String viewFilename = createViewFileName(viewName);
-    createFile(viewFilename, "{\"includeMarkup\":[\"l\"]}");
+    String viewPath = createFile(viewFilename, "{\"includeMarkup\":[\"l\"]}");
 
-    runAddCommand(tagFilename, viewFilename);
+    runAddCommand(tagPath, viewPath);
     runCommitAllCommand();
     runCheckoutCommand(viewName);
 

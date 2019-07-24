@@ -4,7 +4,7 @@ package nl.knaw.huygens.alexandria.dropwizard.cli;
  * #%L
  * alexandria-markup-client
  * =======
- * Copyright (C) 2015 - 2018 Huygens ING (KNAW)
+ * Copyright (C) 2015 - 2019 Huygens ING (KNAW)
  * =======
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -33,30 +33,59 @@ public class DiffCommandIntegrationTest extends CommandIntegrationTest {
 
     // create sourcefile
     String tagFilename = createTagmlFileName("transcription");
-    String tagml = "[tagml>[l>test<l]<tagml]";
-    createFile(tagFilename, tagml);
+    String tagml = "[tagml>[l>test [w>word<w]<l]<tagml]";
+    String file = createFile(tagFilename, tagml);
 
-    runAddCommand(tagFilename);
+    runAddCommand(file);
     runCommitAllCommand();
 
     // overwrite sourcefile
-    String tagml2 = "[tagml>[l>example<l]<tagml]";
+    String tagml2 = "[tagml>[l>example [x>word<x]<l]<tagml]";
     modifyFile(tagFilename, tagml2);
 
     final boolean success = cli.run(command, tagFilename);
     String expectedOutput = "diff for tagml/transcription.tagml:\n" +
         " [tagml>[l>\n" +
-        "-test\n" +
-        "+example\n" +
-        " <l]<tagml]";
-    softlyAssertSucceedsWithExpectedStdout(success, expectedOutput);
+        "-test [w>\n" +
+        "+example [x>\n" +
+        " word\n" +
+        "-<w]\n" +
+        "+<x]\n" +
+        " <l]<tagml]\n" +
+        "\n" +
+        "markup diff:\n" +
+        "[w](2-2) replaced by [x](2-2)";
+//    softlyAssertSucceedsWithExpectedStdout(success, expectedOutput);
+    assertSucceedsWithExpectedStdout(success, expectedOutput);
+  }
+
+  @Test
+  public void testCommandWithMachineReadableOutput() throws Exception {
+    runInitCommand();
+
+    // create sourcefile
+    String tagFilename = createTagmlFileName("transcription");
+    String tagml = "[tagml>[l>test [w>word<w]<l]<tagml]";
+    String filePath = createFile(tagFilename, tagml);
+
+    runAddCommand(filePath);
+    runCommitAllCommand();
+
+    // overwrite sourcefile
+    String tagml2 = "[tagml>[l>example [x>word<x]<l]<tagml]";
+    modifyFile(tagFilename, tagml2);
+
+    final boolean success = cli.run(command, "-m", tagFilename);
+    String expectedOutput = "~[5,x]";
+//    softlyAssertSucceedsWithExpectedStdout(success, expectedOutput);
+    assertSucceedsWithExpectedStdout(success, expectedOutput);
   }
 
   @Test
   public void testCommandHelp() throws Exception {
     final boolean success = cli.run(command, "-h");
     assertSucceedsWithExpectedStdout(success, "usage: java -jar alexandria-app.jar\n" +
-        "       diff [-h] file\n" +
+        "       diff [-m] [-h] file\n" +
         "\n" +
         "Show the changes made to the file.\n" +
         "\n" +
@@ -64,6 +93,8 @@ public class DiffCommandIntegrationTest extends CommandIntegrationTest {
         "  file                   The file containing the edited view\n" +
         "\n" +
         "named arguments:\n" +
+        "  -m                     Output  the  diff  in  a  machine-readable  format\n" +
+        "                         (default: false)\n" +
         "  -h, --help             show this help message and exit");
   }
 

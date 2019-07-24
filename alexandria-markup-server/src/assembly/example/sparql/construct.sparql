@@ -1,0 +1,21 @@
+prefix tag: <https://huygensing.github.io/TAG/TAGML/ontology/tagml.ttl#>
+prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+prefix dc: <http://purl.org/dc/elements/1.1/>
+
+construct {
+  ?m dc:title   ?s ;
+     dc:creator ?a
+}
+where {
+  # there is a subject ?m with tag:annotation ?source and ?author
+  ?m tag:annotation ?source ;
+     tag:annotation ?author .
+
+  # the source annotation has name 'source', get its value as ?s
+  ?source tag:annotation_name 'source' ;
+          tag:value           ?s .
+
+  # the author annotation has name 'author', get its value as ?a
+  ?author tag:annotation_name 'author' ;
+          tag:value           ?a .
+}

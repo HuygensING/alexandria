@@ -66,11 +66,11 @@ You can create an alias for _Alexandria_ by writing `alias alexandria="<path to 
 #### 2b. Add the directory to your `PATH`
 In your terminal window, type: 
 ```
-export PATH=$PATH:<path to alexandria>
+export PATH=$PATH:<path to the alexandria bin directory>
 ```
 For example:
 ```
-export PATH=$PATH:/Users/alexandria-markup-server/bin/alexandria
+export PATH=$PATH:/Users/alexandria-markup-server/bin
 ```
 if that's where you've stored _Alexandria_. You can check if it works by typing
 ```

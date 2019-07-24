@@ -4,7 +4,7 @@ package nl.knaw.huygens.alexandria.dropwizard.cli.commands;
  * #%L
  * alexandria-markup-server
  * =======
- * Copyright (C) 2015 - 2018 Huygens ING (KNAW)
+ * Copyright (C) 2015 - 2019 Huygens ING (KNAW)
  * =======
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,6 +25,7 @@ import net.sourceforge.argparse4j.inf.Namespace;
 import net.sourceforge.argparse4j.inf.Subparser;
 import nl.knaw.huygens.alexandria.dropwizard.cli.CLIContext;
 
+import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -45,6 +46,7 @@ public class InitCommand extends AlexandriaCommand {
   public void run(Bootstrap<?> bootstrap, Namespace namespace) throws IOException {
     System.out.println("initializing...");
 
+    new File(alexandriaDir).mkdir();
     Path transcriptionsPath = Paths.get(workDir, SOURCE_DIR);
     mkdir(transcriptionsPath);
     Path viewsPath = Paths.get(workDir, VIEWS_DIR);

@@ -4,7 +4,7 @@ package nl.knaw.huygens.alexandria.dropwizard.cli;
  * #%L
  * alexandria-markup-client
  * =======
- * Copyright (C) 2015 - 2018 Huygens ING (KNAW)
+ * Copyright (C) 2015 - 2019 Huygens ING (KNAW)
  * =======
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -44,6 +44,7 @@ import java.io.IOException;
 import java.io.PrintStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.time.Instant;
 import java.util.*;
 
@@ -66,7 +67,7 @@ public abstract class CommandIntegrationTest {
 
   final ByteArrayOutputStream stdOut = new ByteArrayOutputStream();
   final ByteArrayOutputStream stdErr = new ByteArrayOutputStream();
-  private Path workDirectory;
+  Path workDirectory;
   static ObjectMapper mapper = new ObjectMapper();
 
   static {
@@ -203,7 +204,7 @@ public abstract class CommandIntegrationTest {
   }
 
   void runInitCommand() throws Exception {
-    assertThat(cli.run(INIT)).isTrue();
+    assertThat(cli.run(INIT)).overridingErrorMessage(stdErr.toString()).isTrue();
     resetStdOutErr();
   }
 
@@ -212,14 +213,15 @@ public abstract class CommandIntegrationTest {
     arguments.add(ADD);
     Collections.addAll(arguments, fileNames);
     String[] argumentArray = arguments.toArray(new String[]{});
-    assertThat(cli.run(argumentArray)).isTrue();
+    System.out.println("#" + Paths.get("").toAbsolutePath().toString());
+    assertThat(cli.run(argumentArray)).overridingErrorMessage(stdErr.toString()).isTrue();
     resetStdOutErr();
   }
 
   void runCommitAllCommand() throws Exception {
     final boolean success = cli.run(COMMIT, "-a");
     SoftAssertions softly = new SoftAssertions();
-    softly.assertThat(success).isTrue();
+    softly.assertThat(success).overridingErrorMessage(stdErr.toString()).isTrue();
     softly.assertThat(getCliStdErrAsString()).isEmpty();
     softly.assertAll();
     resetStdOutErr();
@@ -228,7 +230,7 @@ public abstract class CommandIntegrationTest {
   void runCheckoutCommand(final String viewName) throws Exception {
     final boolean success = cli.run(CHECKOUT, viewName);
     SoftAssertions softly = new SoftAssertions();
-    softly.assertThat(success).isTrue();
+    softly.assertThat(success).overridingErrorMessage(stdErr.toString()).isTrue();
     softly.assertThat(getCliStdErrAsString()).isEmpty();
     softly.assertAll();
     resetStdOutErr();
@@ -238,12 +240,12 @@ public abstract class CommandIntegrationTest {
     final boolean success = cli.run(cliArguments);
     SoftAssertions softly = new SoftAssertions();
     softly.assertThat(success).isFalse();
-    softly.assertThat(getCliStdOutAsString()).contains("This directory has not been initialized");
+    softly.assertThat(getCliStdOutAsString()).contains("This directory (or any of its parents) has not been initialized");
     softly.assertThat(getCliStdErrAsString().trim()).isEqualTo("not initialized");
     softly.assertAll();
   }
 
-  void createFile(String filename, String content) throws IOException {
+  String createFile(String filename, String content) throws IOException {
     Path file = workFilePath(filename);
     Path result = Files.createFile(file);
     assertThat(result).isNotNull();
@@ -253,6 +255,7 @@ public abstract class CommandIntegrationTest {
       assertThat(writeResult).isNotNull();
       assertThat(writeResult).hasContent(content);
     }
+    return result.toAbsolutePath().toString();
   }
 
   void modifyFile(String filename, String content) throws IOException {

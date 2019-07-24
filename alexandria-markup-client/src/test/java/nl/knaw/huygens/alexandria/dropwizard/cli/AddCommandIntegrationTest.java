@@ -4,7 +4,7 @@ package nl.knaw.huygens.alexandria.dropwizard.cli;
  * #%L
  * alexandria-markup-client
  * =======
- * Copyright (C) 2015 - 2018 Huygens ING (KNAW)
+ * Copyright (C) 2015 - 2019 Huygens ING (KNAW)
  * =======
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -34,9 +34,9 @@ public class AddCommandIntegrationTest extends CommandIntegrationTest {
     runInitCommand();
     String filename1 = "transcription1.tagml";
     String filename2 = "transcription2.tagml";
-    createFile(filename1, "");
-    createFile(filename2, "");
-    final boolean success = cli.run(command, filename1, filename2);
+    String absolutePath1 = createFile(filename1, "");
+    String absolutePath2 = createFile(filename2, "");
+    final boolean success = cli.run(command, absolutePath1, absolutePath2);
     softlyAssertSucceedsWithExpectedStdout(success, "");
 
     CLIContext cliContext = readCLIContext();

@@ -97,7 +97,7 @@ then
   REPO="$BASEDIR"/lib
 fi
 
-CLASSPATH="$BASEDIR"/conf:"$REPO"/alexandria.jar
+CLASSPATH="$REPO"
 
 ENDORSED_DIR=
 if [ -n "$ENDORSED_DIR" ] ; then
@@ -117,6 +117,19 @@ if $cygwin; then
   [ -n "$REPO" ] && REPO=`cygpath --path --windows "$REPO"`
 fi
 
+CLASSPATH="$CLASSPATH/*"
+
+# echo exec "$JAVACMD" $JAVA_OPTS -Xms128m \
+#   -classpath "$CLASSPATH" \
+#   -Dapp.name="alexandria" \
+#   -Dapp.pid="$$" \
+#   -Dapp.repo="$REPO" \
+#   -Dapp.home="$BASEDIR" \
+#   -Dbasedir="$BASEDIR" \
+#   nl.knaw.huygens.alexandria.dropwizard.ServerApplication \
+#   "$@"
+
+E=$(echo $0|sed 's|/|\\/|g' )
 exec "$JAVACMD" $JAVA_OPTS -Xms128m \
   -classpath "$CLASSPATH" \
   -Dapp.name="alexandria" \
@@ -125,4 +138,4 @@ exec "$JAVACMD" $JAVA_OPTS -Xms128m \
   -Dapp.home="$BASEDIR" \
   -Dbasedir="$BASEDIR" \
   nl.knaw.huygens.alexandria.dropwizard.ServerApplication \
-  "$@"
+  "$@" | sed "s/^usage: java -jar .*/usage: $E/"

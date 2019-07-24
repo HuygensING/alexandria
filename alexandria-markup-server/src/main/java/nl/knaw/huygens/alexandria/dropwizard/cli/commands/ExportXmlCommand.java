@@ -4,7 +4,7 @@ package nl.knaw.huygens.alexandria.dropwizard.cli.commands;
  * #%L
  * alexandria-markup-server
  * =======
- * Copyright (C) 2015 - 2018 Huygens ING (KNAW)
+ * Copyright (C) 2015 - 2019 Huygens ING (KNAW)
  * =======
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -57,7 +57,7 @@ public class ExportXmlCommand extends AlexandriaCommand {
 
   @Override
   public void run(Bootstrap<?> bootstrap, Namespace namespace) {
-    checkDirectoryIsInitialized();
+    checkAlexandriaIsInitialized();
 
     String docName = namespace.getString(DOCUMENT);
     String outputFile = namespace.getString(OUTPUTFILE);

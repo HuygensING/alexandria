@@ -4,7 +4,7 @@ package nl.knaw.huygens.alexandria.dropwizard.cli.commands;
  * #%L
  * alexandria-markup-server
  * =======
- * Copyright (C) 2015 - 2018 Huygens ING (KNAW)
+ * Copyright (C) 2015 - 2019 Huygens ING (KNAW)
  * =======
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,17 +25,18 @@ import net.sourceforge.argparse4j.inf.Namespace;
 import net.sourceforge.argparse4j.inf.Subparser;
 import nl.knaw.huc.di.tag.TAGViews;
 import nl.knaw.huygens.alexandria.dropwizard.cli.CLIContext;
+import nl.knaw.huygens.alexandria.dropwizard.cli.FileInfo;
 import nl.knaw.huygens.alexandria.storage.TAGStore;
 import nl.knaw.huygens.alexandria.view.TAGView;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.attribute.FileTime;
 import java.util.List;
 import java.util.Optional;
 
-import static nl.knaw.huygens.alexandria.dropwizard.cli.commands.CheckOutCommand.MAIN_VIEW;
-
 public class RevertCommand extends AlexandriaCommand {
-
-  public static final String ARG_FILE = "file";
 
   public RevertCommand() {
     super("revert", "Restore the document file(s).");
@@ -54,8 +55,8 @@ public class RevertCommand extends AlexandriaCommand {
 
   @Override
   public void run(Bootstrap<?> bootstrap, Namespace namespace) {
-    checkDirectoryIsInitialized();
-    List<String> files = namespace.getList(ARG_FILE);
+    checkAlexandriaIsInitialized();
+    List<String> files = relativeFilePaths(namespace);
 
     CLIContext context = readContext();
 
@@ -73,11 +74,20 @@ public class RevertCommand extends AlexandriaCommand {
             System.out.printf("Reverting %s...%n", fileName);
             Long docId = getIdForExistingDocument(documentName.get());
             exportTAGML(context, store, tagView, fileName, docId);
+            FileInfo fileInfo = context.getWatchedFiles().get(fileName);
+            try {
+              Path file = workFilePath(fileName);
+              FileTime lastModifiedTime = Files.getLastModifiedTime(file);
+              fileInfo.setLastCommit(lastModifiedTime.toInstant());
+            } catch (IOException e) {
+              e.printStackTrace();
+            }
 
           } else {
             System.out.printf("%s is not linked to a document, not reverting.%n", fileName);
           }
         });
+        storeContext(context);
       });
     }
     System.out.println("done!");

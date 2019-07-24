@@ -4,7 +4,7 @@ package nl.knaw.huygens.alexandria.dropwizard.cli.commands;
  * #%L
  * alexandria-markup-server
  * =======
- * Copyright (C) 2015 - 2018 Huygens ING (KNAW)
+ * Copyright (C) 2015 - 2019 Huygens ING (KNAW)
  * =======
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -37,8 +37,6 @@ import static java.time.temporal.ChronoUnit.DAYS;
 
 public class AddCommand extends AlexandriaCommand {
 
-  public static final String ARG_FILE = "file";
-
   public AddCommand() {
     super("add", "Add file context to the index.");
   }
@@ -56,14 +54,14 @@ public class AddCommand extends AlexandriaCommand {
 
   @Override
   public void run(Bootstrap<?> bootstrap, Namespace namespace) {
-    checkDirectoryIsInitialized();
-    List<String> files = namespace.getList(ARG_FILE);
+    checkAlexandriaIsInitialized();
+    List<String> files = relativeFilePaths(namespace);
 
     CLIContext cliContext = readContext();
     Map<String, FileInfo> watchedFiles = cliContext.getWatchedFiles();
     for (String file : files) {
       Path filePath = workFilePath(file);
-      if (filePath.toFile().isFile()) {
+      if (filePath.toFile().exists()) {
         try {
           Instant lastModifiedInstant = Files.getLastModifiedTime(filePath).toInstant();
           Instant lastCommit = lastModifiedInstant.minus(365L, DAYS); // set lastCommit to instant sooner than lastModifiedInstant
@@ -79,4 +77,5 @@ public class AddCommand extends AlexandriaCommand {
     storeContext(cliContext);
     System.out.println();
   }
+
 }

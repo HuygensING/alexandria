@@ -4,7 +4,7 @@ package nl.knaw.huygens.alexandria.dropwizard.cli;
  * #%L
  * alexandria-markup-server
  * =======
- * Copyright (C) 2015 - 2018 Huygens ING (KNAW)
+ * Copyright (C) 2015 - 2019 Huygens ING (KNAW)
  * =======
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -33,7 +33,10 @@ public class Util {
   private static final Logger LOG = LoggerFactory.getLogger(Util.class);
 
   public static String detectDotPath() {
-    for (String detectionCommand : new String[]{"where dot.exe", "which dot"}) {
+    String[] options = System.getProperty("os.name").contains("Windows")
+        ? new String[]{"where dot.exe", "which dot"}
+        : new String[]{"which dot", "where dot.exe"};
+    for (String detectionCommand : options) {
       try {
         final Process process = Runtime.getRuntime().exec(detectionCommand);
         try (BufferedReader processReader = new BufferedReader(new InputStreamReader(process.getInputStream(), Charset.defaultCharset()))) {
@@ -47,7 +50,7 @@ public class Util {
           return dotPath;
         }
       } catch (Throwable t) {
-//        LOG.log(Level.FINE, detectionCommand, t);
+        return null;
       }
     }
     return null;

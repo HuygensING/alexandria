@@ -4,7 +4,7 @@ package nl.knaw.huygens.alexandria.dropwizard.cli.commands;
  * #%L
  * alexandria-markup-server
  * =======
- * Copyright (C) 2015 - 2018 Huygens ING (KNAW)
+ * Copyright (C) 2015 - 2019 Huygens ING (KNAW)
  * =======
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -56,7 +56,7 @@ public class AboutCommand extends AlexandriaCommand {
   public void run(Bootstrap<?> bootstrap, Namespace namespace) {
     System.out.printf("Alexandria version %s%n", appInfo.getVersion());
     System.out.printf("Build date: %s%n%n", appInfo.getBuildDate());
-    checkDirectoryIsInitialized();
+    checkAlexandriaIsInitialized();
 
     CLIContext context = readContext();
     try (TAGStore store = getTAGStore()) {

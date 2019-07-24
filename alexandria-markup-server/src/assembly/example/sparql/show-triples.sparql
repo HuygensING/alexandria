@@ -1,0 +1,6 @@
+prefix tag: <https://huygensing.github.io/TAG/TAGML/ontology/tagml.ttl#>
+prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+
+select ?s ?p ?o
+where { ?s ?p ?o . }
+order by ?s ?p ?o

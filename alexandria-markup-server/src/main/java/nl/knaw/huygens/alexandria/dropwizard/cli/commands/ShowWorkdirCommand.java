@@ -20,36 +20,33 @@ package nl.knaw.huygens.alexandria.dropwizard.cli.commands;
  * #L%
  */
 
-import io.dropwizard.cli.Command;
 import io.dropwizard.setup.Bootstrap;
 import net.sourceforge.argparse4j.inf.Namespace;
 import net.sourceforge.argparse4j.inf.Subparser;
 
-import static java.util.Comparator.comparing;
+import java.io.IOException;
+import java.nio.file.Path;
+import java.util.Optional;
 
-public class HelpCommand extends AlexandriaCommand {
-  public HelpCommand() {
-    super("help", "Show the available commands and their descriptions.");
+public class ShowWorkdirCommand extends AlexandriaCommand {
+
+  public ShowWorkdirCommand() {
+    super("workdir", "Show the workdirectory .");
   }
 
   @Override
   public void configure(Subparser subparser) {
-
   }
 
   @Override
-  public void run(Bootstrap<?> bootstrap, Namespace namespace) {
-    System.out.println("usage: alexandria [-h] <command> [<args>]\n" +
-        "\n" +
-        "Available commands:\n");
-    bootstrap.getCommands().stream()
-        .sorted(comparing(Command::getName))
-        .map(this::toCommandHelpLine)
-        .forEach(System.out::println);
+  public void run(Bootstrap<?> bootstrap, Namespace namespace) throws IOException {
+    Optional<Path> workingDirectory = getWorkingDirectory();
+    if (workingDirectory.isPresent()) {
+      System.out.println(workingDirectory.get());
+    } else {
+      System.err.println("No " + ALEXANDRIA_DIR + " directory found in this directory or any of its ancestors.");
+    }
   }
 
-  private String toCommandHelpLine(final Command command) {
-    String commandName = command.getName();
-    return String.format("%-12s- %s", commandName, command.getDescription());
-  }
 }
+
