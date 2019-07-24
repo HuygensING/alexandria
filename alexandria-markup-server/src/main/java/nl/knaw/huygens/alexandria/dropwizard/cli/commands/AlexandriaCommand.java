@@ -85,7 +85,7 @@ public abstract class AlexandriaCommand extends Command {
 
   public AlexandriaCommand(String name, String description) {
     super(name, description);
-    Path workPath = getWorkingDirectory().orElse(Paths.get(""));
+    Path workPath = getWorkingDirectory().orElse(Paths.get("").toAbsolutePath());
     workDir = System.getProperty(AlexandriaProperties.WORKDIR, workPath.toString());
     alexandriaDir = workDir + "/" + ALEXANDRIA_DIR;
     contextFile = new File(alexandriaDir, "context.json");
