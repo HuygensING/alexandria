@@ -79,6 +79,10 @@ public class CommitCommand extends AlexandriaCommand {
         ? getModifiedWatchedFileNames()
         : relativeFilePaths(namespace);
 
+    if (fileNames.isEmpty()) {
+      throw new AlexandriaCommandException("Commit aborted: no files specified. Use -a to commit all changed tracked files.");
+    }
+
     try (TAGStore store = getTAGStore()) {
       CLIContext context = readContext();
       fileNames.forEach(fileName -> {

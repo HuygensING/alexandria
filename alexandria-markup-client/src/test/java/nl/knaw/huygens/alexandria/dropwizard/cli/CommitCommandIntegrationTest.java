@@ -32,6 +32,15 @@ public class CommitCommandIntegrationTest extends CommandIntegrationTest {
   private static final String command = new CommitCommand().getName();
 
   @Test
+  public void testCommandWithoutFileThrowsError() throws Exception {
+    runInitCommand();
+
+    final boolean success = cli.run(command);
+
+    softlyAssertFailsWithExpectedStderr(success, "Commit aborted: no files specified. Use -a to commit all changed tracked files.");
+  }
+
+  @Test
   public void testCommandWithFile() throws Exception {
     runInitCommand();
 
