@@ -36,6 +36,9 @@ public class InitCommandIntegrationTest extends CommandIntegrationTest {
   public void testCommand() throws Exception {
     final boolean success = cli.run(command);
     softlyAssertSucceedsWithExpectedStdout(success, "initializing...\n" +
+        "  mkdir " + workDirectory.resolve(".alexandria") + "\n" +
+        "  mkdir " + workDirectory.resolve("tagml") + "\n" +
+        "  mkdir " + workDirectory.resolve("views") + "\n" +
         "done!");
 
     Path viewsDir = workFilePath(VIEWS_DIR);

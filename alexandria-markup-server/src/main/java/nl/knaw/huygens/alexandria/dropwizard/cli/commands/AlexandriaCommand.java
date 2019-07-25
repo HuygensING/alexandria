@@ -76,9 +76,9 @@ public abstract class AlexandriaCommand extends Command {
   static final String ALEXANDRIA_DIR = ".alexandria";
   final String FILE = "file";
 
-  final String alexandriaDir;
-  private final File contextFile;
-  final String workDir;
+  String alexandriaDir;
+  private File contextFile;
+  String workDir;
   static ObjectMapper mapper = new ObjectMapper()
       .registerModule(new Jdk8Module())//
       .registerModule(new JavaTimeModule());
@@ -86,6 +86,10 @@ public abstract class AlexandriaCommand extends Command {
   public AlexandriaCommand(String name, String description) {
     super(name, description);
     Path workPath = getWorkingDirectory().orElse(Paths.get("").toAbsolutePath());
+    initPaths(workPath);
+  }
+
+  void initPaths(final Path workPath) {
     workDir = System.getProperty(AlexandriaProperties.WORKDIR, workPath.toString());
     alexandriaDir = workDir + "/" + ALEXANDRIA_DIR;
     contextFile = new File(alexandriaDir, "context.json");
