@@ -23,6 +23,7 @@ package nl.knaw.huygens.alexandria.dropwizard.cli;
 import org.junit.Test;
 
 import java.nio.file.Path;
+import java.nio.file.Paths;
 
 import static nl.knaw.huygens.alexandria.dropwizard.cli.commands.AlexandriaCommand.SOURCE_DIR;
 import static nl.knaw.huygens.alexandria.dropwizard.cli.commands.AlexandriaCommand.VIEWS_DIR;

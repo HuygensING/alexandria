@@ -200,7 +200,7 @@ public abstract class AlexandriaCommand extends Command {
 
   Path pathRelativeToWorkDir(final String relativePath) {
     Path other = Paths.get("").resolve(relativePath).toAbsolutePath();
-    return Paths.get(workDir).toAbsolutePath().relativize(other);
+    return relativeToWorkdir(Paths.get(workDir).toAbsolutePath(), other);
   }
 
   TAGStore getTAGStore() {
@@ -306,17 +306,21 @@ public abstract class AlexandriaCommand extends Command {
   }
 
   private boolean isTagmlFile(final Path workDir, final Path filePath) {
-    return workDir.relativize(filePath).startsWith(Paths.get(SOURCE_DIR))
+    return relativeToWorkdir(workDir, filePath).startsWith(Paths.get(SOURCE_DIR))
         && fileType(filePath.toString()).equals(FileType.tagmlSource);
   }
 
+  private Path relativeToWorkdir(final Path workDir, final Path filePath) {
+    return workDir.relativize(filePath).normalize();
+  }
+
   private boolean isViewDefinition(final Path workDir, final Path filePath) {
-    return workDir.relativize(filePath).startsWith(Paths.get(VIEWS_DIR))
+    return relativeToWorkdir(workDir, filePath).startsWith(Paths.get(VIEWS_DIR))
         && fileType(filePath.toString()).equals(FileType.viewDefinition);
   }
 
   private void putFileStatus(Path workDir, Path filePath, Multimap<FileStatus, String> fileStatusMap, CLIContext context, Set<String> watchedFiles) {
-    String file = workDir.relativize(filePath)
+    String file = relativeToWorkdir(workDir, filePath)
         .toString()
         .replace("\\", "/");
     if (watchedFiles.contains(file)) {
@@ -356,7 +360,7 @@ public abstract class AlexandriaCommand extends Command {
                 ? "        modified: "
                 : "        deleted:  ";
             Path filePath = workdirPath.resolve(file);
-            Path relativeToCurrentPath = currentPath.relativize(filePath);
+            Path relativeToCurrentPath = relativeToWorkdir(currentPath, filePath);
             System.out.println(ansi().fg(RED).a(status).a(relativeToCurrentPath).reset());
           }
       );
@@ -370,7 +374,7 @@ public abstract class AlexandriaCommand extends Command {
           "  (use \"alexandria add <file>...\" to start tracking this file.)%n%n");
       createdFiles.stream().sorted().forEach(file -> {
             Path filePath = workdirPath.resolve(file);
-            Path relativeToCurrentPath = currentPath.relativize(filePath);
+            Path relativeToCurrentPath = relativeToWorkdir(currentPath, filePath);
             System.out.println(ansi().fg(RED).a("        ").a(relativeToCurrentPath).reset());
           }
       );
@@ -391,9 +395,8 @@ public abstract class AlexandriaCommand extends Command {
     Path absolutePath = path.isAbsolute()
         ? path
         : Paths.get("").toAbsolutePath().resolve(pathString);
-    return Paths.get(workDir)
-        .toAbsolutePath()
-        .relativize(absolutePath)
+    return relativeToWorkdir(Paths.get(workDir)
+        .toAbsolutePath(), absolutePath)
         .toString()
         .replaceAll("\\\\", "/");
   }
