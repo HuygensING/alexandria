@@ -58,7 +58,7 @@ public class RevertCommandIntegrationTest extends CommandIntegrationTest {
     Boolean statusSuccess = cli.run(new StatusCommand().getName());
     assertThat(statusSuccess).isTrue();
     String stdOut = normalize(this.stdOut.toString());
-    assertThat(stdOut).doesNotContain("tagml/transcription.tagml");
+    assertThat(stdOut).doesNotContain("modified: tagml/transcription.tagml");
   }
 
   @Test

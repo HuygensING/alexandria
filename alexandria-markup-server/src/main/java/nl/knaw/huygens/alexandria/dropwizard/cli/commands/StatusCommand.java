@@ -57,6 +57,7 @@ public class StatusCommand extends AlexandriaCommand {
       showDocuments(store, context);
       showViews(store, context);
     }
+    System.out.println();
 
     showChanges(context);
   }
