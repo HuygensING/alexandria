@@ -22,3 +22,4 @@ hs_err_pid*
 
 alexandria-markup-server/.alexandria/
 clips.txt
+**/.ipynb_checkpoints
