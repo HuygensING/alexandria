@@ -44,12 +44,17 @@ public class InitCommand extends AlexandriaCommand {
 
   @Override
   public void run(Bootstrap<?> bootstrap, Namespace namespace) throws IOException {
+    initPaths(Paths.get("").toAbsolutePath());
     System.out.println("initializing...");
+    System.out.println("  mkdir " + Paths.get(alexandriaDir));
 
     new File(alexandriaDir).mkdir();
     Path transcriptionsPath = Paths.get(workDir, SOURCE_DIR);
+    System.out.println("  mkdir " + transcriptionsPath);
     mkdir(transcriptionsPath);
+
     Path viewsPath = Paths.get(workDir, VIEWS_DIR);
+    System.out.println("  mkdir " + viewsPath);
     mkdir(viewsPath);
 
     CLIContext context = new CLIContext();

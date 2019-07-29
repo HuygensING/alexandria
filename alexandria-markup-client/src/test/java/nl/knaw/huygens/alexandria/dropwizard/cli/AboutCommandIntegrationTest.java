@@ -32,10 +32,7 @@ public class AboutCommandIntegrationTest extends CommandIntegrationTest {
     runInitCommand();
     final boolean success = cli.run(command);
     softlyAssertSucceedsWithExpectedStdout(success, "Alexandria version $version$\n" +
-        "Build date: $buildDate$\n" +
-        "\n" +
-        "no documents\n" +
-        "no views");
+        "Build date: $buildDate$");
   }
 
   @Test
@@ -50,8 +47,4 @@ public class AboutCommandIntegrationTest extends CommandIntegrationTest {
         "  -h, --help             show this help message and exit");
   }
 
-  @Test
-  public void testCommandShouldBeRunInAnInitializedDirectory() throws Exception {
-    assertCommandRunsInAnInitializedDirectory(command);
-  }
 }

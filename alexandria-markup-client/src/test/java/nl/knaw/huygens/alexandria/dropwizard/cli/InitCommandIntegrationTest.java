@@ -23,6 +23,7 @@ package nl.knaw.huygens.alexandria.dropwizard.cli;
 import org.junit.Test;
 
 import java.nio.file.Path;
+import java.nio.file.Paths;
 
 import static nl.knaw.huygens.alexandria.dropwizard.cli.commands.AlexandriaCommand.SOURCE_DIR;
 import static nl.knaw.huygens.alexandria.dropwizard.cli.commands.AlexandriaCommand.VIEWS_DIR;
@@ -36,6 +37,9 @@ public class InitCommandIntegrationTest extends CommandIntegrationTest {
   public void testCommand() throws Exception {
     final boolean success = cli.run(command);
     softlyAssertSucceedsWithExpectedStdout(success, "initializing...\n" +
+        "  mkdir " + workDirectory.resolve(".alexandria") + "\n" +
+        "  mkdir " + workDirectory.resolve("tagml") + "\n" +
+        "  mkdir " + workDirectory.resolve("views") + "\n" +
         "done!");
 
     Path viewsDir = workFilePath(VIEWS_DIR);

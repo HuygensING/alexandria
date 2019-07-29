@@ -7,6 +7,16 @@ You may wonder, why use _Alexandria_ if you already have a text editing tool? We
 
 ## News
 
+### Latest release: _Alexandria 2.2_ (July 2018)
+
+###### [New/Changed commands for the command-line app](https://huygensing.github.io/alexandria/commands)
+- query
+
+##### Bugfixes:
+
+- After a revert, the reverted file is now no longer shown as modified.
+- It is now possible to run alexandria commands from any directory, provided one of its parent directories has been initialized.
+
 ### Latest release: _Alexandria 2.1_ (December 2018)
 
 ##### New features:
@@ -84,7 +94,7 @@ in your terminal window. It should return something like the following, with the
 #### 2c.
 If you don't want to change your path, you can create a softlink.
 
-A soft link (also known as a symbolic link or symlink) consists of a special type of file that serves as a reference to another file or directory. You can create them on your command line: 
+A softlink (also known as a symbolic link or symlink) consists of a special type of file that serves as a reference to another file or directory. You can create them on your command line: 
 ```
 $ ln -s {source-filename} {symbolic-filename}
 ```
