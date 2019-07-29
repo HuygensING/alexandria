@@ -263,7 +263,9 @@ public abstract class AlexandriaCommand extends Command {
         TAGView tagView = showAll
             ? TAGViews.getShowAllMarkupView(store)
             : getExistingView(viewName, store, context);
-        watchedTranscriptions.forEach((fileName, fileInfo) -> {
+
+        watchedTranscriptions.keySet().stream().sorted().forEach(fileName -> {
+          FileInfo fileInfo = watchedTranscriptions.get(fileName);
           System.out.printf("  updating %s...%n", fileName);
           String documentName = fileInfo.getObjectName();
           final Long docId = documentIndex.get(documentName).getDbId();
