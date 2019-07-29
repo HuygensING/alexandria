@@ -75,11 +75,12 @@ public class CommitCommand extends AlexandriaCommand {
   @Override
   public void run(Bootstrap<?> bootstrap, Namespace namespace) {
     checkAlexandriaIsInitialized();
-    List<String> fileNames = (namespace.getBoolean(ARG_ALL))
+    Boolean argAll = namespace.getBoolean(ARG_ALL);
+    List<String> fileNames = argAll
         ? getModifiedWatchedFileNames()
         : relativeFilePaths(namespace);
 
-    if (fileNames.isEmpty()) {
+    if (fileNames.isEmpty() && !argAll) {
       throw new AlexandriaCommandException("Commit aborted: no files specified. Use -a to commit all changed tracked files.");
     }
 
