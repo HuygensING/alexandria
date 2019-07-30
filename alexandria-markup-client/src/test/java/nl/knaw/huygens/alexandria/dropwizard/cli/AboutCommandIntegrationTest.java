@@ -41,7 +41,7 @@ public class AboutCommandIntegrationTest extends CommandIntegrationTest {
     assertSucceedsWithExpectedStdout(success, "usage: java -jar alexandria-app.jar\n" +
         "       about [-h]\n" +
         "\n" +
-        "Show info about the registered documents and views.\n" +
+        "Show version number and build date.\n" +
         "\n" +
         "named arguments:\n" +
         "  -h, --help             show this help message and exit");
