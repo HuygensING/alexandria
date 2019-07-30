@@ -7,7 +7,7 @@ You may wonder, why use _Alexandria_ if you already have a text editing tool? We
 
 ## News
 
-### Latest release: _Alexandria 2.2_ (July 2018)
+### Latest release: _Alexandria 2.2_ (July 2019)
 
 ###### [New/Changed commands for the command-line app](https://huygensing.github.io/alexandria/commands)
 - query
