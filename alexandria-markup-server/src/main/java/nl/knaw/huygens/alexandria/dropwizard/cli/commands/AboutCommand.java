@@ -30,7 +30,7 @@ public class AboutCommand extends AlexandriaCommand {
   private AppInfo appInfo;
 
   public AboutCommand() {
-    super("about", "Show info about the registered documents and views.");
+    super("about", "Show version number and build date.");
   }
 
   public Command withAppInfo(final AppInfo appInfo) {
