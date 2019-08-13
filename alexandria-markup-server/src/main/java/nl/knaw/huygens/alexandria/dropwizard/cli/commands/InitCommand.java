@@ -23,6 +23,7 @@ package nl.knaw.huygens.alexandria.dropwizard.cli.commands;
 import io.dropwizard.setup.Bootstrap;
 import net.sourceforge.argparse4j.inf.Namespace;
 import net.sourceforge.argparse4j.inf.Subparser;
+import nl.knaw.huygens.alexandria.dropwizard.cli.AlexandriaCommandException;
 import nl.knaw.huygens.alexandria.dropwizard.cli.CLIContext;
 
 import java.io.File;
@@ -44,6 +45,7 @@ public class InitCommand extends AlexandriaCommand {
 
   @Override
   public void run(Bootstrap<?> bootstrap, Namespace namespace) throws IOException {
+    checkWeAreNotInUserHomeDir();
     initPaths(Paths.get("").toAbsolutePath());
     System.out.println("initializing...");
     System.out.println("  mkdir " + Paths.get(alexandriaDir));
@@ -61,6 +63,14 @@ public class InitCommand extends AlexandriaCommand {
     storeContext(context);
 
     System.out.println("done!");
+  }
+
+  private void checkWeAreNotInUserHomeDir() {
+    String homeDir = System.getProperty("user.home");
+    String currentPath = Paths.get("").toAbsolutePath().toString();
+    if (homeDir.equals(currentPath)){
+      throw new AlexandriaCommandException("You are currently in your home directory, which can't be used as an alexandria directory. Please choose a different directory to initialize.");
+    }
   }
 
   private void mkdir(final Path path) throws IOException {
