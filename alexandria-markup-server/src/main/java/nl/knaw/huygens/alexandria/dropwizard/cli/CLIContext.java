@@ -22,13 +22,12 @@ package nl.knaw.huygens.alexandria.dropwizard.cli;
 
 import nl.knaw.huygens.alexandria.view.TAGViewDefinition;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 
 public class CLIContext {
 
   private String activeView = "-";
+  private Set<String> watchedDirectories = new HashSet<>();
   private Map<String, FileInfo> watchedFiles = new HashMap<>();
   private Map<String, TAGViewDefinition> tagViewDefinitions = new HashMap<>();
   private Map<String, DocumentInfo> documentInfo = new HashMap<>();
@@ -40,6 +39,14 @@ public class CLIContext {
 
   public String getActiveView() {
     return activeView;
+  }
+
+  public Set<String> getWatchedDirectories() {
+    return watchedDirectories;
+  }
+
+  public void setWatchedDirectories(final Set<String> watchedDirectories) {
+    this.watchedDirectories = watchedDirectories;
   }
 
   public CLIContext setWatchedFiles(final Map<String, FileInfo> watchedFiles) {
@@ -76,4 +83,5 @@ public class CLIContext {
         .findFirst()
         .map(DocumentInfo::getDocumentName);
   }
+
 }

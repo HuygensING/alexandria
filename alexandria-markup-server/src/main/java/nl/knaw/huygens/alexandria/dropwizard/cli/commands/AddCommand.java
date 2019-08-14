@@ -63,10 +63,14 @@ public class AddCommand extends AlexandriaCommand {
       Path filePath = workFilePath(file);
       if (filePath.toFile().exists()) {
         try {
-          Instant lastModifiedInstant = Files.getLastModifiedTime(filePath).toInstant();
-          Instant lastCommit = lastModifiedInstant.minus(365L, DAYS); // set lastCommit to instant sooner than lastModifiedInstant
-          FileInfo fileInfo = new FileInfo().setLastCommit(lastCommit);
-          watchedFiles.put(file, fileInfo);
+          if (Files.isRegularFile(filePath)) {
+            Instant lastModifiedInstant = Files.getLastModifiedTime(filePath).toInstant();
+            Instant lastCommit = lastModifiedInstant.minus(365L, DAYS); // set lastCommit to instant sooner than lastModifiedInstant
+            FileInfo fileInfo = new FileInfo().setLastCommit(lastCommit);
+            watchedFiles.put(file, fileInfo);
+          } else if (Files.isDirectory(filePath)) {
+            cliContext.getWatchedDirectories().add(file);
+          }
         } catch (IOException e) {
           throw new RuntimeException(e);
         }

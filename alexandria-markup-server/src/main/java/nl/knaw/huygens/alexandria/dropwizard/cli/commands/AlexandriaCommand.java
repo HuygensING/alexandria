@@ -200,7 +200,7 @@ public abstract class AlexandriaCommand extends Command {
 
   Path pathRelativeToWorkDir(final String relativePath) {
     Path other = Paths.get("").resolve(relativePath).toAbsolutePath();
-    return relativeToWorkdir(Paths.get(workDir).toAbsolutePath(), other);
+    return relativeToWorkDir(Paths.get(workDir).toAbsolutePath(), other);
   }
 
   TAGStore getTAGStore() {
@@ -295,34 +295,54 @@ public abstract class AlexandriaCommand extends Command {
     Multimap<FileStatus, String> fileStatusMap = ArrayListMultimap.create();
     Path workDir = workFilePath("");
     Set<String> watchedFiles = new HashSet<>(context.getWatchedFiles().keySet());
+    BiPredicate<Path, BasicFileAttributes> matcher0 = (filePath, fileAttr) ->
+        isRelevantFile(workDir, filePath, fileAttr) || (fileAttr.isDirectory() && isNotDotDirectory(filePath));
     BiPredicate<Path, BasicFileAttributes> matcher = (filePath, fileAttr) ->
-        fileAttr.isRegularFile()
-            && (isTagmlFile(workDir, filePath) || isViewDefinition(workDir, filePath));
+        isRelevantFile(workDir, filePath, fileAttr) || isRelevantDirectory(filePath, fileAttr, matcher0);
 
-    Files.find(workDir, Integer.MAX_VALUE, matcher)
-        .forEach(path ->
-            putFileStatus(workDir, path, fileStatusMap, context, watchedFiles)
-        );
+    for (String p : context.getWatchedDirectories()) {
+      Path absolutePath = Paths.get(this.workDir).resolve(p);
+      Files.find(absolutePath, 1, matcher)
+          .forEach(path -> putFileStatus(workDir, path, fileStatusMap, context, watchedFiles));
+    }
     watchedFiles.forEach(f -> fileStatusMap.put(FileStatus.deleted, f));
     return fileStatusMap;
   }
 
-  private boolean isTagmlFile(final Path workDir, final Path filePath) {
-    return relativeToWorkdir(workDir, filePath).startsWith(Paths.get(SOURCE_DIR))
-        && fileType(filePath.toString()).equals(FileType.tagmlSource);
+  private boolean isRelevantFile(final Path workDir, final Path filePath, final BasicFileAttributes fileAttr) {
+    return fileAttr.isRegularFile() && (isTagmlFile(workDir, filePath) || isViewDefinition(workDir, filePath));
   }
 
-  private Path relativeToWorkdir(final Path workDir, final Path filePath) {
-    return workDir.relativize(filePath).normalize();
+  private boolean isRelevantDirectory(final Path filePath, final BasicFileAttributes fileAttr, final BiPredicate<Path, BasicFileAttributes> matcher) {
+    try {
+      return fileAttr.isDirectory() &&
+          isNotDotDirectory(filePath) &&
+          Files.find(filePath, 1, matcher).count() > 1;
+    } catch (IOException e) {
+      return false;
+    }
+  }
+
+  private boolean isNotDotDirectory(final Path filePath) {
+    return !filePath.getFileName().toString().startsWith(".");
+  }
+
+  private boolean isTagmlFile(final Path workDir, final Path filePath) {
+    return /*relativeToWorkDir(workDir, filePath).startsWith(Paths.get(SOURCE_DIR))
+        && */fileType(filePath.toString()).equals(FileType.tagmlSource);
+  }
+
+  private Path relativeToWorkDir(final Path workDirPath, final Path filePath) {
+    return workDirPath.relativize(filePath).normalize();
   }
 
   private boolean isViewDefinition(final Path workDir, final Path filePath) {
-    return relativeToWorkdir(workDir, filePath).startsWith(Paths.get(VIEWS_DIR))
-        && fileType(filePath.toString()).equals(FileType.viewDefinition);
+    return /*relativeToWorkDir(workDir, filePath).startsWith(Paths.get(VIEWS_DIR))
+        && */fileType(filePath.toString()).equals(FileType.viewDefinition);
   }
 
   private void putFileStatus(Path workDir, Path filePath, Multimap<FileStatus, String> fileStatusMap, CLIContext context, Set<String> watchedFiles) {
-    String file = relativeToWorkdir(workDir, filePath)
+    String file = relativeToWorkDir(workDir, filePath)
         .toString()
         .replace("\\", "/");
     if (watchedFiles.contains(file)) {
@@ -337,7 +357,7 @@ public abstract class AlexandriaCommand extends Command {
         throw new RuntimeException(e);
       }
       watchedFiles.remove(file);
-    } else {
+    } else if (!context.getWatchedDirectories().contains(file)) {
       fileStatusMap.put(FileStatus.created, file);
     }
   }
@@ -362,7 +382,7 @@ public abstract class AlexandriaCommand extends Command {
                 ? "        modified: "
                 : "        deleted:  ";
             Path filePath = workdirPath.resolve(file);
-            Path relativeToCurrentPath = relativeToWorkdir(currentPath, filePath);
+            Path relativeToCurrentPath = relativeToWorkDir(currentPath, filePath);
             System.out.println(ansi().fg(RED).a(status).a(relativeToCurrentPath).reset());
           }
       );
@@ -374,9 +394,9 @@ public abstract class AlexandriaCommand extends Command {
     if (!createdFiles.isEmpty()) {
       System.out.printf("Untracked files:%n" +
           "  (use \"alexandria add <file>...\" to start tracking this file.)%n%n");
-      createdFiles.stream().sorted().forEach(file -> {
+      createdFiles.stream().distinct().sorted().forEach(file -> {
             Path filePath = workdirPath.resolve(file);
-            Path relativeToCurrentPath = relativeToWorkdir(currentPath, filePath);
+            Path relativeToCurrentPath = relativeToWorkDir(currentPath, filePath);
             System.out.println(ansi().fg(RED).a("        ").a(relativeToCurrentPath).reset());
           }
       );
@@ -397,7 +417,7 @@ public abstract class AlexandriaCommand extends Command {
     Path absolutePath = path.isAbsolute()
         ? path
         : Paths.get("").toAbsolutePath().resolve(pathString);
-    return relativeToWorkdir(Paths.get(workDir)
+    return relativeToWorkDir(Paths.get(workDir)
         .toAbsolutePath(), absolutePath)
         .toString()
         .replaceAll("\\\\", "/");
