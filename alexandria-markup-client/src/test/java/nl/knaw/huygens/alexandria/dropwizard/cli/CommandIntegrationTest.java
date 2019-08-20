@@ -44,7 +44,6 @@ import java.io.IOException;
 import java.io.PrintStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.time.Instant;
 import java.util.*;
 
@@ -61,12 +60,11 @@ public abstract class CommandIntegrationTest {
 
   Cli cli;
 
-  private final PrintStream originalOut = System.out;
-  private final PrintStream originalErr = System.err;
-//  private final InputStream originalIn = System.in;
+  private PrintStream originalOut;
+  private PrintStream originalErr;
 
-  final ByteArrayOutputStream stdOut = new ByteArrayOutputStream();
-  final ByteArrayOutputStream stdErr = new ByteArrayOutputStream();
+  ByteArrayOutputStream stdOut;
+  ByteArrayOutputStream stdErr;
   Path workDirectory;
   static ObjectMapper mapper = new ObjectMapper();
 
@@ -78,26 +76,32 @@ public abstract class CommandIntegrationTest {
   private static final String COMMIT = new CommitCommand().getName();
   private static final String ADD = new AddCommand().getName();
   private static final String CHECKOUT = new CheckOutCommand().getName();
+  private JarLocation location;
+  private Bootstrap<ServerConfiguration> bootstrap;
 
   @Before
   public void setUp() throws IOException {
     setupWorkDir();
 
     // Setup necessary mock
-    final JarLocation location = mock(JarLocation.class);
+    location = mock(JarLocation.class);
     when(location.getVersion()).thenReturn(Optional.of("1.0.0"));
     when(location.toString()).thenReturn("alexandria-app.jar");
 
     // Add commands you want to test
     ServerApplication serverApplication = new ServerApplication();
-    final Bootstrap<ServerConfiguration> bootstrap = new Bootstrap<>(serverApplication);
+    bootstrap = new Bootstrap<>(serverApplication);
     final AppInfo appInfo = new AppInfo()
         .setVersion("$version$")
         .setBuildDate("$buildDate$");
     serverApplication.addCommands(bootstrap, appInfo);
 
     // Redirect stdout and stderr to our byte streams
+    originalOut = System.out;
+    stdOut = new ByteArrayOutputStream();
     System.setOut(new PrintStream(stdOut));
+    originalErr = System.err;
+    stdErr = new ByteArrayOutputStream();
     System.setErr(new PrintStream(stdErr));
 
     // Build what'll run the command and interpret arguments
@@ -106,8 +110,6 @@ public abstract class CommandIntegrationTest {
 
   private void setupWorkDir() throws IOException {
     workDirectory = Files.createTempDirectory("alexandria");
-//    String tmpDir = System.getProperty("java.io.tmpdir");
-//    workDirectory = Paths.get(tmpDir, "alexandria_testdir");
     FileUtils.deleteQuietly(workDirectory.toFile());
     workDirectory.toFile().mkdir();
     System.setProperty(WORKDIR, workDirectory.toAbsolutePath().toString());
@@ -115,15 +117,28 @@ public abstract class CommandIntegrationTest {
 
   @After
   public void tearDown() throws IOException {
+    stdOut = null;
     System.setOut(originalOut);
+    stdErr = null;
     System.setErr(originalErr);
-//    System.setIn(originalIn);
     tearDownWorkDir();
   }
 
   private void tearDownWorkDir() throws IOException {
     File directory = new File(workDirectory.toAbsolutePath().toString());
     FileUtils.forceDeleteOnExit(directory);
+  }
+
+  void softlyAssertSucceedsWithStdoutContaining(final boolean success, final String... outputSubString) {
+    SoftAssertions softly = new SoftAssertions();
+    softly.assertThat(success).as("Exit success").isTrue();
+
+//    String normalizedExpectedOutput = normalize(expectedOutput);
+    String normalizedStdOut = normalize(stdOut.toString());
+    softly.assertThat(normalizedStdOut).as("stdout").contains(outputSubString);
+    softly.assertThat(stdErr.toString().trim()).as("stderr").isEmpty();
+    softly.assertAll();
+    resetStdOutErr();
   }
 
   void softlyAssertSucceedsWithExpectedStdout(final boolean success, final String expectedOutput) {
@@ -191,7 +206,6 @@ public abstract class CommandIntegrationTest {
     assertThat(contextPath).isRegularFile();
     String json = new String(Files.readAllBytes(contextPath));
     assertThat(json).isNotEmpty();
-//    System.out.println(json);
     return mapper.readValue(json, CLIContext.class);
   }
 
@@ -213,7 +227,7 @@ public abstract class CommandIntegrationTest {
     arguments.add(ADD);
     Collections.addAll(arguments, fileNames);
     String[] argumentArray = arguments.toArray(new String[]{});
-    System.out.println("#" + Paths.get("").toAbsolutePath().toString());
+//    System.out.println("#" + Paths.get("").toAbsolutePath().toString());
     assertThat(cli.run(argumentArray)).overridingErrorMessage(stdErr.toString()).isTrue();
     resetStdOutErr();
   }
@@ -255,6 +269,14 @@ public abstract class CommandIntegrationTest {
       assertThat(writeResult).isNotNull();
       assertThat(writeResult).hasContent(content);
     }
+    return result.toAbsolutePath().toString();
+  }
+
+  String createDirectory(String directoryname) throws IOException {
+    Path directory = workFilePath(directoryname);
+    Path result = Files.createDirectory(directory);
+    assertThat(result).isNotNull();
+    assertThat(result).isDirectory();
     return result.toAbsolutePath().toString();
   }
 
