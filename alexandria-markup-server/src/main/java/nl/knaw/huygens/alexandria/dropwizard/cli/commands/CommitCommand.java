@@ -47,6 +47,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import static java.util.stream.Collectors.joining;
+
 public class CommitCommand extends AlexandriaCommand {
   private final String ARG_ALL = "add_all";
 
@@ -69,7 +71,7 @@ public class CommitCommand extends AlexandriaCommand {
         .nargs("*")
         .required(false)//
         .help("the changed file(s)");
-    subparser.epilog("Warning: currently, committing changes is only possible in the main view!");
+    subparser.epilog("Warning: currently, committing tagml changes is only possible in the main view!");
   }
 
   @Override
@@ -85,44 +87,61 @@ public class CommitCommand extends AlexandriaCommand {
     }
 
     try (TAGStore store = getTAGStore()) {
-      CLIContext context = readContext();
-      fileNames.forEach(fileName -> {
-        FileType fileType = fileType(fileName);
-        String objectName = fileName;
-        switch (fileType) {
-          case tagmlSource:
-            checkNoViewIsActive();
-            objectName = toDocName(fileName);
-            processTAGMLFile(context, store, fileName, objectName);
-            break;
-          case viewDefinition:
-            objectName = toViewName(fileName);
-            processViewDefinition(store, fileName, objectName, context);
-            if (context.getActiveView().equals(objectName)) {
-              checkoutView(objectName);
-            }
-            break;
-          case other:
-            processOtherFile(fileName);
-            break;
+      store.runInTransaction(() -> {
+        NamedDocumentService service = new NamedDocumentService(store);
+        CLIContext context = readContext();
+        String activeView = context.getActiveView();
+        boolean inMainView = activeView.equals(MAIN_VIEW);
+        List<String> reverts = new ArrayList<>();
+
+        fileNames.forEach(fileName -> {
+          FileType fileType = fileType(fileName);
+          String objectName = fileName;
+          boolean ok = true;
+          switch (fileType) {
+            case tagmlSource:
+              if (context.getDocumentName(fileName).isPresent() && !inMainView) {
+                System.err.println("unable to commit " + fileName);
+                reverts.add(fileName);
+                ok = false;
+              } else {
+                objectName = toDocName(fileName);
+                processTAGMLFile(context, store, fileName, objectName);
+              }
+              break;
+            case viewDefinition:
+              objectName = toViewName(fileName);
+              processViewDefinition(store, fileName, objectName, context);
+              if (context.getActiveView().equals(objectName)) {
+                checkoutView(objectName);
+              }
+              break;
+            case other:
+              processOtherFile(fileName);
+              break;
+          }
+          if (ok) {
+            context.getWatchedFiles().put(fileName, new FileInfo()
+                .setObjectName(objectName)
+                .setFileType(fileType)
+                .setLastCommit(Instant.now()));
+          }
+        });
+        storeContext(context);
+        if (!reverts.isEmpty()) {
+          final String revert = reverts.stream()
+              .map(r -> "  alexandria revert " + r + "\n")
+              .collect(joining());
+          System.err.printf("View %s is active. Currently, committing changes to existing documents is only allowed in the main view. Use:%n" +
+              "%s" +
+              "  alexandria checkout -%n" +
+              "to undo those changes and return to the main view.%n", activeView, revert);
+          throw new AlexandriaCommandException("some commits failed");
         }
-        context.getWatchedFiles().put(fileName, new FileInfo()
-            .setObjectName(objectName)
-            .setFileType(fileType)
-            .setLastCommit(Instant.now()));
+
       });
-      storeContext(context);
     }
     System.out.println("done!");
-  }
-
-  private void checkNoViewIsActive() {
-    String activeView = readContext().getActiveView();
-    boolean inMainView = activeView.equals(MAIN_VIEW);
-    if (!inMainView) {
-      System.out.printf("View %s is active. Currently, committing is only allowed in the main view. Use:%n  alexandria checkout -%nto return to the main view.%n", activeView);
-      throw new AlexandriaCommandException("no commit in view allowed");
-    }
   }
 
   private void processTAGMLFile(CLIContext context, TAGStore store, String fileName, String docName) {

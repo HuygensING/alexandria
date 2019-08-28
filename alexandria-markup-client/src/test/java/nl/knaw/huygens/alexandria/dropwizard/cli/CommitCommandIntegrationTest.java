@@ -87,6 +87,59 @@ public class CommitCommandIntegrationTest extends CommandIntegrationTest {
   }
 
   @Test
+  public void testCommitWithActiveView() throws Exception {
+    runInitCommand();
+    String tagFilename = createTagmlFileName("transcription1");
+    String tagPath = createFile(tagFilename, "[tagml>[l>test<l]<tagml]");
+    String viewFilename = createViewFileName("v1");
+    String viewPath = createFile(viewFilename, "{\"includeMarkup\":[\"l\"]}");
+
+    runAddCommand(tagPath, viewPath);
+
+    Instant tagDateAfterAdd = readLastCommittedInstant(tagFilename);
+    assertThat(tagDateAfterAdd).isNotNull();
+    Instant viewDateAfterAdd = readLastCommittedInstant(viewFilename);
+    assertThat(viewDateAfterAdd).isNotNull();
+
+    final boolean success = cli.run(command, "-a");
+    softlyAssertSucceedsWithExpectedStdout(success, "Parsing tagml/transcription1.tagml to document transcription1...\n" +
+        "Parsing views/v1.json to view v1...\n" +
+        "done!");
+
+    Instant tagDateAfterCommit = readLastCommittedInstant(tagFilename);
+    assertThat(tagDateAfterCommit).isAfter(tagDateAfterAdd);
+    Instant viewDateAfterCommit = readLastCommittedInstant(viewFilename);
+    assertThat(viewDateAfterCommit).isAfter(viewDateAfterAdd);
+
+    // alexandria checkout v1
+    runCheckoutCommand("v1");
+
+    // create new transcription & view
+    String tagFilename2 = createTagmlFileName("transcription2");
+    String tagPath2 = createFile(tagFilename2, "[tagml>[l>Hello World<l]<tagml]");
+    String viewFilename2 = createViewFileName("v2");
+    String viewPath2 = createFile(viewFilename2, "{\"includeMarkup\":[\"m\"]}");
+    runAddCommand(tagPath2, viewPath2);
+
+    modifyFile(tagFilename, "[tagml>[p>Hello world!<p]<tagml]");
+//    modifyFile(viewFilename, "{\"includeMarkup\":[\"p\"]}");
+
+//    final boolean success2 = cli.run("status");
+//    assertSucceedsWithExpectedStdout(success2, "");
+
+    final boolean success3 = cli.run(command, "-a");
+    assertFailsWithExpectedStdoutAndStderr(success3,
+        "Parsing tagml/transcription2.tagml to document transcription2...\n" +
+            "Parsing views/v2.json to view v2...",
+        "unable to commit tagml/transcription1.tagml\n" +
+            "View v1 is active. Currently, committing changes to existing documents is only allowed in the main view. Use:\n" +
+            "  alexandria revert tagml/transcription1.tagml\n" +
+            "  alexandria checkout -\n" +
+            "to undo those changes and return to the main view.\n" +
+            "some commits failed");
+  }
+
+  @Test
   public void testCommandHelp() throws Exception {
     final boolean success = cli.run(command, "-h");
     assertSucceedsWithExpectedStdout(success, "usage: java -jar alexandria-app.jar\n" +
@@ -102,7 +155,8 @@ public class CommitCommandIntegrationTest extends CommandIntegrationTest {
         "                         false)\n" +
         "  -h, --help             show this help message and exit\n" +
         "\n" +
-        "Warning: currently, committing changes is only possible in the main view!");
+        "Warning: currently, committing tagml changes  is  only possible in the main\n" +
+        "view!");
   }
 
   @Test

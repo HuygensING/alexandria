@@ -187,9 +187,25 @@ public abstract class CommandIntegrationTest {
     resetStdOutErr();
   }
 
-  private void resetStdOutErr() {
+  void assertFailsWithExpectedStdoutAndStderr(final boolean success, final String expectedOutput, final String expectedError) {
+    assertThat(success).as("Exit success").isFalse();
+
+    String normalizedExpectedOutput = normalize(expectedOutput);
+    String normalizedStdOut = normalize(stdOut.toString());
+    assertThat(normalizedStdOut).as("stdout").isEqualTo(normalizedExpectedOutput);
+
+    String normalizedExpectedError = normalize(expectedError);
+    String normalizeStdErr = normalize(stdErr.toString());
+    assertThat(normalizeStdErr).as("stderr").isEqualTo(normalizedExpectedError);
+
+    resetStdOutErr();
+  }
+
+  void resetStdOutErr() {
     stdOut.reset();
     stdErr.reset();
+    assertThat(stdOut.toString()).isEmpty();
+    assertThat(stdErr.toString()).isEmpty();
   }
 
   String normalize(final String string) {
