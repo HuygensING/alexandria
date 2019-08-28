@@ -124,8 +124,8 @@ public class CommitCommandIntegrationTest extends CommandIntegrationTest {
     modifyFile(tagFilename, "[tagml>[p>Hello world!<p]<tagml]");
 //    modifyFile(viewFilename, "{\"includeMarkup\":[\"p\"]}");
 
-//    final boolean success2 = cli.run("status");
-//    assertSucceedsWithExpectedStdout(success2, "");
+    final boolean success2 = cli.run("status");
+    assertSucceedsWithExpectedStdout(success2, "");
 
     final boolean success3 = cli.run(command, "-a");
     assertFailsWithExpectedStdoutAndStderr(success3,
