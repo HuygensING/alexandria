@@ -58,111 +58,124 @@ public class CommitCommand extends AlexandriaCommand {
 
   @Override
   public void configure(Subparser subparser) {
-    subparser.addArgument("-a")
+    subparser
+        .addArgument("-a")
         .dest(ARG_ALL)
         .action(Arguments.storeTrue())
         .setDefault(false)
         .required(false)
         .help("automatically add all changed files");
-    subparser.addArgument(ARG_FILE)//
+    subparser
+        .addArgument(ARG_FILE) //
         .metavar("<file>")
-        .dest(FILE)//
-        .type(String.class)//
+        .dest(FILE) //
+        .type(String.class) //
         .nargs("*")
-        .required(false)//
+        .required(false) //
         .help("the changed file(s)");
-    subparser.epilog("Warning: currently, committing tagml changes is only possible in the main view!");
+    subparser.epilog(
+        "Warning: currently, committing tagml changes is only possible in the main view!");
   }
 
   @Override
   public void run(Bootstrap<?> bootstrap, Namespace namespace) {
     checkAlexandriaIsInitialized();
     Boolean argAll = namespace.getBoolean(ARG_ALL);
-    List<String> fileNames = argAll
-        ? getModifiedWatchedFileNames()
-        : relativeFilePaths(namespace);
+    List<String> fileNames = argAll ? getModifiedWatchedFileNames() : relativeFilePaths(namespace);
 
     if (fileNames.isEmpty() && !argAll) {
-      throw new AlexandriaCommandException("Commit aborted: no files specified. Use -a to commit all changed tracked files.");
+      throw new AlexandriaCommandException(
+          "Commit aborted: no files specified. Use -a to commit all changed tracked files.");
     }
 
     try (TAGStore store = getTAGStore()) {
-      store.runInTransaction(() -> {
-        NamedDocumentService service = new NamedDocumentService(store);
-        CLIContext context = readContext();
-        String activeView = context.getActiveView();
-        boolean inMainView = activeView.equals(MAIN_VIEW);
-        List<String> reverts = new ArrayList<>();
+      store.runInTransaction(
+          () -> {
+            NamedDocumentService service = new NamedDocumentService(store);
+            CLIContext context = readContext();
+            String activeView = context.getActiveView();
+            boolean inMainView = activeView.equals(MAIN_VIEW);
+            List<String> reverts = new ArrayList<>();
 
-        fileNames.forEach(fileName -> {
-          FileType fileType = fileType(fileName);
-          String objectName = fileName;
-          boolean ok = true;
-          switch (fileType) {
-            case tagmlSource:
-              if (context.getDocumentName(fileName).isPresent() && !inMainView) {
-                System.err.println("unable to commit " + fileName);
-                reverts.add(fileName);
-                ok = false;
-              } else {
-                objectName = toDocName(fileName);
-                processTAGMLFile(context, store, fileName, objectName);
-              }
-              break;
-            case viewDefinition:
-              objectName = toViewName(fileName);
-              processViewDefinition(store, fileName, objectName, context);
-              if (context.getActiveView().equals(objectName)) {
-                checkoutView(objectName);
-              }
-              break;
-            case other:
-              processOtherFile(fileName);
-              break;
-          }
-          if (ok) {
-            context.getWatchedFiles().put(fileName, new FileInfo()
-                .setObjectName(objectName)
-                .setFileType(fileType)
-                .setLastCommit(Instant.now()));
-          }
-        });
-        storeContext(context);
-        if (!reverts.isEmpty()) {
-          final String revert = reverts.stream()
-              .map(r -> "  alexandria revert " + r + "\n")
-              .collect(joining());
-          System.err.printf("View %s is active. Currently, committing changes to existing documents is only allowed in the main view. Use:%n" +
-              "%s" +
-              "  alexandria checkout -%n" +
-              "to undo those changes and return to the main view.%n", activeView, revert);
-          throw new AlexandriaCommandException("some commits failed");
-        }
-
-      });
+            fileNames.forEach(
+                fileName -> {
+                  FileType fileType = fileType(fileName);
+                  String objectName = fileName;
+                  boolean ok = true;
+                  switch (fileType) {
+                    case tagmlSource:
+                      if (context.getDocumentName(fileName).isPresent() && !inMainView) {
+                        System.err.println("unable to commit " + fileName);
+                        reverts.add(fileName);
+                        ok = false;
+                      } else {
+                        objectName = toDocName(fileName);
+                        processTAGMLFile(context, store, fileName, objectName);
+                      }
+                      break;
+                    case viewDefinition:
+                      objectName = toViewName(fileName);
+                      processViewDefinition(store, fileName, objectName, context);
+                      if (context.getActiveView().equals(objectName)) {
+                        checkoutView(objectName);
+                      }
+                      break;
+                    case other:
+                      processOtherFile(fileName);
+                      break;
+                  }
+                  if (ok) {
+                    context
+                        .getWatchedFiles()
+                        .put(
+                            fileName,
+                            new FileInfo()
+                                .setObjectName(objectName)
+                                .setFileType(fileType)
+                                .setLastCommit(Instant.now()));
+                  }
+                });
+            storeContext(context);
+            if (!reverts.isEmpty()) {
+              final String revert =
+                  reverts.stream().map(r -> "  alexandria revert " + r + "\n").collect(joining());
+              System.err.printf(
+                  "View %s is active. Currently, committing changes to existing documents is only allowed in the main view. Use:%n"
+                      + "%s"
+                      + "  alexandria checkout -%n"
+                      + "to undo those changes and return to the main view.%n",
+                  activeView, revert);
+              throw new AlexandriaCommandException("some commits failed");
+            }
+          });
     }
     System.out.println("done!");
   }
 
-  private void processTAGMLFile(CLIContext context, TAGStore store, String fileName, String docName) {
+  private void processTAGMLFile(
+      CLIContext context, TAGStore store, String fileName, String docName) {
     System.out.printf("Parsing %s to document %s...%n", fileName, docName);
 
-    store.runInTransaction(Unchecked.runnable(() -> {
-      TAGMLImporter tagmlImporter = new TAGMLImporter(store);
-      File file = workFilePath(fileName).toFile();
-      FileInputStream fileInputStream = FileUtils.openInputStream(file);
-      TAGDocument document = tagmlImporter.importTAGML(fileInputStream);
-      NamedDocumentService service = new NamedDocumentService(store);
-      service.registerDocument(document, docName);
-      DocumentInfo newDocumentInfo = new DocumentInfo()
-          .setDocumentName(docName)
-          .setSourceFile(fileName)
-          .setDbId(document.getDbId());
-      context.getDocumentInfo().put(docName, newDocumentInfo);
-    }));
+    store.runInTransaction(
+        Unchecked.runnable(
+            () -> {
+              TAGMLImporter tagmlImporter = new TAGMLImporter(store);
+              File file = workFilePath(fileName).toFile();
+              FileInputStream fileInputStream = FileUtils.openInputStream(file);
+              TAGDocument document = tagmlImporter.importTAGML(fileInputStream);
+              NamedDocumentService service = new NamedDocumentService(store);
+              service.registerDocument(document, docName);
+              DocumentInfo newDocumentInfo =
+                  new DocumentInfo()
+                      .setDocumentName(docName)
+                      .setSourceFile(fileName)
+                      .setDbId(document.getDbId());
+              context.getDocumentInfo().put(docName, newDocumentInfo);
+            }));
   }
 
-  private void processViewDefinition(TAGStore store, String fileName, String viewName, final CLIContext context) {
+  private void processViewDefinition(
+      TAGStore store, String fileName, String viewName, final CLIContext context) {
     Map<String, TAGView> viewMap = readViewMap(store, context);
     File viewFile = workFilePath(fileName).toFile();
     TAGViewFactory viewFactory = new TAGViewFactory(store);
@@ -170,6 +183,16 @@ public class CommitCommand extends AlexandriaCommand {
     try {
       String json = FileUtils.readFileToString(viewFile, Charsets.UTF_8);
       TAGView view = viewFactory.fromJsonString(json);
+      if (!view.isValid()) {
+        throw new AlexandriaCommandException(
+            String.format(
+                "Commit aborted: Invalid view definition in %s: none of the allowed options %s, %s, %s or %s was found.",
+                fileName,
+                TAGViewFactory.INCLUDE_LAYERS,
+                TAGViewFactory.EXCLUDE_LAYERS,
+                TAGViewFactory.INCLUDE_MARKUP,
+                TAGViewFactory.EXCLUDE_MARKUP));
+      }
       viewMap.put(viewName, view);
 
       storeViewMap(viewMap, context);
@@ -178,36 +201,34 @@ public class CommitCommand extends AlexandriaCommand {
     }
   }
 
-  private void processOtherFile(String fileName) {
-  }
+  private void processOtherFile(String fileName) {}
 
   private String toDocName(String fileName) {
-    return fileName
-        .replaceAll("^.*" + SOURCE_DIR + "/", "")
-        .replaceAll(".tag(ml)?", "");
+    return fileName.replaceAll("^.*" + SOURCE_DIR + "/", "").replaceAll(".tag(ml)?", "");
   }
 
   private String toViewName(String fileName) {
-    return fileName
-        .replaceAll("^.*" + VIEWS_DIR + "/", "")
-        .replaceAll(".json", "");
+    return fileName.replaceAll("^.*" + VIEWS_DIR + "/", "").replaceAll(".json", "");
   }
 
   private List<String> getModifiedWatchedFileNames() {
     List<String> modifiedFiles = new ArrayList<>();
     CLIContext cliContext = readContext();
-    cliContext.getWatchedFiles().forEach((k, v) -> {
-      Path filePath = Paths.get(workDir).resolve(k);
-      Instant lastCommitted = v.getLastCommit();
-      try {
-        FileTime lastModifiedTime = Files.getLastModifiedTime(filePath);
-        if (lastModifiedTime.toInstant().isAfter(lastCommitted)) {
-          modifiedFiles.add(k);
-        }
-      } catch (IOException e) {
-        e.printStackTrace();
-      }
-    });
+    cliContext
+        .getWatchedFiles()
+        .forEach(
+            (k, v) -> {
+              Path filePath = Paths.get(workDir).resolve(k);
+              Instant lastCommitted = v.getLastCommit();
+              try {
+                FileTime lastModifiedTime = Files.getLastModifiedTime(filePath);
+                if (lastModifiedTime.toInstant().isAfter(lastCommitted)) {
+                  modifiedFiles.add(k);
+                }
+              } catch (IOException e) {
+                e.printStackTrace();
+              }
+            });
 
     return modifiedFiles;
   }

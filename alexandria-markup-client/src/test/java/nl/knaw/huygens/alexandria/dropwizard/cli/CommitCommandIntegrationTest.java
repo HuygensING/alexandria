@@ -33,6 +33,19 @@ public class CommitCommandIntegrationTest extends CommandIntegrationTest {
   private static final String command = new CommitCommand().getName();
 
   @Test
+  public void testCommandWithBadViewDefinitionThrowsError() throws Exception {
+    runInitCommand();
+
+    String viewFilename = createViewFileName("v1");
+    String viewPath = createFile(viewFilename, "{\"idontknowwhatimdoing\":[\"huh?\"]}");
+    runAddCommand(viewPath);
+
+    final boolean success = cli.run(command, "-a");
+
+    softlyAssertFailsWithExpectedStderr(success, "Commit aborted: Invalid view definition in views/v1.json: none of the allowed options includeLayers, excludeLayers, includeMarkup or excludeMarkup was found.");
+  }
+
+  @Test
   public void testCommandWithoutFileThrowsError() throws Exception {
     runInitCommand();
 
