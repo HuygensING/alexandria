@@ -1,5 +1,5 @@
 {  
    "excludeMarkup":[  
-      "excerpt", "p"]
+      "excerpt", "p"],
+   "includeLayers":["T"]
 }
-{"includeLayer":["T"]}
