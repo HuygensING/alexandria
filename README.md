@@ -7,6 +7,17 @@ You may wonder, why use _Alexandria_ if you already have a text editing tool? We
 
 ## News
 
+### Latest release: _Alexandria 2.3_ (September 2019)
+
+##### Bugfixes:
+- It is now possible, when a view other than the default view is active, to commit new and changed view definitions, and new tagml source files.
+  Committing changes to tagml source files of existing documents is still only possible when the default view is active.
+- Running `alexandria init` in your home directory is not allowed and will fail with an error message.
+- `alexandria status` will now only search one level deep in watched directories for files/directories that may be added.
+- When committing a view definition which is valid json, but does not contain at least one of the required fields `includeLayers`, `excludeLayers`, `includeMarkup`, `excludeMarkup`, alexandria would silently accept this, producing an invalid view.
+  This has been fixed: committing this view definition will not fail with an error message.    
+
+
 ### Latest release: _Alexandria 2.2_ (July 2019)
 
 ###### [New/Changed commands for the command-line app](https://huygensing.github.io/alexandria/commands)
