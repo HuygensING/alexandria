@@ -67,6 +67,7 @@ public abstract class AlexandriaCommand extends Command {
 
   public static final String SOURCE_DIR = "tagml";
   public static final String VIEWS_DIR = "views";
+  public static final String SPARQL_DIR = "sparql";
 
   public static final String ARG_FILE = "file";
 

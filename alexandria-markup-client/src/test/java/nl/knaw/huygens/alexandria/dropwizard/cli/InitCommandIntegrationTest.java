@@ -23,10 +23,8 @@ package nl.knaw.huygens.alexandria.dropwizard.cli;
 import org.junit.Test;
 
 import java.nio.file.Path;
-import java.nio.file.Paths;
 
-import static nl.knaw.huygens.alexandria.dropwizard.cli.commands.AlexandriaCommand.SOURCE_DIR;
-import static nl.knaw.huygens.alexandria.dropwizard.cli.commands.AlexandriaCommand.VIEWS_DIR;
+import static nl.knaw.huygens.alexandria.dropwizard.cli.commands.AlexandriaCommand.*;
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class InitCommandIntegrationTest extends CommandIntegrationTest {
@@ -36,19 +34,31 @@ public class InitCommandIntegrationTest extends CommandIntegrationTest {
   @Test
   public void testCommand() throws Exception {
     final boolean success = cli.run(command);
-    softlyAssertSucceedsWithExpectedStdout(success, "initializing...\n" +
-        "  mkdir " + workDirectory.resolve(".alexandria") + "\n" +
-        "  mkdir " + workDirectory.resolve("tagml") + "\n" +
-        "  mkdir " + workDirectory.resolve("views") + "\n" +
-        "done!");
+    softlyAssertSucceedsWithExpectedStdout(
+        success,
+        "initializing...\n"
+            + "  mkdir "
+            + workDirectory.resolve(".alexandria")
+            + "\n"
+            + "  mkdir "
+            + workDirectory.resolve("tagml")
+            + "\n"
+            + "  mkdir "
+            + workDirectory.resolve("views")
+            + "\n"
+            + "  mkdir "
+            + workDirectory.resolve("sparql")
+            + "\n"
+            + "done!");
 
     Path viewsDir = workFilePath(VIEWS_DIR);
-    assertThat(viewsDir).isDirectory()
-        .isWritable();
+    assertThat(viewsDir).isDirectory().isWritable();
 
     Path transcriptionsDir = workFilePath(SOURCE_DIR);
-    assertThat(transcriptionsDir).isDirectory()
-        .isWritable();
+    assertThat(transcriptionsDir).isDirectory().isWritable();
+
+    Path sparqlDir = workFilePath(SPARQL_DIR);
+    assertThat(sparqlDir).isDirectory().isWritable();
 
     CLIContext cliContext = readCLIContext();
     assertThat(cliContext.getActiveView()).isEqualTo("-");
@@ -57,13 +67,14 @@ public class InitCommandIntegrationTest extends CommandIntegrationTest {
   @Test
   public void testCommandHelp() throws Exception {
     final boolean success = cli.run(command, "-h");
-    assertSucceedsWithExpectedStdout(success, "usage: java -jar alexandria-app.jar\n" +
-        "       init [-h]\n" +
-        "\n" +
-        "Initializes current directory as an alexandria workspace.\n" +
-        "\n" +
-        "named arguments:\n" +
-        "  -h, --help             show this help message and exit");
+    assertSucceedsWithExpectedStdout(
+        success,
+        "usage: java -jar alexandria-app.jar\n"
+            + "       init [-h]\n"
+            + "\n"
+            + "Initializes current directory as an alexandria workspace.\n"
+            + "\n"
+            + "named arguments:\n"
+            + "  -h, --help             show this help message and exit");
   }
-
 }
