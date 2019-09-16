@@ -22,6 +22,7 @@ package nl.knaw.huygens.alexandria.dropwizard.cli;
 
 import org.junit.Test;
 
+import java.io.File;
 import java.nio.file.Path;
 
 import static nl.knaw.huygens.alexandria.dropwizard.cli.commands.AlexandriaCommand.*;
@@ -30,6 +31,16 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class InitCommandIntegrationTest extends CommandIntegrationTest {
 
   private static final String command = "init";
+
+  @Test
+  public void testCommandFailsWhenCurrentDirIsNotWritable() throws Exception {
+    File workDirectoryFile = workDirectory.toFile();
+    boolean asFile = workDirectory.resolve(".alexandria").toFile().createNewFile();
+    assertThat(asFile).isTrue();
+    final boolean success = cli.run(command);
+    assertFailsWithExpectedStderr(
+        success, "init failed: could not create directory " + workDirectory.resolve(".alexandria"));
+  }
 
   @Test
   public void testCommand() throws Exception {

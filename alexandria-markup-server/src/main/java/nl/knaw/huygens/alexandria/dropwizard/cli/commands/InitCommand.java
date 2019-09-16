@@ -48,10 +48,11 @@ public class InitCommand extends AlexandriaCommand {
     initPaths(Paths.get("").toAbsolutePath());
     context.getWatchedDirectories().add("");
     System.out.println("initializing...");
-    System.out.println("  mkdir " + Paths.get(alexandriaDir));
+    Path alexandriaPath = Paths.get(alexandriaDir);
+    System.out.println("  mkdir " + alexandriaPath);
     if (!new File(alexandriaDir).mkdir()) {
       throw new AlexandriaCommandException(
-          "init failed: could not create directory " + alexandriaDir);
+          "init failed: could not create directory " + alexandriaPath);
     }
 
     Path transcriptionsPath = Paths.get(workDir, SOURCE_DIR);
