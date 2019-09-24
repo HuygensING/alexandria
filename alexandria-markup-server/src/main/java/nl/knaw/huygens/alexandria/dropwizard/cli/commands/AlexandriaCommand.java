@@ -284,6 +284,10 @@ public abstract class AlexandriaCommand extends Command {
     }
   }
 
+  protected String toViewName(String fileName) {
+    return fileName.replaceAll("^.*" + VIEWS_DIR + "/", "").replaceAll(".json", "");
+  }
+
   enum FileStatus {
     // all status is since last commit
     changed, // changed, can be committed

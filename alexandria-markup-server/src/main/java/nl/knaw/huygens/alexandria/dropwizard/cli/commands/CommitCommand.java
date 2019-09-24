@@ -46,7 +46,9 @@ import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicReference;
 
+import static java.lang.String.format;
 import static java.util.stream.Collectors.joining;
 
 public class CommitCommand extends AlexandriaCommand {
@@ -95,7 +97,8 @@ public class CommitCommand extends AlexandriaCommand {
             CLIContext context = readContext();
             String activeView = context.getActiveView();
             boolean inMainView = activeView.equals(MAIN_VIEW);
-            List<String> reverts = new ArrayList<>();
+            List<String> tagmlReverts = new ArrayList<>();
+            AtomicReference<String> viewRevert = new AtomicReference<>("");
 
             fileNames.forEach(
                 fileName -> {
@@ -106,7 +109,7 @@ public class CommitCommand extends AlexandriaCommand {
                     case tagmlSource:
                       if (context.getDocumentName(fileName).isPresent() && !inMainView) {
                         System.err.println("unable to commit " + fileName);
-                        reverts.add(fileName);
+                        tagmlReverts.add(fileName);
                         ok = false;
                       } else {
                         objectName = toDocName(fileName);
@@ -115,9 +118,11 @@ public class CommitCommand extends AlexandriaCommand {
                       break;
                     case viewDefinition:
                       objectName = toViewName(fileName);
-                      processViewDefinition(store, fileName, objectName, context);
                       if (context.getActiveView().equals(objectName)) {
-                        checkoutView(objectName);
+                        viewRevert.set(fileName);
+
+                      } else {
+                        processViewDefinition(store, fileName, objectName, context);
                       }
                       break;
                     case other:
@@ -136,15 +141,34 @@ public class CommitCommand extends AlexandriaCommand {
                   }
                 });
             storeContext(context);
-            if (!reverts.isEmpty()) {
-              final String revert =
-                  reverts.stream().map(r -> "  alexandria revert " + r + "\n").collect(joining());
+            List<String> reverts = new ArrayList<>();
+            String errorMsg = "";
+            String viewFileName = viewRevert.get();
+            if (!tagmlReverts.isEmpty()) {
+              reverts.addAll(tagmlReverts);
+              errorMsg +=
+                  format(
+                      "View %s is active. Currently, committing changes to existing documents is only allowed in the main view.\n",
+                      activeView);
+            }
+            if (!viewFileName.isEmpty()) {
+              reverts.add(viewFileName);
+              errorMsg +=
+                  format(
+                      "You are trying to modify the definition file %s of the active view %s. This is not allowed.\n",
+                      viewFileName, activeView);
+            }
+            if (!errorMsg.isEmpty()) {
+              final String revertCommands =
+                  reverts.stream()
+                      .map(r -> "  alexandria revert " + r + "\n")
+                      .collect(joining());
               System.err.printf(
-                  "View %s is active. Currently, committing changes to existing documents is only allowed in the main view. Use:%n"
+                  "%s%nUse:%n"
                       + "%s"
                       + "  alexandria checkout -%n"
                       + "to undo those changes and return to the main view.%n",
-                  activeView, revert);
+                  errorMsg, revertCommands);
               throw new AlexandriaCommandException("some commits failed");
             }
           });
@@ -185,7 +209,7 @@ public class CommitCommand extends AlexandriaCommand {
       TAGView view = viewFactory.fromJsonString(json);
       if (!view.isValid()) {
         throw new AlexandriaCommandException(
-            String.format(
+            format(
                 "Commit aborted: Invalid view definition in %s: none of the allowed options %s, %s, %s or %s was found.",
                 fileName,
                 TAGViewFactory.INCLUDE_LAYERS,
@@ -205,10 +229,6 @@ public class CommitCommand extends AlexandriaCommand {
 
   private String toDocName(String fileName) {
     return fileName.replaceAll("^.*" + SOURCE_DIR + "/", "").replaceAll(".tag(ml)?", "");
-  }
-
-  private String toViewName(String fileName) {
-    return fileName.replaceAll("^.*" + VIEWS_DIR + "/", "").replaceAll(".json", "");
   }
 
   private List<String> getModifiedWatchedFileNames() {

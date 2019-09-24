@@ -31,6 +31,37 @@ public class RevertCommandIntegrationTest extends CommandIntegrationTest {
   private static final String command = new RevertCommand().getName();
 
   @Test
+  public void testRevertOfViewDefinition() throws Exception {
+    runInitCommand();
+
+    // create sourcefile
+    String viewFilename = createViewFileName("v1");
+    String json = "{\"excludeMarkup\":[\"l\"]}";
+    String viewDefinitionPath = createFile(viewFilename, json);
+
+    runAddCommand(viewDefinitionPath);
+    runCommitAllCommand();
+
+    // overwrite sourcefile
+    String json2 = "{\"excludeMarkup\":[\"blablabla\"]}";
+    modifyFile(viewDefinitionPath, json2);
+
+    String fileContentsBeforeRevert = readFileContents(viewFilename);
+    assertThat(fileContentsBeforeRevert).isEqualTo(json2);
+
+    final boolean success = cli.run(command, viewDefinitionPath);
+    assertSucceedsWithExpectedStdout(success, "Reverting " + viewFilename + "...\ndone!");
+
+    String fileContentsAfterRevert = readFileContents(viewFilename);
+    assertThat(fileContentsAfterRevert).isEqualTo(json);
+
+    Boolean statusSuccess = cli.run(new StatusCommand().getName());
+    assertThat(statusSuccess).isTrue();
+    String stdOut = normalize(this.stdOut.toString());
+    assertThat(stdOut).doesNotContain("modified: " + viewFilename);
+  }
+
+  @Test
   public void testCommandInMainView() throws Exception {
     runInitCommand();
 
@@ -97,21 +128,22 @@ public class RevertCommandIntegrationTest extends CommandIntegrationTest {
   @Test
   public void testCommandHelp() throws Exception {
     final boolean success = cli.run(command, "-h");
-    assertSucceedsWithExpectedStdout(success, "usage: java -jar alexandria-app.jar\n" +
-        "       revert [-h] <file> [<file> ...]\n" +
-        "\n" +
-        "Restore the document file(s).\n" +
-        "\n" +
-        "positional arguments:\n" +
-        "  <file>                 the file to be reverted\n" +
-        "\n" +
-        "named arguments:\n" +
-        "  -h, --help             show this help message and exit");
+    assertSucceedsWithExpectedStdout(
+        success,
+        "usage: java -jar alexandria-app.jar\n"
+            + "       revert [-h] <file> [<file> ...]\n"
+            + "\n"
+            + "Restore the document file(s).\n"
+            + "\n"
+            + "positional arguments:\n"
+            + "  <file>                 the file to be reverted\n"
+            + "\n"
+            + "named arguments:\n"
+            + "  -h, --help             show this help message and exit");
   }
 
   @Test
   public void testCommandShouldBeRunInAnInitializedDirectory() throws Exception {
     assertCommandRunsInAnInitializedDirectory(command, "something");
   }
-
 }
