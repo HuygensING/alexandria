@@ -91,9 +91,7 @@ public abstract class CommandIntegrationTest {
     // Add commands you want to test
     ServerApplication serverApplication = new ServerApplication();
     bootstrap = new Bootstrap<>(serverApplication);
-    final AppInfo appInfo = new AppInfo()
-        .setVersion("$version$")
-        .setBuildDate("$buildDate$");
+    final AppInfo appInfo = new AppInfo().setVersion("$version$").setBuildDate("$buildDate$");
     serverApplication.addCommands(bootstrap, appInfo);
 
     // Redirect stdout and stderr to our byte streams
@@ -129,11 +127,12 @@ public abstract class CommandIntegrationTest {
     FileUtils.forceDeleteOnExit(directory);
   }
 
-  void softlyAssertSucceedsWithStdoutContaining(final boolean success, final String... outputSubString) {
+  void softlyAssertSucceedsWithStdoutContaining(
+      final boolean success, final String... outputSubString) {
     SoftAssertions softly = new SoftAssertions();
     softly.assertThat(success).as("Exit success").isTrue();
 
-//    String normalizedExpectedOutput = normalize(expectedOutput);
+    //    String normalizedExpectedOutput = normalize(expectedOutput);
     String normalizedStdOut = normalize(stdOut.toString());
     softly.assertThat(normalizedStdOut).as("stdout").contains(outputSubString);
     softly.assertThat(stdErr.toString().trim()).as("stderr").isEmpty();
@@ -173,8 +172,8 @@ public abstract class CommandIntegrationTest {
     String normalizeStdErr = normalize(stdErr.toString());
     softly.assertThat(normalizeStdErr).as("stderr").isEqualTo(normalizedExpectedError);
 
-//    String normalizedStdOut = normalize(stdOut.toString());
-//    assertThat(normalizedStdOut).as("stdout").isEqualTo("");
+    //    String normalizedStdOut = normalize(stdOut.toString());
+    //    assertThat(normalizedStdOut).as("stdout").isEqualTo("");
     softly.assertAll();
     resetStdOutErr();
   }
@@ -187,7 +186,8 @@ public abstract class CommandIntegrationTest {
     resetStdOutErr();
   }
 
-  void assertFailsWithExpectedStdoutAndStderr(final boolean success, final String expectedOutput, final String expectedError) {
+  void assertFailsWithExpectedStdoutAndStderr(
+      final boolean success, final String expectedOutput, final String expectedError) {
     assertThat(success).as("Exit success").isFalse();
 
     String normalizedExpectedOutput = normalize(expectedOutput);
@@ -209,8 +209,7 @@ public abstract class CommandIntegrationTest {
   }
 
   String normalize(final String string) {
-    return string.trim()
-        .replace(System.lineSeparator(), "\n");
+    return string.trim().replace(System.lineSeparator(), "\n");
   }
 
   Path workFilePath(final String relativePath) {
@@ -242,8 +241,8 @@ public abstract class CommandIntegrationTest {
     List<String> arguments = new ArrayList<>();
     arguments.add(ADD);
     Collections.addAll(arguments, fileNames);
-    String[] argumentArray = arguments.toArray(new String[]{});
-//    System.out.println("#" + Paths.get("").toAbsolutePath().toString());
+    String[] argumentArray = arguments.toArray(new String[] {});
+    //    System.out.println("#" + Paths.get("").toAbsolutePath().toString());
     assertThat(cli.run(argumentArray)).overridingErrorMessage(stdErr.toString()).isTrue();
     resetStdOutErr();
   }
@@ -262,6 +261,7 @@ public abstract class CommandIntegrationTest {
     SoftAssertions softly = new SoftAssertions();
     softly.assertThat(success).overridingErrorMessage(stdErr.toString()).isTrue();
     softly.assertThat(getCliStdErrAsString()).isEmpty();
+    softly.assertThat(readCLIContext().getActiveView()).isEqualTo(viewName);
     softly.assertAll();
     resetStdOutErr();
   }
@@ -270,7 +270,9 @@ public abstract class CommandIntegrationTest {
     final boolean success = cli.run(cliArguments);
     SoftAssertions softly = new SoftAssertions();
     softly.assertThat(success).isFalse();
-    softly.assertThat(getCliStdOutAsString()).contains("This directory (or any of its parents) has not been initialized");
+    softly
+        .assertThat(getCliStdOutAsString())
+        .contains("This directory (or any of its parents) has not been initialized");
     softly.assertThat(getCliStdErrAsString().trim()).isEqualTo("not initialized");
     softly.assertAll();
   }
@@ -326,5 +328,4 @@ public abstract class CommandIntegrationTest {
   String createTagmlFileName(final String documentName) {
     return format("%s/%s.tagml", SOURCE_DIR, documentName);
   }
-
 }
