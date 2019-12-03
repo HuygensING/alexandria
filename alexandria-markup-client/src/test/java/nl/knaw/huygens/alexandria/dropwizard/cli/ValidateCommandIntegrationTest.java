@@ -36,7 +36,7 @@ public class ValidateCommandIntegrationTest extends CommandIntegrationTest {
     String tagPath = createFile(tagFilename, tagml);
     // create schema sourcefile
     String schemaFilename = "schema.yaml";
-    String yaml = "---\n" + "$:\n" + "  tagml:\n" + "    - l:\n" + "      - w\n";
+    String yaml = "---\n$:\n  tagml:\n    - l:\n      - w\n";
     createFile(schemaFilename, yaml);
 
     runAddCommand(tagPath);
@@ -44,7 +44,9 @@ public class ValidateCommandIntegrationTest extends CommandIntegrationTest {
 
     final boolean success = cli.run(command, "-d", "transcription", "-s", schemaFilename);
     String expectedOutput =
-        "Document transcription is \n"
+        "Parsing schema schema.yaml:\n"
+            + "  done\n\n"
+            + "Document transcription is \n"
             + "  valid\n"
             + "according to the schema defined in schema.yaml";
     softlyAssertSucceedsWithExpectedStdout(success, expectedOutput);
@@ -52,7 +54,7 @@ public class ValidateCommandIntegrationTest extends CommandIntegrationTest {
   }
 
   @Test
-  public void testCommandWithInvalidInput() throws Exception {
+  public void testCommandWithInvalidTAGMLInput() throws Exception {
     runInitCommand();
     // create sourcefile
     String tagFilename = createTagmlFileName("transcription");
@@ -60,7 +62,7 @@ public class ValidateCommandIntegrationTest extends CommandIntegrationTest {
     String tagPath = createFile(tagFilename, tagml);
     // create schema sourcefile
     String schemaFilename = "schema.yaml";
-    String yaml = "---\n" + "$:\n" + "  a:\n" + "    - bb:\n" + "      - aaa\n";
+    String yaml = "---\n$:\n  a:\n    - bb:\n      - aaa\n";
     createFile(schemaFilename, yaml);
 
     runAddCommand(tagPath);
@@ -68,10 +70,46 @@ public class ValidateCommandIntegrationTest extends CommandIntegrationTest {
 
     final boolean success = cli.run(command, "-d", "transcription", "-s", schemaFilename);
     String expectedOutputError =
-        "Document transcription is \n"
+        "Parsing schema schema.yaml:\n"
+            + "  done\n\n"
+            + "Document transcription is \n"
             + "  not valid:\n"
-            + "  - error: Layer (default): expected [bb> as child markup of [a>, but found [aa>\n"
+            + "  - error: Layer $ (default): expected [bb> as child markup of [a>, but found [aa>\n"
             + "according to the schema defined in schema.yaml";
+    softlyAssertSucceedsWithExpectedStdout(success, expectedOutputError);
+    //    assertSucceedsWithExpectedStdout(success, expectedOutputError);
+  }
+
+  @Test
+  public void testCommandWithInvalidSchema() throws Exception {
+    runInitCommand();
+    // create sourcefile
+    String tagFilename = createTagmlFileName("transcription");
+    String tagml = "[a>[aa>test [aaa>word<aaa]<aa]<a]";
+    String tagPath = createFile(tagFilename, tagml);
+    // create schema sourcefile
+    String schemaFilename = "schema.yaml";
+    String yaml = "%!invalid YAML@:";
+    createFile(schemaFilename, yaml);
+
+    runAddCommand(tagPath);
+    runCommitAllCommand();
+
+    final boolean success = cli.run(command, "-d", "transcription", "-s", schemaFilename);
+    String expectedOutputError =
+        "Parsing schema schema.yaml:\n"
+            + "  errors:\n"
+            + "  - while scanning a directive\n"
+            + " in 'reader', line 1, column 1:\n"
+            + "    %!invalid YAML@:\n"
+            + "    ^\n"
+            + "expected alphabetic or numeric character, but found !(33)\n"
+            + " in 'reader', line 1, column 2:\n"
+            + "    %!invalid YAML@:\n"
+            + "     ^\n"
+            + "\n"
+            + " at [Source: schema.yaml; line: 1, column: 1]\n"
+            + "  - no layer definitions found";
     softlyAssertSucceedsWithExpectedStdout(success, expectedOutputError);
     //    assertSucceedsWithExpectedStdout(success, expectedOutputError);
   }

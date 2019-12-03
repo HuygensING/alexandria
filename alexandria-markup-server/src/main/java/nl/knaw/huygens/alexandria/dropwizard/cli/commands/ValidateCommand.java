@@ -28,7 +28,6 @@ import nl.knaw.huc.di.tag.schema.TAGMLSchemaFactory;
 import nl.knaw.huc.di.tag.schema.TAGMLSchemaParseResult;
 import nl.knaw.huc.di.tag.validate.TAGValidationResult;
 import nl.knaw.huc.di.tag.validate.TAGValidator;
-import nl.knaw.huygens.alexandria.dropwizard.cli.CLIContext;
 import nl.knaw.huygens.alexandria.storage.TAGDocument;
 import nl.knaw.huygens.alexandria.storage.TAGStore;
 import org.apache.commons.io.FileUtils;
@@ -74,30 +73,38 @@ public class ValidateCommand extends AlexandriaCommand {
     Path filePath = workFilePath(schemaFile);
     File file = filePath.toFile();
     if (file.isFile()) {
+      System.out.println("Parsing schema " + schemaFile + ":");
       String schemaYAML = FileUtils.readFileToString(file, Charsets.UTF_8);
       final TAGMLSchemaParseResult schemaParseResult = TAGMLSchemaFactory.parseYAML(schemaYAML);
-
-      CLIContext context = readContext();
-
-      try (TAGStore store = getTAGStore()) {
-        TAGValidationResult result =
-            store.runInTransaction(
-                () -> {
-                  TAGDocument document = store.getDocument(docId);
-                  return new TAGValidator(store).validate(document, schemaParseResult.schema);
-                });
-
-        System.out.println("Document " + docName + " is ");
-        if (!result.isValid()) {
-          System.out.println("  not valid:");
-          System.out.println(
-              result.errors.stream().map(e -> "  - error: " + e).collect(joining("\n")));
-        } else {
-          System.out.println("  valid");
-        }
-        System.out.println("according to the schema defined in " + schemaFile);
+      if (!schemaParseResult.errors.isEmpty()) {
         System.out.println(
-            result.warnings.stream().map(e -> "  - warning: " + e).collect(joining("\n")));
+            "  errors:\n"
+                + schemaParseResult.errors.stream()
+                    .map(e -> "  - " + e.replaceAll("\\(StringReader\\)", schemaFile))
+                    .collect(joining("\n")));
+      } else {
+        System.out.println("  done\n");
+
+        try (TAGStore store = getTAGStore()) {
+          TAGValidationResult result =
+              store.runInTransaction(
+                  () -> {
+                    TAGDocument document = store.getDocument(docId);
+                    return new TAGValidator(store).validate(document, schemaParseResult.schema);
+                  });
+
+          System.out.println("Document " + docName + " is ");
+          if (!result.isValid()) {
+            System.out.println("  not valid:");
+            System.out.println(
+                result.errors.stream().map(e -> "  - error: " + e).collect(joining("\n")));
+          } else {
+            System.out.println("  valid");
+          }
+          System.out.println("according to the schema defined in " + schemaFile);
+          System.out.println(
+              result.warnings.stream().map(e -> "  - warning: " + e).collect(joining("\n")));
+        }
       }
     } else {
       System.err.printf("%s is not a file!%n", schemaFile);
