@@ -2,9 +2,9 @@ $:
   tagml:
     - chapter:
         - paragraph:
-            -sentence
+            - sentence
 V:
   tagml:
     - poem:
-        -verse:
-          -line
+        - verse:
+            - line

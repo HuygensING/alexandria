@@ -70,7 +70,7 @@ public class ValidateCommandIntegrationTest extends CommandIntegrationTest {
     String expectedOutputError =
         "Document transcription is \n"
             + "  not valid:\n"
-            + "  - Layer (default): expected [bb> as child markup of [a>, but found [aa>\n"
+            + "  - error: Layer (default): expected [bb> as child markup of [a>, but found [aa>\n"
             + "according to the schema defined in schema.yaml";
     softlyAssertSucceedsWithExpectedStdout(success, expectedOutputError);
     //    assertSucceedsWithExpectedStdout(success, expectedOutputError);
