@@ -1,0 +1,10 @@
+$:
+  tagml:
+    - chapter:
+        - paragraph:
+            -sentence
+V:
+  tagml:
+    - poem:
+        -verse:
+          -line
