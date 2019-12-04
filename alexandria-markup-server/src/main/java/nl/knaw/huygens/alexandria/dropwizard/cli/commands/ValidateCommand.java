@@ -72,16 +72,20 @@ public class ValidateCommand extends AlexandriaCommand {
     String schemaFile = namespace.getString(SCHEMA);
     Path filePath = workFilePath(schemaFile);
     File file = filePath.toFile();
+
     if (file.isFile()) {
+      //      AnsiConsole.systemInstall();
       System.out.println("Parsing schema " + schemaFile + ":");
       String schemaYAML = FileUtils.readFileToString(file, Charsets.UTF_8);
       final TAGMLSchemaParseResult schemaParseResult = TAGMLSchemaFactory.parseYAML(schemaYAML);
       if (!schemaParseResult.errors.isEmpty()) {
+        //        System.out.print(ansi().fg(RED));
         System.out.println(
             "  errors:\n"
                 + schemaParseResult.errors.stream()
                     .map(e -> "  - " + e.replaceAll("\\(StringReader\\)", schemaFile))
                     .collect(joining("\n")));
+        //        System.out.print(ansi().reset());
       } else {
         System.out.println("  done\n");
 
@@ -95,17 +99,23 @@ public class ValidateCommand extends AlexandriaCommand {
 
           System.out.println("Document " + docName + " is ");
           if (!result.isValid()) {
+            //            System.out.println(ansi().fg(RED).a("  not valid:"));
             System.out.println("  not valid:");
             System.out.println(
                 result.errors.stream().map(e -> "  - error: " + e).collect(joining("\n")));
+            //            System.out.print(ansi().reset());
           } else {
+            //            System.out.println(ansi().fg(GREEN).a("  valid").reset());
             System.out.println("  valid");
           }
-          System.out.println("according to the schema defined in " + schemaFile);
+          //          System.out.print(ansi().fg(YELLOW));
           System.out.println(
               result.warnings.stream().map(e -> "  - warning: " + e).collect(joining("\n")));
+          //          System.out.print(ansi().reset());
+          System.out.println("according to the schema defined in " + schemaFile);
         }
       }
+      //      AnsiConsole.systemUninstall();
     } else {
       System.err.printf("%s is not a file!%n", schemaFile);
     }

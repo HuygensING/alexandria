@@ -47,7 +47,7 @@ public class ValidateCommandIntegrationTest extends CommandIntegrationTest {
         "Parsing schema schema.yaml:\n"
             + "  done\n\n"
             + "Document transcription is \n"
-            + "  valid\n"
+            + "  valid\n\n"
             + "according to the schema defined in schema.yaml";
     softlyAssertSucceedsWithExpectedStdout(success, expectedOutput);
     //    assertSucceedsWithExpectedStdout(success, expectedOutput);
@@ -74,10 +74,10 @@ public class ValidateCommandIntegrationTest extends CommandIntegrationTest {
             + "  done\n\n"
             + "Document transcription is \n"
             + "  not valid:\n"
-            + "  - error: Layer $ (default): expected [bb> as child markup of [a>, but found [aa>\n"
+            + "  - error: Layer $ (default): expected [bb> as child markup of [a>, but found [aa>\n\n"
             + "according to the schema defined in schema.yaml";
-    softlyAssertSucceedsWithExpectedStdout(success, expectedOutputError);
-    //    assertSucceedsWithExpectedStdout(success, expectedOutputError);
+    //    softlyAssertSucceedsWithExpectedStdout(success, expectedOutputError);
+    assertSucceedsWithExpectedStdout(success, expectedOutputError);
   }
 
   @Test
@@ -110,8 +110,8 @@ public class ValidateCommandIntegrationTest extends CommandIntegrationTest {
             + "\n"
             + " at [Source: schema.yaml; line: 1, column: 1]\n"
             + "  - no layer definitions found";
-    softlyAssertSucceedsWithExpectedStdout(success, expectedOutputError);
-    //    assertSucceedsWithExpectedStdout(success, expectedOutputError);
+    //    softlyAssertSucceedsWithExpectedStdout(success, expectedOutputError);
+    assertSucceedsWithExpectedStdout(success, expectedOutputError);
   }
 
   @Test
