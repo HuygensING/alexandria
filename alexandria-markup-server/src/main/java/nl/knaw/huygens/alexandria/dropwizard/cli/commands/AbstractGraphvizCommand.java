@@ -37,17 +37,17 @@ abstract class AbstractGraphvizCommand extends AlexandriaCommand {
 
   @Override
   public void configure(Subparser subparser) {
-    subparser.addArgument("DOCUMENT")//
+    subparser.addArgument("DOCUMENT")
         .metavar("<document>")
-        .dest(DOCUMENT)//
-        .type(String.class)//
-        .required(true)//
+        .dest(DOCUMENT)
+        .type(String.class)
+        .required(true)
         .help("The name of the document to export.");
-    subparser.addArgument("-o", "--outputfile")//
-        .dest(OUTPUTFILE)//
+    subparser.addArgument("-o", "--outputfile")
+        .dest(OUTPUTFILE)
         .metavar("<file>")
-        .type(String.class)//
-        .required(false)//
+        .type(String.class)
+        .required(false)
         .help("The file to export to.");
 
   }

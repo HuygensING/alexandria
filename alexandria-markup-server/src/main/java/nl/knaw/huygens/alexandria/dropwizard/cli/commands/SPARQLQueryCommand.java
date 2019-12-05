@@ -45,17 +45,17 @@ public class SPARQLQueryCommand extends AlexandriaCommand {
 
   @Override
   public void configure(Subparser subparser) {
-    subparser.addArgument("DOCUMENT")//
+    subparser.addArgument("DOCUMENT")
         .metavar("<document>")
-        .dest(DOCUMENT)//
-        .type(String.class)//
-        .required(true)//
+        .dest(DOCUMENT)
+        .type(String.class)
+        .required(true)
         .help("The name of the document to query.");
-    subparser.addArgument("-q", "--query")//
+    subparser.addArgument("-q", "--query")
         .metavar("<sparql-file>")
         .dest(QUERY)
-        .type(String.class)//
-        .required(true)//
+        .type(String.class)
+        .required(true)
         .help("The file containing the SPARQL query.");
   }
 

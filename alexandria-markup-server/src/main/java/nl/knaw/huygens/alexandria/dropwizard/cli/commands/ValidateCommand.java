@@ -28,13 +28,14 @@ import nl.knaw.huc.di.tag.schema.TAGMLSchemaFactory;
 import nl.knaw.huc.di.tag.schema.TAGMLSchemaParseResult;
 import nl.knaw.huc.di.tag.validate.TAGValidationResult;
 import nl.knaw.huc.di.tag.validate.TAGValidator;
+import nl.knaw.huygens.alexandria.dropwizard.cli.AlexandriaCommandException;
 import nl.knaw.huygens.alexandria.storage.TAGDocument;
 import nl.knaw.huygens.alexandria.storage.TAGStore;
-import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.IOUtils;
 
-import java.io.File;
 import java.io.IOException;
-import java.nio.file.Path;
+import java.net.URL;
+import java.util.Optional;
 
 import static java.util.stream.Collectors.joining;
 
@@ -49,17 +50,19 @@ public class ValidateCommand extends AlexandriaCommand {
   @Override
   public void configure(Subparser subparser) {
     subparser
-        .addArgument("-d", "--document") //
-        .dest(DOCUMENT) //
-        .type(String.class) //
-        .required(true) //
-        .help("The name of the document to validate.");
-    subparser
-        .addArgument("-s", "--schema") //
-        .dest(SCHEMA)
-        .type(String.class) //
-        .required(true) //
-        .help("The TAG schema file.");
+        .addArgument("DOCUMENT")
+        .metavar("<document>")
+        .dest(DOCUMENT)
+        .type(String.class)
+        .required(true)
+        .help(
+            "The name of the document to validate. It must have a valid URL to a valid schema file (in YAML) defined using '[!schema <schemaLocationURL>]' in the TAGML source file.");
+    //    subparser
+    //        .addArgument("-s", "--schema")
+    //        .dest(SCHEMA)
+    //        .type(String.class)
+    //        .required(true)
+    //        .help("The TAG schema file.");
   }
 
   @Override
@@ -69,55 +72,63 @@ public class ValidateCommand extends AlexandriaCommand {
     String docName = namespace.getString(DOCUMENT);
     Long docId = getIdForExistingDocument(docName);
 
-    String schemaFile = namespace.getString(SCHEMA);
-    Path filePath = workFilePath(schemaFile);
-    File file = filePath.toFile();
-
-    if (file.isFile()) {
-      //      AnsiConsole.systemInstall();
-      System.out.println("Parsing schema " + schemaFile + ":");
-      String schemaYAML = FileUtils.readFileToString(file, Charsets.UTF_8);
-      final TAGMLSchemaParseResult schemaParseResult = TAGMLSchemaFactory.parseYAML(schemaYAML);
-      if (!schemaParseResult.errors.isEmpty()) {
-        //        System.out.print(ansi().fg(RED));
-        System.out.println(
-            "  errors:\n"
-                + schemaParseResult.errors.stream()
-                    .map(e -> "  - " + e.replaceAll("\\(StringReader\\)", schemaFile))
-                    .collect(joining("\n")));
-        //        System.out.print(ansi().reset());
-      } else {
-        System.out.println("  done\n");
-
-        try (TAGStore store = getTAGStore()) {
-          TAGValidationResult result =
-              store.runInTransaction(
-                  () -> {
-                    TAGDocument document = store.getDocument(docId);
-                    return new TAGValidator(store).validate(document, schemaParseResult.schema);
-                  });
-
-          System.out.println("Document " + docName + " is ");
-          if (!result.isValid()) {
-            //            System.out.println(ansi().fg(RED).a("  not valid:"));
-            System.out.println("  not valid:");
-            System.out.println(
-                result.errors.stream().map(e -> "  - error: " + e).collect(joining("\n")));
-            //            System.out.print(ansi().reset());
-          } else {
-            //            System.out.println(ansi().fg(GREEN).a("  valid").reset());
-            System.out.println("  valid");
-          }
-          //          System.out.print(ansi().fg(YELLOW));
-          System.out.println(
-              result.warnings.stream().map(e -> "  - warning: " + e).collect(joining("\n")));
-          //          System.out.print(ansi().reset());
-          System.out.println("according to the schema defined in " + schemaFile);
-        }
-      }
-      //      AnsiConsole.systemUninstall();
-    } else {
-      System.err.printf("%s is not a file!%n", schemaFile);
+    try (TAGStore store = getTAGStore()) {
+      store.runInTransaction(
+          () -> {
+            TAGDocument document = store.getDocument(docId);
+            try {
+              final Optional<URL> schemaLocation = document.getSchemaLocation();
+              if (schemaLocation.isPresent()) {
+                continueWithSchemaLocation(docName, store, document, schemaLocation.get());
+              } else {
+                throw new AlexandriaCommandException(
+                    "There was no schema location defined in "
+                        + docName
+                        + ", please add\n  [!schema <schemaLocationURL>]\nto the tagml sourcefile.");
+              }
+            } catch (IOException e) {
+              throw new AlexandriaCommandException("The schema location in " + docName + " is invalid.");
+            }
+          });
     }
+  }
+
+  private void continueWithSchemaLocation(
+      final String docName, final TAGStore store, final TAGDocument document, final URL url)
+      throws IOException {
+    final String schemaLocationURL = url.getProtocol() + "://" + url.getPath(); // because url.toString() somehow loses '//'
+    System.out.println("Parsing schema from " + schemaLocationURL + ":");
+    String schemaYAML = IOUtils.toString(url, Charsets.UTF_8);
+    final TAGMLSchemaParseResult schemaParseResult = TAGMLSchemaFactory.parseYAML(schemaYAML);
+    if (schemaParseResult.errors.isEmpty()) {
+      continueWithValidSchema(docName, store, document, schemaParseResult, schemaLocationURL);
+    } else {
+      System.out.println(
+          "  errors:\n"
+              + schemaParseResult.errors.stream()
+                  .map(e -> "  - " + e.replaceAll("\\(StringReader\\)", schemaLocationURL))
+                  .collect(joining("\n")));
+    }
+  }
+
+  private void continueWithValidSchema(
+      final String docName,
+      final TAGStore store,
+      final TAGDocument document,
+      final TAGMLSchemaParseResult schemaParseResult,
+      final String schemaLocationURL) {
+    System.out.println("  done\n");
+    TAGValidationResult result =
+        new TAGValidator(store).validate(document, schemaParseResult.schema);
+    System.out.println("Document " + docName + " is ");
+    if (!result.isValid()) {
+      System.out.println("  not valid:");
+      System.out.println(result.errors.stream().map(e -> "  - error: " + e).collect(joining("\n")));
+    } else {
+      System.out.println("  valid");
+    }
+    System.out.println(
+        result.warnings.stream().map(e -> "  - warning: " + e).collect(joining("\n")));
+    System.out.println("according to the schema defined in " + schemaLocationURL);
   }
 }

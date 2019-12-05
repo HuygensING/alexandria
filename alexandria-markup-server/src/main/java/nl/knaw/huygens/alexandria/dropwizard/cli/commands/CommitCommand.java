@@ -68,12 +68,12 @@ public class CommitCommand extends AlexandriaCommand {
         .required(false)
         .help("automatically add all changed files");
     subparser
-        .addArgument(ARG_FILE) //
+        .addArgument(ARG_FILE)
         .metavar("<file>")
-        .dest(FILE) //
-        .type(String.class) //
+        .dest(FILE)
+        .type(String.class)
         .nargs("*")
-        .required(false) //
+        .required(false)
         .help("the changed file(s)");
     subparser.epilog(
         "Warning: currently, committing tagml changes is only possible in the main view!");

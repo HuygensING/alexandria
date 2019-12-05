@@ -34,8 +34,8 @@ public class PropertiesConfiguration {
 
   public PropertiesConfiguration(String propertiesFile, boolean isResource) {
     try {
-      InputStream inputStream = isResource //
-          ? Thread.currentThread().getContextClassLoader().getResourceAsStream(propertiesFile)//
+      InputStream inputStream = isResource
+          ? Thread.currentThread().getContextClassLoader().getResourceAsStream(propertiesFile)
           : new FileInputStream(new File(propertiesFile));
       propertyResourceBundle = new PropertyResourceBundle(inputStream);
     } catch (IOException e) {

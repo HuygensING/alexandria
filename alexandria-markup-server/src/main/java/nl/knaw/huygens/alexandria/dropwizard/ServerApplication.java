@@ -77,9 +77,9 @@ public class ServerApplication extends Application<ServerConfiguration> {
   @Override
   public void initialize(Bootstrap<ServerConfiguration> bootstrap) {
     // Enable variable substitution with environment variables
-    bootstrap.setConfigurationSourceProvider(//
-        new SubstitutingSourceProvider(//
-            bootstrap.getConfigurationSourceProvider(), //
+    bootstrap.setConfigurationSourceProvider(
+        new SubstitutingSourceProvider(
+            bootstrap.getConfigurationSourceProvider(),
             new EnvironmentVariableSubstitutor()));
     bootstrap.addBundle(new SwaggerBundle<ServerConfiguration>() {
       @Override

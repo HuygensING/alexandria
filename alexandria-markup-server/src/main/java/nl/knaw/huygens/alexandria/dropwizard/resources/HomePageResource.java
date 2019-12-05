@@ -46,12 +46,12 @@ public class HomePageResource {
   @Produces(MediaType.TEXT_HTML)
   @ApiOperation(value = "Show the server homepage")
   public Response getHomePage() {
-    InputStream resourceAsStream = Thread.currentThread()//
+    InputStream resourceAsStream = Thread.currentThread()
         .getContextClassLoader().getResourceAsStream("index.html");
-    return Response//
-        .ok(resourceAsStream)//
-        .header("Pragma", "public")//
-        .header("Cache-Control", "public")//
+    return Response
+        .ok(resourceAsStream)
+        .header("Pragma", "public")
+        .header("Cache-Control", "public")
         .build();
 
   }

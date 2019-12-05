@@ -21,6 +21,7 @@ package nl.knaw.huygens.alexandria.dropwizard.cli;
  */
 
 import nl.knaw.huygens.alexandria.dropwizard.cli.commands.ValidateCommand;
+import org.jetbrains.annotations.NotNull;
 import org.junit.Test;
 
 public class ValidateCommandIntegrationTest extends CommandIntegrationTest {
@@ -28,27 +29,66 @@ public class ValidateCommandIntegrationTest extends CommandIntegrationTest {
   private static final String command = new ValidateCommand().getName();
 
   @Test
-  public void testCommandWihValidInput() throws Exception {
+  public void testCommandWithMissingDocument() throws Exception {
     runInitCommand();
+
+    final boolean success = cli.run(command, "transcription");
+    final String expectedOutput = "";
+    final String expectedError =
+        "ERROR: No document 'transcription' was registered.\n" + "Registered documents:";
+    //    assertFailsWithExpectedStdoutAndStderr(success, expectedOutput, expectedError);
+    softlyAssertFailsWithExpectedStderr(success, expectedError);
+  }
+
+  @Test
+  public void testCommandWithMissingSchemaLocation() throws Exception {
+    runInitCommand();
+
     // create sourcefile
     String tagFilename = createTagmlFileName("transcription");
     String tagml = "[tagml>[l>test [w>word<w]<l]<tagml]";
     String tagPath = createFile(tagFilename, tagml);
-    // create schema sourcefile
-    String schemaFilename = "schema.yaml";
-    String yaml = "---\n$:\n  tagml:\n    - l:\n      - w\n";
-    createFile(schemaFilename, yaml);
 
     runAddCommand(tagPath);
     runCommitAllCommand();
 
-    final boolean success = cli.run(command, "-d", "transcription", "-s", schemaFilename);
+    final boolean success = cli.run(command, "transcription");
+    String expectedError =
+        "There was no schema location defined in transcription, please add\n"
+            + "  [!schema <schemaLocationURL>]\n"
+            + "to the tagml sourcefile.";
+    softlyAssertFailsWithExpectedStderr(success, expectedError);
+    //    assertFailsWithExpectedStderr(success, expectedError);
+  }
+
+  @Test
+  public void testCommandWithValidInput() throws Exception {
+    runInitCommand();
+
+    // create schema sourcefile
+    String schemaFilename = "schema.yaml";
+    String yaml = "---\n$:\n  tagml:\n    - l:\n      - w\n";
+    final String schemaFile = createFile(schemaFilename, yaml);
+
+    // create sourcefile
+    String tagFilename = createTagmlFileName("transcription");
+    String schemaLocationURL = schemaLocationURL(schemaFile);
+    String tagml = schemaLocationElement(schemaFile) + "[tagml>[l>test [w>word<w]<l]<tagml]";
+    String tagPath = createFile(tagFilename, tagml);
+
+    runAddCommand(tagPath);
+    runCommitAllCommand();
+
+    final boolean success = cli.run(command, "transcription");
     String expectedOutput =
-        "Parsing schema schema.yaml:\n"
+        "Parsing schema from "
+            + schemaLocationURL
+            + ":\n"
             + "  done\n\n"
             + "Document transcription is \n"
             + "  valid\n\n"
-            + "according to the schema defined in schema.yaml";
+            + "according to the schema defined in "
+            + schemaLocationURL;
     softlyAssertSucceedsWithExpectedStdout(success, expectedOutput);
     //    assertSucceedsWithExpectedStdout(success, expectedOutput);
   }
@@ -56,26 +96,32 @@ public class ValidateCommandIntegrationTest extends CommandIntegrationTest {
   @Test
   public void testCommandWithInvalidTAGMLInput() throws Exception {
     runInitCommand();
-    // create sourcefile
-    String tagFilename = createTagmlFileName("transcription");
-    String tagml = "[a>[aa>test [aaa>word<aaa]<aa]<a]";
-    String tagPath = createFile(tagFilename, tagml);
+
     // create schema sourcefile
     String schemaFilename = "schema.yaml";
     String yaml = "---\n$:\n  a:\n    - bb:\n      - aaa\n";
-    createFile(schemaFilename, yaml);
+    final String schemaFile = createFile(schemaFilename, yaml);
+
+    // create sourcefile
+    String tagFilename = createTagmlFileName("transcription");
+    String schemaLocationURL = schemaLocationURL(schemaFile);
+    String tagml = schemaLocationElement(schemaFile) + "[a>[aa>test [aaa>word<aaa]<aa]<a]";
+    String tagPath = createFile(tagFilename, tagml);
 
     runAddCommand(tagPath);
     runCommitAllCommand();
 
-    final boolean success = cli.run(command, "-d", "transcription", "-s", schemaFilename);
+    final boolean success = cli.run(command, "transcription");
     String expectedOutputError =
-        "Parsing schema schema.yaml:\n"
+        "Parsing schema from "
+            + schemaLocationURL
+            + ":\n"
             + "  done\n\n"
             + "Document transcription is \n"
             + "  not valid:\n"
             + "  - error: Layer $ (default): expected [bb> as child markup of [a>, but found [aa>\n\n"
-            + "according to the schema defined in schema.yaml";
+            + "according to the schema defined in "
+            + schemaLocationURL;
     //    softlyAssertSucceedsWithExpectedStdout(success, expectedOutputError);
     assertSucceedsWithExpectedStdout(success, expectedOutputError);
   }
@@ -83,21 +129,26 @@ public class ValidateCommandIntegrationTest extends CommandIntegrationTest {
   @Test
   public void testCommandWithInvalidSchema() throws Exception {
     runInitCommand();
-    // create sourcefile
-    String tagFilename = createTagmlFileName("transcription");
-    String tagml = "[a>[aa>test [aaa>word<aaa]<aa]<a]";
-    String tagPath = createFile(tagFilename, tagml);
+
     // create schema sourcefile
     String schemaFilename = "schema.yaml";
     String yaml = "%!invalid YAML@:";
-    createFile(schemaFilename, yaml);
+    final String schemaFile = createFile(schemaFilename, yaml);
+
+    // create sourcefile
+    String tagFilename = createTagmlFileName("transcription");
+    String schemaLocationURL = schemaLocationURL(schemaFile);
+    String tagml = schemaLocationElement(schemaFile) + "[a>[aa>test [aaa>word<aaa]<aa]<a]";
+    String tagPath = createFile(tagFilename, tagml);
 
     runAddCommand(tagPath);
     runCommitAllCommand();
 
-    final boolean success = cli.run(command, "-d", "transcription", "-s", schemaFilename);
+    final boolean success = cli.run(command, "transcription");
     String expectedOutputError =
-        "Parsing schema schema.yaml:\n"
+        "Parsing schema from "
+            + schemaLocationURL
+            + ":\n"
             + "  errors:\n"
             + "  - while scanning a directive\n"
             + " in 'reader', line 1, column 1:\n"
@@ -108,7 +159,9 @@ public class ValidateCommandIntegrationTest extends CommandIntegrationTest {
             + "    %!invalid YAML@:\n"
             + "     ^\n"
             + "\n"
-            + " at [Source: schema.yaml; line: 1, column: 1]\n"
+            + " at [Source: "
+            + schemaLocationURL
+            + "; line: 1, column: 1]\n"
             + "  - no layer definitions found";
     //    softlyAssertSucceedsWithExpectedStdout(success, expectedOutputError);
     assertSucceedsWithExpectedStdout(success, expectedOutputError);
@@ -120,15 +173,28 @@ public class ValidateCommandIntegrationTest extends CommandIntegrationTest {
     assertSucceedsWithExpectedStdout(
         success,
         "usage: java -jar alexandria-app.jar\n"
-            + "       schema-validate -d DOCUMENT -s SCHEMA [-h]\n"
+            + "       schema-validate [-h] <document>\n"
             + "\n"
             + "Validate a document against a TAG schema.\n"
             + "\n"
+            + "positional arguments:\n"
+            + "  <document>             The name of  the  document  to  validate.  It must\n"
+            + "                         have a valid URL to a  valid schema file (in YAML)\n"
+            + "                         defined using  '[!schema  <schemaLocationURL>]' in\n"
+            + "                         the TAGML source file.\n"
+            + "\n"
             + "named arguments:\n"
-            + "  -d DOCUMENT, --document DOCUMENT\n"
-            + "                         The name of the document to validate.\n"
-            + "  -s SCHEMA, --schema SCHEMA\n"
-            + "                         The TAG schema file.\n"
             + "  -h, --help             show this help message and exit");
+  }
+
+  @NotNull
+  private String schemaLocationElement(final String file) {
+    final String url = schemaLocationURL(file);
+    return "[!schema " + url + "]";
+  }
+
+  @NotNull
+  private String schemaLocationURL(final String file) {
+    return "file:///" + file.replaceAll("\\\\", "/");
   }
 }

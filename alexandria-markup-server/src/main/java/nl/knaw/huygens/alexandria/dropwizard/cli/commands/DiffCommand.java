@@ -57,10 +57,10 @@ public class DiffCommand extends AlexandriaCommand {
         .setDefault(false)
         .required(false)
         .help("Output the diff in a machine-readable format");
-    subparser.addArgument("file")//
-        .dest(FILE)//
-        .type(String.class)//
-        .required(true)//
+    subparser.addArgument("file")
+        .dest(FILE)
+        .type(String.class)
+        .required(true)
         .help("The file containing the edited view");
   }
 

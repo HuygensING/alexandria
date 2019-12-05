@@ -50,12 +50,12 @@ public class RevertCommand extends AlexandriaCommand {
   @Override
   public void configure(Subparser subparser) {
     subparser
-        .addArgument(ARG_FILE) //
+        .addArgument(ARG_FILE)
         .metavar("<file>")
-        .dest(FILE) //
-        .type(String.class) //
+        .dest(FILE)
+        .type(String.class)
         .nargs("+")
-        .required(true) //
+        .required(true)
         .help("the file to be reverted");
   }
 

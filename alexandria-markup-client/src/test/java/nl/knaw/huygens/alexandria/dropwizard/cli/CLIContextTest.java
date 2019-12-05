@@ -45,26 +45,26 @@ public class CLIContextTest {
 
   @Test
   public void testSerialization() throws IOException {
-    final Set<String> watchedFiles = new HashSet<>(asList(
-        "transcriptions/transcription-1.tagml",
-        "views/view-1.json"
-    ));
-    Map<String, FileInfo> watchedFilesMap = watchedFiles.stream()
-        .collect(toMap(f -> f, f -> new FileInfo().setLastCommit(Instant.now()), (a, b) -> b));
+    final Set<String> watchedFiles =
+        new HashSet<>(asList("transcriptions/transcription-1.tagml", "views/view-1.json"));
+    Map<String, FileInfo> watchedFilesMap =
+        watchedFiles.stream()
+            .collect(toMap(f -> f, f -> new FileInfo().setLastCommit(Instant.now()), (a, b) -> b));
     final Map<String, TAGViewDefinition> tagViewDefinitionMap = new HashMap<>();
-    TAGViewDefinition excludeALayer = new TAGViewDefinition()
-        .setExcludeLayers(new HashSet(singletonList("a")));
+    TAGViewDefinition excludeALayer =
+        new TAGViewDefinition().setExcludeLayers(new HashSet(singletonList("a")));
     tagViewDefinitionMap.put("exclude-a-layer", excludeALayer);
-    CLIContext cliContext = new CLIContext()
-        .setTagViewDefinitions(tagViewDefinitionMap)
-        .setActiveView("view-1")
-        .setWatchedFiles(watchedFilesMap);
+    CLIContext cliContext =
+        new CLIContext()
+            .setTagViewDefinitions(tagViewDefinitionMap)
+            .setActiveView("view-1")
+            .setWatchedFiles(watchedFilesMap);
     String json = mapper.writeValueAsString(cliContext);
     assertThat(json).isNotEmpty();
     System.out.println(json);
     CLIContext cliContext1 = mapper.readValue(json, CLIContext.class);
     assertThat(cliContext1).isEqualToComparingFieldByFieldRecursively(cliContext);
-    assertThat(cliContext1.getTagViewDefinitions().get("exclude-a-layer").getExcludeLayers()).containsExactly("a");
+    assertThat(cliContext1.getTagViewDefinitions().get("exclude-a-layer").getExcludeLayers())
+        .containsExactly("a");
   }
-
 }

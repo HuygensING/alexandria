@@ -34,8 +34,8 @@ public class NamedDocumentService {
     this.store = store;
   }
 
-  static final Cache<String, Long> documentIdCache = CacheBuilder.newBuilder()//
-      .maximumSize(100)//
+  static final Cache<String, Long> documentIdCache = CacheBuilder.newBuilder()
+      .maximumSize(100)
       .build();
 
   public void registerDocument(TAGDocument document, String docName) {

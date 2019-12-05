@@ -79,9 +79,9 @@ public class DocumentsResource {
   @Timed
   @ApiOperation(value = "List all document URIs")
   public List<URI> getDocumentURIs() {
-    return documentService.getDocumentUUIDs()//
-        .stream()//
-        .map(this::documentURI)//
+    return documentService.getDocumentUUIDs()
+        .stream()
+        .map(this::documentURI)
         .collect(Collectors.toList());
   }
 
@@ -127,7 +127,7 @@ public class DocumentsResource {
   @Timed
   @ApiOperation(value = "Update an existing document from a TAGML text")
   public Response setDocumentFromTAGML(
-      @ApiParam(APIPARAM_UUID) @PathParam("uuid") final UUID uuid,//
+      @ApiParam(APIPARAM_UUID) @PathParam("uuid") final UUID uuid,
       @ApiParam(APIPARAM_TAGML) @NotNull String tagml) {
     try {
       processAndStoreTAGML(tagml, uuid);
@@ -143,7 +143,7 @@ public class DocumentsResource {
   @Timed
   @ApiOperation(value = "Update an existing document from a TexMECS text")
   public Response setDocumentFromTexMECS(
-      @ApiParam(APIPARAM_UUID) @PathParam("uuid") final UUID uuid,//
+      @ApiParam(APIPARAM_UUID) @PathParam("uuid") final UUID uuid,
       @ApiParam(APIPARAM_TEXMECS) @NotNull String texMECS) {
     try {
       processAndStoreTexMECS(texMECS, uuid);
@@ -160,7 +160,7 @@ public class DocumentsResource {
   @ApiOperation(value = "Get info about a document")
   public Response getDocumentInfo(
       @ApiParam(APIPARAM_UUID) @PathParam("uuid") final UUID uuid) {
-    DocumentInfo documentInfo = documentService.getDocumentInfo(uuid)//
+    DocumentInfo documentInfo = documentService.getDocumentInfo(uuid)
         .orElseThrow(NotFoundException::new);
     return Response.ok(documentInfo).build();
   }
@@ -235,7 +235,7 @@ public class DocumentsResource {
   @Produces(UTF8MediaType.APPLICATION_JSON)
   @ApiOperation(value = "Run a TAGQL query on a document", response = TAGQLResult.class)
   public Response postTAGQLQuery(
-      @ApiParam(APIPARAM_UUID) @PathParam("uuid") final UUID uuid,//
+      @ApiParam(APIPARAM_UUID) @PathParam("uuid") final UUID uuid,
       @ApiParam("TAGQL query") String tagqlQuery) {
     TAGDocument document = getExistingDocument(uuid);
     TAGQLQueryHandler h = new TAGQLQueryHandler(document);
@@ -258,7 +258,7 @@ public class DocumentsResource {
   }
 
   private TAGDocument getExistingDocument(final UUID uuid) {
-    return documentService.getDocument(uuid)//
+    return documentService.getDocument(uuid)
         .orElseThrow(NotFoundException::new);
   }
 

@@ -81,7 +81,7 @@ public abstract class AlexandriaCommand extends Command {
   private File contextFile;
   String workDir;
   static ObjectMapper mapper = new ObjectMapper()
-      .registerModule(new Jdk8Module())//
+      .registerModule(new Jdk8Module())
       .registerModule(new JavaTimeModule());
 
   public AlexandriaCommand(String name, String description) {
@@ -122,11 +122,11 @@ public abstract class AlexandriaCommand extends Command {
   }
 
   void storeViewMap(Map<String, TAGView> viewMap, CLIContext context) {
-    Map<String, TAGViewDefinition> viewDefinitionMap = viewMap.entrySet()//
-        .stream()//
-        .collect(toMap(//
-            Map.Entry::getKey,//
-            e -> e.getValue().getDefinition()//
+    Map<String, TAGViewDefinition> viewDefinitionMap = viewMap.entrySet()
+        .stream()
+        .collect(toMap(
+            Map.Entry::getKey,
+            e -> e.getValue().getDefinition()
         ));
     context.setTagViewDefinitions(viewDefinitionMap);
   }

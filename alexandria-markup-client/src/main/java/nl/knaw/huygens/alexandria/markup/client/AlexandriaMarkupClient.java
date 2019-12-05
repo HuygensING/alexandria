@@ -68,10 +68,10 @@ public class AlexandriaMarkupClient implements AutoCloseable {
     cm.setDefaultMaxPerRoute(50);
 
     ApacheConnectorProvider connectorProvider = new ApacheConnectorProvider();
-    ClientConfig clientConfig = new ClientConfig(jacksonProvider)//
-        .connectorProvider(connectorProvider)//
-        .property(ApacheClientProperties.CONNECTION_MANAGER, cm)//
-        .property(ClientProperties.CONNECT_TIMEOUT, 60000)//
+    ClientConfig clientConfig = new ClientConfig(jacksonProvider)
+        .connectorProvider(connectorProvider)
+        .property(ApacheClientProperties.CONNECTION_MANAGER, cm)
+        .property(ClientProperties.CONNECT_TIMEOUT, 60000)
         .property(ClientProperties.READ_TIMEOUT, 60000);
 
     if (sslContext == null) {
@@ -81,9 +81,9 @@ public class AlexandriaMarkupClient implements AutoCloseable {
       client = ClientBuilder.newClient(clientConfig);
 
     } else {
-      client = ClientBuilder.newBuilder()//
-          .sslContext(sslContext)//
-          .withConfig(clientConfig)//
+      client = ClientBuilder.newBuilder()
+          .sslContext(sslContext)
+          .withConfig(clientConfig)
           .build();
     }
     rootTarget = client.target(alexandriaMarkupURI);
@@ -107,12 +107,12 @@ public class AlexandriaMarkupClient implements AutoCloseable {
   // Alexandria Markup API methods
 
   public RestResult<AppInfo> getAbout() {
-    WebTarget path = rootTarget//
+    WebTarget path = rootTarget
         .path(ResourcePaths.ABOUT);
     Supplier<Response> responseSupplier = anonymousGet(path);
     final RestRequester<AppInfo> requester = RestRequester.withResponseSupplier(responseSupplier);
-    return requester//
-        .onStatus(Status.OK, this::toAboutInfoRestResult)//
+    return requester
+        .onStatus(Status.OK, this::toAboutInfoRestResult)
         .getResult();
   }
 
@@ -130,9 +130,9 @@ public class AlexandriaMarkupClient implements AutoCloseable {
     final Entity<String> entity = Entity.entity(serializedDocument, MediaType.TEXT_PLAIN);
     final Supplier<Response> responseSupplier = anonymousPut(path, entity);
     final RestRequester<Void> requester = RestRequester.withResponseSupplier(responseSupplier);
-    return requester//
-        .onStatus(Status.CREATED, voidRestResult())//
-        .onStatus(Status.NO_CONTENT, voidRestResult())//
+    return requester
+        .onStatus(Status.CREATED, voidRestResult())
+        .onStatus(Status.NO_CONTENT, voidRestResult())
         .getResult();
   }
 
@@ -150,8 +150,8 @@ public class AlexandriaMarkupClient implements AutoCloseable {
     final Entity<String> entity = Entity.entity(serializedDocument, UTF8MediaType.TEXT_PLAIN);
     final Supplier<Response> responseSupplier = anonymousPost(path, entity);
     final RestRequester<UUID> requester = RestRequester.withResponseSupplier(responseSupplier);
-    return requester//
-        .onStatus(Status.CREATED, this::uuidFromLocationHeader)//
+    return requester
+        .onStatus(Status.CREATED, this::uuidFromLocationHeader)
         .getResult();
   }
 
@@ -185,19 +185,19 @@ public class AlexandriaMarkupClient implements AutoCloseable {
     final Entity<String> entity = Entity.entity(query, UTF8MediaType.TEXT_PLAIN);
     final Supplier<Response> responseSupplier = anonymousPost(path, entity);
     final RestRequester<JsonNode> requester = RestRequester.withResponseSupplier(responseSupplier);
-    return requester//
-        .onStatus(Status.OK, this::toJsonObjectRestResult)//
+    return requester
+        .onStatus(Status.OK, this::toJsonObjectRestResult)
         .getResult();
   }
 
   // private methods
   private WebTarget documentTarget(UUID documentUUID) {
-    return documentsTarget()//
+    return documentsTarget()
         .path(documentUUID.toString());
   }
 
   private WebTarget documentsTarget() {
-    return rootTarget//
+    return rootTarget
         .path(ResourcePaths.DOCUMENTS);
   }
 
@@ -241,8 +241,8 @@ public class AlexandriaMarkupClient implements AutoCloseable {
   }
 
   private Supplier<Response> anonymousPut(final WebTarget target, final Entity<?> entity) {
-    return () -> target.request()//
-        .accept(MediaType.APPLICATION_JSON_TYPE)//
+    return () -> target.request()
+        .accept(MediaType.APPLICATION_JSON_TYPE)
         .put(entity);
   }
 
@@ -251,8 +251,8 @@ public class AlexandriaMarkupClient implements AutoCloseable {
   }
 
   private Supplier<Response> anonymousPost(final WebTarget target, final Entity<?> entity) {
-    return () -> target.request()//
-        .accept(MediaType.APPLICATION_JSON_TYPE)//
+    return () -> target.request()
+        .accept(MediaType.APPLICATION_JSON_TYPE)
         .post(entity);
   }
 
@@ -266,16 +266,16 @@ public class AlexandriaMarkupClient implements AutoCloseable {
 
   private SyncInvoker authorizedRequest(final WebTarget target) {
     String authHeader = "";
-    return target.request()//
-        .accept(MediaType.APPLICATION_JSON_TYPE)//
+    return target.request()
+        .accept(MediaType.APPLICATION_JSON_TYPE)
         .header(HEADER_AUTH, authHeader);
   }
 
   private RestResult<String> stringResult(WebTarget path) {
     Supplier<Response> responseSupplier = anonymousGet(path);
     final RestRequester<String> requester = RestRequester.withResponseSupplier(responseSupplier);
-    return requester//
-        .onStatus(Status.OK, this::toStringRestResult)//
+    return requester
+        .onStatus(Status.OK, this::toStringRestResult)
         .getResult();
   }
 
@@ -288,8 +288,8 @@ public class AlexandriaMarkupClient implements AutoCloseable {
   }
 
   private WebTarget getDocumentTarget() {
-    return rootTarget//
-        .path(ResourcePaths.DOCUMENTS)//
+    return rootTarget
+        .path(ResourcePaths.DOCUMENTS)
     ;
   }
 
