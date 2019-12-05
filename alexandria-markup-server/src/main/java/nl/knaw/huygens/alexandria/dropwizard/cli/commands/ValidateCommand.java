@@ -9,9 +9,9 @@ package nl.knaw.huygens.alexandria.dropwizard.cli.commands;
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -97,8 +97,15 @@ public class ValidateCommand extends AlexandriaCommand {
   private void continueWithSchemaLocation(
       final String docName, final TAGStore store, final TAGDocument document, final URL url)
       throws IOException {
-    final String schemaLocationURL =
-        url.getProtocol() + "://" + url.getPath(); // because url.toString() somehow loses '//'
+    String tmpSchemaLocationURL = url.toString();
+    if (url.getProtocol().equals("file") && !tmpSchemaLocationURL.contains("file://")) {
+      tmpSchemaLocationURL =
+          url.getProtocol()
+              + "://"
+              + url.getPath(); // because url.toString() somehow loses     '//', but only on
+      // Windows?!
+    }
+    final String schemaLocationURL = tmpSchemaLocationURL;
     System.out.println("Parsing schema from " + schemaLocationURL + ":");
     String schemaYAML = IOUtils.toString(url, Charsets.UTF_8);
     final TAGMLSchemaParseResult schemaParseResult = TAGMLSchemaFactory.parseYAML(schemaYAML);
