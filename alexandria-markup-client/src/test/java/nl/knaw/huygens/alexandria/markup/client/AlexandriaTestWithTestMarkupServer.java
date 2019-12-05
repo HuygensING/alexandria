@@ -49,8 +49,7 @@ import java.io.StringWriter;
 import java.net.URI;
 
 public abstract class AlexandriaTestWithTestMarkupServer {
-  @ClassRule
-  public static final TemporaryFolder tmpFolder = new TemporaryFolder();
+  @ClassRule public static final TemporaryFolder tmpFolder = new TemporaryFolder();
 
   private static final String BASEURI = "http://localhost:2017/";
   protected static final URI testURI = URI.create(BASEURI);
@@ -65,7 +64,13 @@ public abstract class AlexandriaTestWithTestMarkupServer {
     ResourceConfig resourceConfig = new ResourceConfig();
     resourceConfig.register(new AboutResource());
     TAGStore store = config.getStore();
-    resourceConfig.register(new DocumentsResource(new DocumentService(config), new TAGMLImporter(store), new TexMECSImporter(store), new TAGMLExporter(store), config));
+    resourceConfig.register(
+        new DocumentsResource(
+            new DocumentService(config),
+            new TAGMLImporter(store),
+            new TexMECSImporter(store),
+            new TAGMLExporter(store),
+            config));
 
     testServer = GrizzlyHttpServerFactory.createHttpServer(testURI, resourceConfig, true);
   }

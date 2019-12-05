@@ -51,13 +51,15 @@ public class DiffCommand extends AlexandriaCommand {
 
   @Override
   public void configure(Subparser subparser) {
-    subparser.addArgument("-m")
+    subparser
+        .addArgument("-m")
         .dest(ARG_MACHINE_READABLE)
         .action(Arguments.storeTrue())
         .setDefault(false)
         .required(false)
         .help("Output the diff in a machine-readable format");
-    subparser.addArgument("file")
+    subparser
+        .addArgument("file")
         .dest(FILE)
         .type(String.class)
         .required(true)
@@ -69,28 +71,35 @@ public class DiffCommand extends AlexandriaCommand {
     checkAlexandriaIsInitialized();
     boolean machineReadable = namespace.getBoolean(ARG_MACHINE_READABLE);
     try (TAGStore store = getTAGStore()) {
-      store.runInTransaction(() -> {
-        CLIContext context = readContext();
+      store.runInTransaction(
+          () -> {
+            CLIContext context = readContext();
 
-        String filename = namespace.getString(FILE);
-        Optional<String> documentName = context.getDocumentName(filename);
-        if (documentName.isPresent()) {
-          doDiff(store, context, filename, documentName, machineReadable);
-        } else {
-          throw new AlexandriaCommandException("No document registered for " + filename);
-        }
-      });
+            String filename = namespace.getString(FILE);
+            Optional<String> documentName = context.getDocumentName(filename);
+            if (documentName.isPresent()) {
+              doDiff(store, context, filename, documentName, machineReadable);
+            } else {
+              throw new AlexandriaCommandException("No document registered for " + filename);
+            }
+          });
     }
   }
 
-  private void doDiff(final TAGStore store, final CLIContext context, final String filename, final Optional<String> documentName, final boolean machineReadable) {
+  private void doDiff(
+      final TAGStore store,
+      final CLIContext context,
+      final String filename,
+      final Optional<String> documentName,
+      final boolean machineReadable) {
     Long documentId = getIdForExistingDocument(documentName.get());
     TAGDocument original = store.getDocument(documentId);
 
     String viewName = context.getActiveView();
-    TAGView tagView = MAIN_VIEW.equals(viewName)
-        ? TAGViews.getShowAllMarkupView(store)
-        : getExistingView(viewName, store, context);
+    TAGView tagView =
+        MAIN_VIEW.equals(viewName)
+            ? TAGViews.getShowAllMarkupView(store)
+            : getExistingView(viewName, store, context);
 
     File editedFile = workFilePath(filename).toFile();
     try {
@@ -101,7 +110,8 @@ public class DiffCommand extends AlexandriaCommand {
       TAGComparison2 comparison2 = new TAGComparison2(original, tagView, edited, store);
       if (machineReadable) {
         if (comparison2.hasDifferences()) {
-          System.out.printf("%s%n\t", String.join(System.lineSeparator() + "\t", comparison2.getMRDiffLines()));
+          System.out.printf(
+              "%s%n\t", String.join(System.lineSeparator() + "\t", comparison2.getMRDiffLines()));
         }
 
       } else {
@@ -117,10 +127,11 @@ public class DiffCommand extends AlexandriaCommand {
         } else {
           System.out.println("no changes");
         }
-//        System.out.printf("%nmarkup diff:%n", filename);
+        //        System.out.printf("%nmarkup diff:%n", filename);
         System.out.println("\nmarkup diff:");
         if (comparison2.hasDifferences()) {
-          System.out.printf("%s%n\t", String.join(System.lineSeparator() + "\t", comparison2.getDiffLines()));
+          System.out.printf(
+              "%s%n\t", String.join(System.lineSeparator() + "\t", comparison2.getDiffLines()));
         } else {
           System.out.println("no changes");
         }

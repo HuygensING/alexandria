@@ -41,13 +41,15 @@ public class ExportXmlCommand extends AlexandriaCommand {
 
   @Override
   public void configure(Subparser subparser) {
-    subparser.addArgument("document")
+    subparser
+        .addArgument("document")
         .dest(DOCUMENT)
         .metavar("<document>")
         .type(String.class)
         .required(true)
         .help("The name of the document to export.");
-    subparser.addArgument("-o", "--outputfile")
+    subparser
+        .addArgument("-o", "--outputfile")
         .dest(OUTPUTFILE)
         .metavar("<file>")
         .type(String.class)
@@ -63,21 +65,23 @@ public class ExportXmlCommand extends AlexandriaCommand {
     String outputFile = namespace.getString(OUTPUTFILE);
     Long docId = getIdForExistingDocument(docName);
     try (TAGStore store = getTAGStore()) {
-      store.runInTransaction(() -> {
-        CLIContext context = readContext();
-        String viewName = context.getActiveView();
-        TAGView tagView = MAIN_VIEW.equals(viewName)
-            ? TAGViews.getShowAllMarkupView(store)
-            : getExistingView(viewName, store, context);
-        TAGDocument document = store.getDocument(docId);
-        XMLExporter xmlExporter = new XMLExporter(store, tagView);
-        String xml = xmlExporter.asXML(document);
-        if (outputFile != null) {
-          writeToFile(outputFile, xml);
-        } else {
-          System.out.println(xml);
-        }
-      });
+      store.runInTransaction(
+          () -> {
+            CLIContext context = readContext();
+            String viewName = context.getActiveView();
+            TAGView tagView =
+                MAIN_VIEW.equals(viewName)
+                    ? TAGViews.getShowAllMarkupView(store)
+                    : getExistingView(viewName, store, context);
+            TAGDocument document = store.getDocument(docId);
+            XMLExporter xmlExporter = new XMLExporter(store, tagView);
+            String xml = xmlExporter.asXML(document);
+            if (outputFile != null) {
+              writeToFile(outputFile, xml);
+            } else {
+              System.out.println(xml);
+            }
+          });
     }
   }
 
@@ -91,5 +95,4 @@ public class ExportXmlCommand extends AlexandriaCommand {
       throw new RuntimeException(e);
     }
   }
-
 }

@@ -46,5 +46,4 @@ public class ExportDotCommand extends AbstractGraphvizCommand {
   protected void renderToStdOut(final String dot) {
     System.out.println(dot);
   }
-
 }

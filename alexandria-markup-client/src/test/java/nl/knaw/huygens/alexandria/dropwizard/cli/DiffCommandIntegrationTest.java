@@ -44,18 +44,19 @@ public class DiffCommandIntegrationTest extends CommandIntegrationTest {
     modifyFile(tagFilename, tagml2);
 
     final boolean success = cli.run(command, tagFilename);
-    String expectedOutput = "diff for tagml/transcription.tagml:\n" +
-        " [tagml>[l>\n" +
-        "-test [w>\n" +
-        "+example [x>\n" +
-        " word\n" +
-        "-<w]\n" +
-        "+<x]\n" +
-        " <l]<tagml]\n" +
-        "\n" +
-        "markup diff:\n" +
-        "[w](2-2) replaced by [x](2-2)";
-//    softlyAssertSucceedsWithExpectedStdout(success, expectedOutput);
+    String expectedOutput =
+        "diff for tagml/transcription.tagml:\n"
+            + " [tagml>[l>\n"
+            + "-test [w>\n"
+            + "+example [x>\n"
+            + " word\n"
+            + "-<w]\n"
+            + "+<x]\n"
+            + " <l]<tagml]\n"
+            + "\n"
+            + "markup diff:\n"
+            + "[w](2-2) replaced by [x](2-2)";
+    //    softlyAssertSucceedsWithExpectedStdout(success, expectedOutput);
     assertSucceedsWithExpectedStdout(success, expectedOutput);
   }
 
@@ -77,30 +78,31 @@ public class DiffCommandIntegrationTest extends CommandIntegrationTest {
 
     final boolean success = cli.run(command, "-m", tagFilename);
     String expectedOutput = "~[5,x]";
-//    softlyAssertSucceedsWithExpectedStdout(success, expectedOutput);
+    //    softlyAssertSucceedsWithExpectedStdout(success, expectedOutput);
     assertSucceedsWithExpectedStdout(success, expectedOutput);
   }
 
   @Test
   public void testCommandHelp() throws Exception {
     final boolean success = cli.run(command, "-h");
-    assertSucceedsWithExpectedStdout(success, "usage: java -jar alexandria-app.jar\n" +
-        "       diff [-m] [-h] file\n" +
-        "\n" +
-        "Show the changes made to the file.\n" +
-        "\n" +
-        "positional arguments:\n" +
-        "  file                   The file containing the edited view\n" +
-        "\n" +
-        "named arguments:\n" +
-        "  -m                     Output  the  diff  in  a  machine-readable  format\n" +
-        "                         (default: false)\n" +
-        "  -h, --help             show this help message and exit");
+    assertSucceedsWithExpectedStdout(
+        success,
+        "usage: java -jar alexandria-app.jar\n"
+            + "       diff [-m] [-h] file\n"
+            + "\n"
+            + "Show the changes made to the file.\n"
+            + "\n"
+            + "positional arguments:\n"
+            + "  file                   The file containing the edited view\n"
+            + "\n"
+            + "named arguments:\n"
+            + "  -m                     Output  the  diff  in  a  machine-readable  format\n"
+            + "                         (default: false)\n"
+            + "  -h, --help             show this help message and exit");
   }
 
   @Test
   public void testCommandShouldBeRunInAnInitializedDirectory() throws Exception {
     assertCommandRunsInAnInitializedDirectory(command, "something");
   }
-
 }

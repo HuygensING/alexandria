@@ -40,7 +40,8 @@ public class AddCommandIntegrationTest extends CommandIntegrationTest {
     softlyAssertSucceedsWithExpectedStdout(success, "");
 
     CLIContext cliContext = readCLIContext();
-    assertThat(cliContext.getWatchedFiles().keySet()).containsExactlyInAnyOrder(filename1, filename2);
+    assertThat(cliContext.getWatchedFiles().keySet())
+        .containsExactlyInAnyOrder(filename1, filename2);
   }
 
   @Test
@@ -48,7 +49,8 @@ public class AddCommandIntegrationTest extends CommandIntegrationTest {
     runInitCommand();
     final boolean success = cli.run(command, "transcription1.tagml", "transcription2.tagml");
     assertThat(success).isTrue();
-    assertThat(getCliStdErrAsString()).contains("transcription1.tagml is not a file!")
+    assertThat(getCliStdErrAsString())
+        .contains("transcription1.tagml is not a file!")
         .contains("transcription2.tagml is not a file!");
   }
 
@@ -56,37 +58,40 @@ public class AddCommandIntegrationTest extends CommandIntegrationTest {
   public void testCommandWithoutParametersFails() throws Exception {
     final boolean success = cli.run(command);
     assertThat(getCliStdErrAsString()).contains("too few arguments");
-    assertFailsWithExpectedStderr(success, "too few arguments\n" +
-        "usage: java -jar alexandria-app.jar\n" +
-        "       add [-h] <file> [<file> ...]\n" +
-        "\n" +
-        "Add file context to the index.\n" +
-        "\n" +
-        "positional arguments:\n" +
-        "  <file>                 the files to watch\n" +
-        "\n" +
-        "named arguments:\n" +
-        "  -h, --help             show this help message and exit");
+    assertFailsWithExpectedStderr(
+        success,
+        "too few arguments\n"
+            + "usage: java -jar alexandria-app.jar\n"
+            + "       add [-h] <file> [<file> ...]\n"
+            + "\n"
+            + "Add file context to the index.\n"
+            + "\n"
+            + "positional arguments:\n"
+            + "  <file>                 the files to watch\n"
+            + "\n"
+            + "named arguments:\n"
+            + "  -h, --help             show this help message and exit");
   }
 
   @Test
   public void testCommandHelp() throws Exception {
     final boolean success = cli.run(command, "-h");
-    assertSucceedsWithExpectedStdout(success, "usage: java -jar alexandria-app.jar\n" +
-        "       add [-h] <file> [<file> ...]\n" +
-        "\n" +
-        "Add file context to the index.\n" +
-        "\n" +
-        "positional arguments:\n" +
-        "  <file>                 the files to watch\n" +
-        "\n" +
-        "named arguments:\n" +
-        "  -h, --help             show this help message and exit");
+    assertSucceedsWithExpectedStdout(
+        success,
+        "usage: java -jar alexandria-app.jar\n"
+            + "       add [-h] <file> [<file> ...]\n"
+            + "\n"
+            + "Add file context to the index.\n"
+            + "\n"
+            + "positional arguments:\n"
+            + "  <file>                 the files to watch\n"
+            + "\n"
+            + "named arguments:\n"
+            + "  -h, --help             show this help message and exit");
   }
 
   @Test
   public void testCommandShouldBeRunInAnInitializedDirectory() throws Exception {
     assertCommandRunsInAnInitializedDirectory(command, "something");
   }
-
 }

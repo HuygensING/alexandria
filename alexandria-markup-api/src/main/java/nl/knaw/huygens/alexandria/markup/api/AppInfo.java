@@ -20,7 +20,6 @@ package nl.knaw.huygens.alexandria.markup.api;
  * #L%
  */
 
-
 public class AppInfo {
   private String appName;
   private String startedAt;

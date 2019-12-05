@@ -39,19 +39,21 @@ public class ExportDotCommandIntegrationTest extends CommandIntegrationTest {
     runCommitAllCommand();
 
     boolean success = cli.run(command, "transcription");
-    softlyAssertSucceedsWithExpectedStdout(success, "digraph TextGraph{\n" +
-        "  node [font=\"helvetica\";style=\"filled\";fillcolor=\"white\"]\n" +
-        "  d [shape=doublecircle;label=\"\"]\n" +
-        "  subgraph{\n" +
-        "    t4 [shape=box;arrowhead=none;label=<#PCDATA<br/>test>]\n" +
-        "    rank=same\n" +
-        "  }\n" +
-        "  m2 [color=red;label=<tagml>]\n" +
-        "  m3 [color=red;label=<l>]\n" +
-        "  m2->m3[color=red;arrowhead=none]\n" +
-        "  m3->t4[color=red;arrowhead=none]\n" +
-        "  d->m2 [arrowhead=none]\n" +
-        "}");
+    softlyAssertSucceedsWithExpectedStdout(
+        success,
+        "digraph TextGraph{\n"
+            + "  node [font=\"helvetica\";style=\"filled\";fillcolor=\"white\"]\n"
+            + "  d [shape=doublecircle;label=\"\"]\n"
+            + "  subgraph{\n"
+            + "    t4 [shape=box;arrowhead=none;label=<#PCDATA<br/>test>]\n"
+            + "    rank=same\n"
+            + "  }\n"
+            + "  m2 [color=red;label=<tagml>]\n"
+            + "  m3 [color=red;label=<l>]\n"
+            + "  m2->m3[color=red;arrowhead=none]\n"
+            + "  m3->t4[color=red;arrowhead=none]\n"
+            + "  d->m2 [arrowhead=none]\n"
+            + "}");
   }
 
   @Test
@@ -70,36 +72,40 @@ public class ExportDotCommandIntegrationTest extends CommandIntegrationTest {
     runCheckoutCommand(viewName);
 
     boolean success = cli.run(command, "transcription");
-    softlyAssertSucceedsWithExpectedStdout(success, "digraph TextGraph{\n" +
-        "  node [font=\"helvetica\";style=\"filled\";fillcolor=\"white\"]\n" +
-        "  d [shape=doublecircle;label=\"\"]\n" +
-        "  subgraph{\n" +
-        "    t4 [shape=box;arrowhead=none;label=<#PCDATA<br/>test>]\n" +
-        "    rank=same\n" +
-        "  }\n" +
-        "  m2 [color=red;label=<tagml>]\n" +
-        "  m3 [color=red;label=<l>]\n" +
-        "  m2->m3[color=red;arrowhead=none]\n" +
-        "  m3->t4[color=red;arrowhead=none]\n" +
-        "  d->m2 [arrowhead=none]\n" +
-        "}");
+    softlyAssertSucceedsWithExpectedStdout(
+        success,
+        "digraph TextGraph{\n"
+            + "  node [font=\"helvetica\";style=\"filled\";fillcolor=\"white\"]\n"
+            + "  d [shape=doublecircle;label=\"\"]\n"
+            + "  subgraph{\n"
+            + "    t4 [shape=box;arrowhead=none;label=<#PCDATA<br/>test>]\n"
+            + "    rank=same\n"
+            + "  }\n"
+            + "  m2 [color=red;label=<tagml>]\n"
+            + "  m3 [color=red;label=<l>]\n"
+            + "  m2->m3[color=red;arrowhead=none]\n"
+            + "  m3->t4[color=red;arrowhead=none]\n"
+            + "  d->m2 [arrowhead=none]\n"
+            + "}");
   }
 
   @Test
   public void testCommandHelp() throws Exception {
     final boolean success = cli.run(command, "-h");
-    assertSucceedsWithExpectedStdout(success, "usage: java -jar alexandria-app.jar\n" +
-        "       export-dot [-o <file>] [-h] <document>\n" +
-        "\n" +
-        "Export the document as .dot file.\n" +
-        "\n" +
-        "positional arguments:\n" +
-        "  <document>             The name of the document to export.\n" +
-        "\n" +
-        "named arguments:\n" +
-        "  -o <file>, --outputfile <file>\n" +
-        "                         The file to export to.\n" +
-        "  -h, --help             show this help message and exit");
+    assertSucceedsWithExpectedStdout(
+        success,
+        "usage: java -jar alexandria-app.jar\n"
+            + "       export-dot [-o <file>] [-h] <document>\n"
+            + "\n"
+            + "Export the document as .dot file.\n"
+            + "\n"
+            + "positional arguments:\n"
+            + "  <document>             The name of the document to export.\n"
+            + "\n"
+            + "named arguments:\n"
+            + "  -o <file>, --outputfile <file>\n"
+            + "                         The file to export to.\n"
+            + "  -h, --help             show this help message and exit");
   }
 
   @Test

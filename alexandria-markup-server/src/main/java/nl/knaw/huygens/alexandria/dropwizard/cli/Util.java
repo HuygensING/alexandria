@@ -33,17 +33,24 @@ public class Util {
   private static final Logger LOG = LoggerFactory.getLogger(Util.class);
 
   public static String detectDotPath() {
-    String[] options = System.getProperty("os.name").contains("Windows")
-        ? new String[]{"where dot.exe", "which dot"}
-        : new String[]{"which dot", "where dot.exe"};
+    String[] options =
+        System.getProperty("os.name").contains("Windows")
+            ? new String[] {"where dot.exe", "which dot"}
+            : new String[] {"which dot", "where dot.exe"};
     for (String detectionCommand : options) {
       try {
         final Process process = Runtime.getRuntime().exec(detectionCommand);
-        try (BufferedReader processReader = new BufferedReader(new InputStreamReader(process.getInputStream(), Charset.defaultCharset()))) {
-          final CompletableFuture<Optional<String>> path = CompletableFuture.supplyAsync(() -> processReader.lines()
-              .map(String::trim)
-              .filter(l -> l.toLowerCase().contains("dot"))
-              .findFirst());
+        try (BufferedReader processReader =
+            new BufferedReader(
+                new InputStreamReader(process.getInputStream(), Charset.defaultCharset()))) {
+          final CompletableFuture<Optional<String>> path =
+              CompletableFuture.supplyAsync(
+                  () ->
+                      processReader
+                          .lines()
+                          .map(String::trim)
+                          .filter(l -> l.toLowerCase().contains("dot"))
+                          .findFirst());
           process.waitFor();
           final String dotPath = path.get().get();
           LOG.debug("Detected GraphViz' dot at '" + dotPath + "'");
@@ -55,5 +62,4 @@ public class Util {
     }
     return null;
   }
-
 }

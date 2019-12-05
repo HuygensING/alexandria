@@ -87,7 +87,8 @@ public class ValidateCommand extends AlexandriaCommand {
                         + ", please add\n  [!schema <schemaLocationURL>]\nto the tagml sourcefile.");
               }
             } catch (IOException e) {
-              throw new AlexandriaCommandException("The schema location in " + docName + " is invalid.");
+              throw new AlexandriaCommandException(
+                  "The schema location in " + docName + " is invalid.");
             }
           });
     }
@@ -96,7 +97,8 @@ public class ValidateCommand extends AlexandriaCommand {
   private void continueWithSchemaLocation(
       final String docName, final TAGStore store, final TAGDocument document, final URL url)
       throws IOException {
-    final String schemaLocationURL = url.getProtocol() + "://" + url.getPath(); // because url.toString() somehow loses '//'
+    final String schemaLocationURL =
+        url.getProtocol() + "://" + url.getPath(); // because url.toString() somehow loses '//'
     System.out.println("Parsing schema from " + schemaLocationURL + ":");
     String schemaYAML = IOUtils.toString(url, Charsets.UTF_8);
     final TAGMLSchemaParseResult schemaParseResult = TAGMLSchemaFactory.parseYAML(schemaYAML);

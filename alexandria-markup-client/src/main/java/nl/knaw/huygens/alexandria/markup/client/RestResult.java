@@ -1,6 +1,12 @@
 package nl.knaw.huygens.alexandria.markup.client;
 
+import nl.knaw.huygens.alexandria.api.model.ErrorEntity;
+import org.apache.commons.lang3.builder.ToStringBuilder;
+import org.apache.commons.lang3.builder.ToStringStyle;
+
+import javax.ws.rs.core.Response;
 import java.time.Duration;
+import java.util.Optional;
 
 /*
  * #%L
@@ -21,15 +27,6 @@ import java.time.Duration;
  * limitations under the License.
  * #L%
  */
-
-import java.util.Optional;
-
-import javax.ws.rs.core.Response;
-
-import org.apache.commons.lang3.builder.ToStringBuilder;
-import org.apache.commons.lang3.builder.ToStringStyle;
-
-import nl.knaw.huygens.alexandria.api.model.ErrorEntity;
 
 public class RestResult<T> {
   private boolean failure = false;
@@ -119,8 +116,11 @@ public class RestResult<T> {
       cause = exception.getMessage();
 
     } else if (response != null) {
-      cause = "Unexpected return status: " + response.getStatus() + " " + response.getStatusInfo().toString();
-
+      cause =
+          "Unexpected return status: "
+              + response.getStatus()
+              + " "
+              + response.getStatusInfo().toString();
     }
     return Optional.ofNullable(cause);
   }
@@ -138,5 +138,4 @@ public class RestResult<T> {
   public String toString() {
     return ToStringBuilder.reflectionToString(this, ToStringStyle.MULTI_LINE_STYLE);
   }
-
 }

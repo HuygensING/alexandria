@@ -39,7 +39,8 @@ public class CheckOutCommand extends AlexandriaCommand {
 
   @Override
   public void configure(Subparser subparser) {
-    subparser.addArgument("view")
+    subparser
+        .addArgument("view")
         .metavar("<view>")
         .dest(VIEW)
         .type(String.class)
@@ -67,6 +68,4 @@ public class CheckOutCommand extends AlexandriaCommand {
       throw new AlexandriaCommandException(message);
     }
   }
-
 }
-

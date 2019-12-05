@@ -30,5 +30,4 @@ public class AlexandriaException extends RuntimeException {
   public AlexandriaException(String message) {
     super(message);
   }
-
 }

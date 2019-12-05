@@ -43,8 +43,7 @@ public class StatusCommand extends AlexandriaCommand {
   }
 
   @Override
-  public void configure(Subparser subparser) {
-  }
+  public void configure(Subparser subparser) {}
 
   @Override
   public void run(Bootstrap<?> bootstrap, Namespace namespace) throws IOException {
@@ -68,12 +67,11 @@ public class StatusCommand extends AlexandriaCommand {
   }
 
   private void showDocuments(final TAGStore store, final CLIContext context) {
-    String documents = context.getDocumentInfo()
-        .keySet()
-        .stream()
-        .sorted()
-        .map(docName -> docInfo(docName, context.getDocumentInfo().get(docName), store))
-        .collect(joining("\n  "));
+    String documents =
+        context.getDocumentInfo().keySet().stream()
+            .sorted()
+            .map(docName -> docInfo(docName, context.getDocumentInfo().get(docName), store))
+            .collect(joining("\n  "));
     if (documents.isEmpty()) {
       System.out.println("no documents");
     } else {
@@ -81,26 +79,24 @@ public class StatusCommand extends AlexandriaCommand {
     }
   }
 
-  private String docInfo(final String docName, final DocumentInfo documentInfo, final TAGStore store) {
+  private String docInfo(
+      final String docName, final DocumentInfo documentInfo, final TAGStore store) {
     Long docId = documentInfo.getDbId();
     String sourceFile = documentInfo.getSourceFile();
-    return store.runInTransaction(() -> {
-      TAGDocument document = store.getDocument(docId);
-      return format("%s%n    created:  %s%n    modified: %s%n    source: %s",
-          docName,
-          document.getCreationDate(),
-          document.getModificationDate(),
-          sourceFile
-      );
-    });
+    return store.runInTransaction(
+        () -> {
+          TAGDocument document = store.getDocument(docId);
+          return format(
+              "%s%n    created:  %s%n    modified: %s%n    source: %s",
+              docName, document.getCreationDate(), document.getModificationDate(), sourceFile);
+        });
   }
 
   private void showViews(final TAGStore store, final CLIContext context) {
-    String views = readViewMap(store, context)
-        .entrySet()
-        .stream()
-        .map(this::toString)
-        .collect(joining("\n  "));
+    String views =
+        readViewMap(store, context).entrySet().stream()
+            .map(this::toString)
+            .collect(joining("\n  "));
     if (views.isEmpty()) {
       System.out.println("no views");
     } else {
@@ -125,9 +121,7 @@ public class StatusCommand extends AlexandriaCommand {
       relevantMarkup.addAll(v.getMarkupToExclude());
     }
     if (!relevantMarkup.isEmpty()) {
-      String markup = relevantMarkup.stream()
-          .sorted()
-          .collect(joining(" "));
+      String markup = relevantMarkup.stream().sorted().collect(joining(" "));
       String markupInfo = format("%s markup = %s", markupRelevance, markup);
       info.add(markupInfo);
     }
@@ -143,14 +137,10 @@ public class StatusCommand extends AlexandriaCommand {
       relevantLayers.addAll(v.getLayersToExclude());
     }
     if (!relevantLayers.isEmpty()) {
-      String layers = relevantLayers.stream()
-          .sorted()
-          .collect(joining(" "));
+      String layers = relevantLayers.stream().sorted().collect(joining(" "));
       String layerInfo = format("%s layers = %s", layerRelevance, layers);
       info.add(layerInfo);
     }
     return format("%s:\n    %s", k, String.join("\n    ", info));
   }
-
 }
-

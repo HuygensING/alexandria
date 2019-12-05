@@ -51,8 +51,7 @@ public class OptimisticAlexandriaMarkupClientTest extends AlexandriaTestWithTest
   }
 
   @Before
-  public void before() {
-  }
+  public void before() {}
 
   @Ignore
   @Test
@@ -63,14 +62,16 @@ public class OptimisticAlexandriaMarkupClientTest extends AlexandriaTestWithTest
 
   @Ignore
   @Test
-  public void testOptimisticAlexandriaMarkupClientHasDelegatedUnwrappedMethodForEachRelevantMethodInAlexandriaMarkupClient() {
+  public void
+      testOptimisticAlexandriaMarkupClientHasDelegatedUnwrappedMethodForEachRelevantMethodInAlexandriaMarkupClient() {
     Class<AlexandriaMarkupClient> a = AlexandriaMarkupClient.class;
 
-    String stubs = Arrays.stream(a.getMethods())
-        .filter(this::returnsRestResult)
-        .filter(this::hasNoDelegatedMethodInOptimisticAlexandriaMarkupClient)
-        .map(this::toDelegatedMethodStub)
-        .collect(joining("\n"));
+    String stubs =
+        Arrays.stream(a.getMethods())
+            .filter(this::returnsRestResult)
+            .filter(this::hasNoDelegatedMethodInOptimisticAlexandriaMarkupClient)
+            .map(this::toDelegatedMethodStub)
+            .collect(joining("\n"));
     // LOG.info("Methods to add to OptimisticAlexandriaMarkupClient:\n{}", stubs);
     assertThat(stubs).isEmpty();
   }
@@ -105,7 +106,6 @@ public class OptimisticAlexandriaMarkupClientTest extends AlexandriaTestWithTest
     JsonNode value = values.get(0);
     assertThat(value).isNotNull();
     assertThat(value.asText()).isEqualTo("This is a simple paragraph.");
-
   }
 
   /// end tests
@@ -119,9 +119,10 @@ public class OptimisticAlexandriaMarkupClientTest extends AlexandriaTestWithTest
     try {
       Method oMethod = o.getMethod(method.getName(), method.getParameterTypes());
       Type type = actualReturnType(method);
-      boolean equals = type.equals(Void.class)
-          ? oMethod.getReturnType().equals(Void.TYPE)
-          : oMethod.getReturnType().equals(type);
+      boolean equals =
+          type.equals(Void.class)
+              ? oMethod.getReturnType().equals(Void.TYPE)
+              : oMethod.getReturnType().equals(type);
       return !equals;
     } catch (Exception e) {
       return true;
@@ -134,25 +135,23 @@ public class OptimisticAlexandriaMarkupClientTest extends AlexandriaTestWithTest
   }
 
   String toDelegatedMethodStub(Method method) {
-    String returnType = actualReturnType(method).getTypeName().replaceFirst(EVERYTHING_UPTO_AND_INCLUDING_THE_LAST_PERIOD_REGEX, "").replace("Void", "void");
+    String returnType =
+        actualReturnType(method)
+            .getTypeName()
+            .replaceFirst(EVERYTHING_UPTO_AND_INCLUDING_THE_LAST_PERIOD_REGEX, "")
+            .replace("Void", "void");
     String methodName = method.getName();
-    String qualifiedParameters = Arrays.stream(method.getParameters())
-        .map(this::toQualifiedParameter)
-        .collect(joining(", "));
+    String qualifiedParameters =
+        Arrays.stream(method.getParameters())
+            .map(this::toQualifiedParameter)
+            .collect(joining(", "));
     String returnStatement = "void".equals(returnType) ? "" : "return ";
-    String parameters = Arrays.stream(method.getParameters())
-        .map(this::parameterName)
-        .collect(joining(", "));
+    String parameters =
+        Arrays.stream(method.getParameters()).map(this::parameterName).collect(joining(", "));
 
     return MessageFormat.format(
         "public {0} {1}({2}) '{' {3}unwrap(delegate.{4}({5}));'}'",
-        returnType,
-        methodName,
-        qualifiedParameters,
-        returnStatement,
-        methodName,
-        parameters
-    );
+        returnType, methodName, qualifiedParameters, returnStatement, methodName, parameters);
   }
 
   String toQualifiedParameter(Parameter parameter) {
@@ -160,11 +159,13 @@ public class OptimisticAlexandriaMarkupClientTest extends AlexandriaTestWithTest
   }
 
   private String typeString(Parameter parameter) {
-    return parameter.getType().getName().replaceFirst(EVERYTHING_UPTO_AND_INCLUDING_THE_LAST_PERIOD_REGEX, "");
+    return parameter
+        .getType()
+        .getName()
+        .replaceFirst(EVERYTHING_UPTO_AND_INCLUDING_THE_LAST_PERIOD_REGEX, "");
   }
 
   String parameterName(Parameter parameter) {
     return typeString(parameter).toLowerCase();
   }
-
 }

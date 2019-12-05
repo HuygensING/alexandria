@@ -43,7 +43,8 @@ public class AddCommand extends AlexandriaCommand {
 
   @Override
   public void configure(Subparser subparser) {
-    subparser.addArgument(ARG_FILE)
+    subparser
+        .addArgument(ARG_FILE)
         .metavar("<file>")
         .dest(FILE)
         .type(String.class)
@@ -65,7 +66,9 @@ public class AddCommand extends AlexandriaCommand {
         try {
           if (Files.isRegularFile(filePath)) {
             Instant lastModifiedInstant = Files.getLastModifiedTime(filePath).toInstant();
-            Instant lastCommit = lastModifiedInstant.minus(365L, DAYS); // set lastCommit to instant sooner than lastModifiedInstant
+            Instant lastCommit =
+                lastModifiedInstant.minus(
+                    365L, DAYS); // set lastCommit to instant sooner than lastModifiedInstant
             FileInfo fileInfo = new FileInfo().setLastCommit(lastCommit);
             watchedFiles.put(file, fileInfo);
           } else if (Files.isDirectory(filePath)) {
@@ -81,5 +84,4 @@ public class AddCommand extends AlexandriaCommand {
     storeContext(cliContext);
     System.out.println();
   }
-
 }

@@ -1,7 +1,14 @@
 package nl.knaw.huygens.alexandria.markup.client;
 
+import javax.ws.rs.ProcessingException;
+import javax.ws.rs.core.Response;
+import javax.ws.rs.core.Response.Status;
 import java.time.Duration;
 import java.time.Instant;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.function.Function;
+import java.util.function.Supplier;
 
 /*
  * #%L
@@ -22,15 +29,6 @@ import java.time.Instant;
  * limitations under the License.
  * #L%
  */
-
-import java.util.HashMap;
-import java.util.Map;
-import java.util.function.Function;
-import java.util.function.Supplier;
-
-import javax.ws.rs.ProcessingException;
-import javax.ws.rs.core.Response;
-import javax.ws.rs.core.Response.Status;
 
 public class RestRequester<T> {
   private int retries = 5;
@@ -72,7 +70,9 @@ public class RestRequester<T> {
       }
     }
     if (response == null) {
-      return timed(RestResult.failingResult("No response from server after " + retries + " attempts."), start);
+      return timed(
+          RestResult.failingResult("No response from server after " + retries + " attempts."),
+          start);
     }
 
     Status status = Status.fromStatusCode(response.getStatus());
@@ -87,7 +87,6 @@ public class RestRequester<T> {
       timed.setResponse(response);
       return timed;
     }
-
   }
 
   private RestResult<T> timed(RestResult<T> restResult, Instant start) {

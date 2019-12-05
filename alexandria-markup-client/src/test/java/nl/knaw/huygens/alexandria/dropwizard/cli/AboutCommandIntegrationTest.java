@@ -31,20 +31,21 @@ public class AboutCommandIntegrationTest extends CommandIntegrationTest {
   public void testCommand() throws Exception {
     runInitCommand();
     final boolean success = cli.run(command);
-    softlyAssertSucceedsWithExpectedStdout(success, "Alexandria version $version$\n" +
-        "Build date: $buildDate$");
+    softlyAssertSucceedsWithExpectedStdout(
+        success, "Alexandria version $version$\n" + "Build date: $buildDate$");
   }
 
   @Test
   public void testCommandHelp() throws Exception {
     final boolean success = cli.run(command, "-h");
-    assertSucceedsWithExpectedStdout(success, "usage: java -jar alexandria-app.jar\n" +
-        "       about [-h]\n" +
-        "\n" +
-        "Show version number and build date.\n" +
-        "\n" +
-        "named arguments:\n" +
-        "  -h, --help             show this help message and exit");
+    assertSucceedsWithExpectedStdout(
+        success,
+        "usage: java -jar alexandria-app.jar\n"
+            + "       about [-h]\n"
+            + "\n"
+            + "Show version number and build date.\n"
+            + "\n"
+            + "named arguments:\n"
+            + "  -h, --help             show this help message and exit");
   }
-
 }

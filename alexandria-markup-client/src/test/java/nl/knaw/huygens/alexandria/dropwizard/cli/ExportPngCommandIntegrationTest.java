@@ -46,7 +46,7 @@ public class ExportPngCommandIntegrationTest extends CommandIntegrationTest {
     softly.assertThat(success).as("Exit success").isTrue();
     String pngContent = stdOut.toString();
     softly.assertThat(pngContent).as("stdout").isNotEmpty();
-//    softly.assertThat(pngContent).as("stdoutIsPing").startsWith(PNG_SIGNATURE);
+    //    softly.assertThat(pngContent).as("stdoutIsPing").startsWith(PNG_SIGNATURE);
     softly.assertThat(stdErr.toString().trim()).as("stderr").isEmpty();
     softly.assertAll();
   }
@@ -54,23 +54,24 @@ public class ExportPngCommandIntegrationTest extends CommandIntegrationTest {
   @Test
   public void testCommandHelp() throws Exception {
     final boolean success = cli.run(command, "-h");
-    assertSucceedsWithExpectedStdout(success, "usage: java -jar alexandria-app.jar\n" +
-        "       export-png [-o <file>] [-h] <document>\n" +
-        "\n" +
-        "Export the document as png. (Requires access to Graphviz' dot command)\n" +
-        "\n" +
-        "positional arguments:\n" +
-        "  <document>             The name of the document to export.\n" +
-        "\n" +
-        "named arguments:\n" +
-        "  -o <file>, --outputfile <file>\n" +
-        "                         The file to export to.\n" +
-        "  -h, --help             show this help message and exit");
+    assertSucceedsWithExpectedStdout(
+        success,
+        "usage: java -jar alexandria-app.jar\n"
+            + "       export-png [-o <file>] [-h] <document>\n"
+            + "\n"
+            + "Export the document as png. (Requires access to Graphviz' dot command)\n"
+            + "\n"
+            + "positional arguments:\n"
+            + "  <document>             The name of the document to export.\n"
+            + "\n"
+            + "named arguments:\n"
+            + "  -o <file>, --outputfile <file>\n"
+            + "                         The file to export to.\n"
+            + "  -h, --help             show this help message and exit");
   }
 
   @Test
   public void testCommandShouldBeRunInAnInitializedDirectory() throws Exception {
     assertCommandRunsInAnInitializedDirectory(command, "document");
   }
-
 }

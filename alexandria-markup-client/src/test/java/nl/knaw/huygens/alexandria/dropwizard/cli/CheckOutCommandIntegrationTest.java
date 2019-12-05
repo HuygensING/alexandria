@@ -50,9 +50,9 @@ public class CheckOutCommandIntegrationTest extends CommandIntegrationTest {
     runCommitAllCommand();
 
     final boolean success = cli.run(command, viewName);
-    softlyAssertSucceedsWithExpectedStdout(success, "Checking out view v1...\n" +
-        "  updating tagml/transcription.tagml...\n" +
-        "done!");
+    softlyAssertSucceedsWithExpectedStdout(
+        success,
+        "Checking out view v1...\n" + "  updating tagml/transcription.tagml...\n" + "done!");
 
     CLIContext cliContext = readCLIContext();
     assertThat(cliContext.getActiveView()).isEqualTo(viewName);
@@ -61,9 +61,9 @@ public class CheckOutCommandIntegrationTest extends CommandIntegrationTest {
     assertThat(newContent).isEqualTo("[l>test<l]");
 
     final boolean success2 = cli.run(command, MAIN_VIEW);
-    softlyAssertSucceedsWithExpectedStdout(success2, "Checking out main view...\n" +
-        "  updating tagml/transcription.tagml...\n" +
-        "done!");
+    softlyAssertSucceedsWithExpectedStdout(
+        success2,
+        "Checking out main view...\n" + "  updating tagml/transcription.tagml...\n" + "done!");
 
     CLIContext cliContext2 = readCLIContext();
     assertThat(cliContext2.getActiveView()).isEqualTo(MAIN_VIEW);
@@ -90,9 +90,9 @@ public class CheckOutCommandIntegrationTest extends CommandIntegrationTest {
     runCommitAllCommand();
 
     final boolean success = cli.run(command, viewName);
-    softlyAssertSucceedsWithExpectedStdout(success, "Checking out view v1...\n" +
-        "  updating tagml/transcription1.tagml...\n" +
-        "done!");
+    softlyAssertSucceedsWithExpectedStdout(
+        success,
+        "Checking out view v1...\n" + "  updating tagml/transcription1.tagml...\n" + "done!");
 
     CLIContext cliContext = readCLIContext();
     assertThat(cliContext.getActiveView()).isEqualTo(viewName);
@@ -105,13 +105,16 @@ public class CheckOutCommandIntegrationTest extends CommandIntegrationTest {
 
     final boolean success2 = cli.run(command, MAIN_VIEW);
     String stdOut = normalize(getCliStdOutAsString());
-    assertThat(stdOut).isEqualTo("Uncommitted changes:\n" +
-        "  (use \"alexandria commit <file>...\" to commit the selected changes)\n" +
-        "  (use \"alexandria commit -a\" to commit all changes)\n" +
-        "  (use \"alexandria revert <file>...\" to discard changes)\n" +
-        "\n" +
-        "        modified: tagml/transcription1.tagml");
-    softlyAssertFailsWithExpectedStderr(success2, "Uncommitted changes found, cannot checkout another view.");
+    assertThat(stdOut)
+        .isEqualTo(
+            "Uncommitted changes:\n"
+                + "  (use \"alexandria commit <file>...\" to commit the selected changes)\n"
+                + "  (use \"alexandria commit -a\" to commit all changes)\n"
+                + "  (use \"alexandria revert <file>...\" to discard changes)\n"
+                + "\n"
+                + "        modified: tagml/transcription1.tagml");
+    softlyAssertFailsWithExpectedStderr(
+        success2, "Uncommitted changes found, cannot checkout another view.");
   }
 
   // On checkout, the lastcommitted dates should be adjusted.
@@ -119,21 +122,22 @@ public class CheckOutCommandIntegrationTest extends CommandIntegrationTest {
   @Test
   public void testCommandHelp() throws Exception {
     final boolean success = cli.run(command, "-h");
-    assertSucceedsWithExpectedStdout(success, "usage: java -jar alexandria-app.jar\n" +
-        "       checkout [-h] <view>\n" +
-        "\n" +
-        "Activate or deactivate a view in this directory.\n" +
-        "\n" +
-        "positional arguments:\n" +
-        "  <view>                 The name of the view to use\n" +
-        "\n" +
-        "named arguments:\n" +
-        "  -h, --help             show this help message and exit");
+    assertSucceedsWithExpectedStdout(
+        success,
+        "usage: java -jar alexandria-app.jar\n"
+            + "       checkout [-h] <view>\n"
+            + "\n"
+            + "Activate or deactivate a view in this directory.\n"
+            + "\n"
+            + "positional arguments:\n"
+            + "  <view>                 The name of the view to use\n"
+            + "\n"
+            + "named arguments:\n"
+            + "  -h, --help             show this help message and exit");
   }
 
   @Test
   public void testCommandShouldBeRunInAnInitializedDirectory() throws Exception {
     assertCommandRunsInAnInitializedDirectory(command, "-");
   }
-
 }

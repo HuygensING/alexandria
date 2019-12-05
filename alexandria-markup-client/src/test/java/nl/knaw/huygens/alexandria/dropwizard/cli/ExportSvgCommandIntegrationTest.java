@@ -39,7 +39,7 @@ public class ExportSvgCommandIntegrationTest extends CommandIntegrationTest {
     runAddCommand(tagPath);
     runCommitAllCommand();
 
-    boolean success = cli.run(command,  "transcription");
+    boolean success = cli.run(command, "transcription");
     SoftAssertions softly = new SoftAssertions();
     softly.assertThat(success).as("Exit success").isTrue();
     String svgContent = stdOut.toString();
@@ -52,18 +52,20 @@ public class ExportSvgCommandIntegrationTest extends CommandIntegrationTest {
   @Test
   public void testCommandHelp() throws Exception {
     final boolean success = cli.run(command, "-h");
-    assertSucceedsWithExpectedStdout(success, "usage: java -jar alexandria-app.jar\n" +
-        "       export-svg [-o <file>] [-h] <document>\n" +
-        "\n" +
-        "Export the document as svg. (Requires access to Graphviz' dot command)\n" +
-        "\n" +
-        "positional arguments:\n" +
-        "  <document>             The name of the document to export.\n" +
-        "\n" +
-        "named arguments:\n" +
-        "  -o <file>, --outputfile <file>\n" +
-        "                         The file to export to.\n" +
-        "  -h, --help             show this help message and exit");
+    assertSucceedsWithExpectedStdout(
+        success,
+        "usage: java -jar alexandria-app.jar\n"
+            + "       export-svg [-o <file>] [-h] <document>\n"
+            + "\n"
+            + "Export the document as svg. (Requires access to Graphviz' dot command)\n"
+            + "\n"
+            + "positional arguments:\n"
+            + "  <document>             The name of the document to export.\n"
+            + "\n"
+            + "named arguments:\n"
+            + "  -o <file>, --outputfile <file>\n"
+            + "                         The file to export to.\n"
+            + "  -h, --help             show this help message and exit");
   }
 
   @Test

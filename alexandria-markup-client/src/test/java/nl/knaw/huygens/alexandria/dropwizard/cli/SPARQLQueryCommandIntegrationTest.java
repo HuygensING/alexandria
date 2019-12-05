@@ -38,53 +38,57 @@ public class SPARQLQueryCommandIntegrationTest extends CommandIntegrationTest {
 
     // create sourcefile
     String queryFilename = "query.sparql";
-    String sparql = "prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> " +
-        "prefix tag: <https://huygensing.github.io/TAG/TAGML/ontology/tagml.ttl#> " +
-        "select ?markup (count(?markup) as ?count) " +
-        "where { [] tag:markup_name ?markup . } " +
-        "group by ?markup " + // otherwise: "Non-group key variable in SELECT"
-        "order by ?markup";
+    String sparql =
+        "prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> "
+            + "prefix tag: <https://huygensing.github.io/TAG/TAGML/ontology/tagml.ttl#> "
+            + "select ?markup (count(?markup) as ?count) "
+            + "where { [] tag:markup_name ?markup . } "
+            + "group by ?markup "
+            + // otherwise: "Non-group key variable in SELECT"
+            "order by ?markup";
     createFile(queryFilename, sparql);
 
     runAddCommand(tagPath);
     runCommitAllCommand();
 
     final boolean success = cli.run(command, "transcription", "-q", "query.sparql");
-    String expectedOutput = "document: transcription\n\n" +
-        "query:\n" +
-        "  prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>" +
-        " prefix tag: <https://huygensing.github.io/TAG/TAGML/ontology/tagml.ttl#>" +
-        " select ?markup (count(?markup) as ?count)" +
-        " where { [] tag:markup_name ?markup . }" +
-        " group by ?markup" +
-        " order by ?markup\n\n" +
-        "result:\n" +
-        "-------------------\n" +
-        "| markup  | count |\n" +
-        "===================\n" +
-        "| \"l\"     | 1     |\n" +
-        "| \"tagml\" | 1     |\n" +
-        "| \"w\"     | 1     |\n" +
-        "-------------------";
-//    softlyAssertSucceedsWithExpectedStdout(success, expectedOutput);
+    String expectedOutput =
+        "document: transcription\n\n"
+            + "query:\n"
+            + "  prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>"
+            + " prefix tag: <https://huygensing.github.io/TAG/TAGML/ontology/tagml.ttl#>"
+            + " select ?markup (count(?markup) as ?count)"
+            + " where { [] tag:markup_name ?markup . }"
+            + " group by ?markup"
+            + " order by ?markup\n\n"
+            + "result:\n"
+            + "-------------------\n"
+            + "| markup  | count |\n"
+            + "===================\n"
+            + "| \"l\"     | 1     |\n"
+            + "| \"tagml\" | 1     |\n"
+            + "| \"w\"     | 1     |\n"
+            + "-------------------";
+    //    softlyAssertSucceedsWithExpectedStdout(success, expectedOutput);
     assertSucceedsWithExpectedStdout(success, expectedOutput);
   }
 
   @Test
   public void testCommandHelp() throws Exception {
     final boolean success = cli.run(command, "-h");
-    assertSucceedsWithExpectedStdout(success, "usage: java -jar alexandria-app.jar\n" +
-        "       query -q <sparql-file> [-h] <document>\n" +
-        "\n" +
-        "Query the document using SPARQL.\n" +
-        "\n" +
-        "positional arguments:\n" +
-        "  <document>             The name of the document to query.\n" +
-        "\n" +
-        "named arguments:\n" +
-        "  -q <sparql-file>, --query <sparql-file>\n" +
-        "                         The file containing the SPARQL query.\n" +
-        "  -h, --help             show this help message and exit");
+    assertSucceedsWithExpectedStdout(
+        success,
+        "usage: java -jar alexandria-app.jar\n"
+            + "       query -q <sparql-file> [-h] <document>\n"
+            + "\n"
+            + "Query the document using SPARQL.\n"
+            + "\n"
+            + "positional arguments:\n"
+            + "  <document>             The name of the document to query.\n"
+            + "\n"
+            + "named arguments:\n"
+            + "  -q <sparql-file>, --query <sparql-file>\n"
+            + "                         The file containing the SPARQL query.\n"
+            + "  -h, --help             show this help message and exit");
   }
-
 }

@@ -79,14 +79,15 @@ public class ServerApplication extends Application<ServerConfiguration> {
     // Enable variable substitution with environment variables
     bootstrap.setConfigurationSourceProvider(
         new SubstitutingSourceProvider(
-            bootstrap.getConfigurationSourceProvider(),
-            new EnvironmentVariableSubstitutor()));
-    bootstrap.addBundle(new SwaggerBundle<ServerConfiguration>() {
-      @Override
-      protected SwaggerBundleConfiguration getSwaggerBundleConfiguration(ServerConfiguration configuration) {
-        return configuration.swaggerBundleConfiguration;
-      }
-    });
+            bootstrap.getConfigurationSourceProvider(), new EnvironmentVariableSubstitutor()));
+    bootstrap.addBundle(
+        new SwaggerBundle<ServerConfiguration>() {
+          @Override
+          protected SwaggerBundleConfiguration getSwaggerBundleConfiguration(
+              ServerConfiguration configuration) {
+            return configuration.swaggerBundleConfiguration;
+          }
+        });
     addCommands(bootstrap, appInfo);
   }
 
@@ -106,7 +107,7 @@ public class ServerApplication extends Application<ServerConfiguration> {
     bootstrap.addCommand(new ExportXmlCommand());
     bootstrap.addCommand(new SPARQLQueryCommand());
     bootstrap.addCommand(new ValidateCommand());
-//    bootstrap.addCommand(new ShowWorkdirCommand());
+    //    bootstrap.addCommand(new ShowWorkdirCommand());
   }
 
   @Override
@@ -120,20 +121,28 @@ public class ServerApplication extends Application<ServerConfiguration> {
 
     environment.jersey().register(new HomePageResource());
     environment.jersey().register(new AboutResource(appInfo));
-    environment.jersey().register(new DocumentsResource(documentService, tagmlImporter, texMECSImporter, tagmlExporter, configuration));
+    environment
+        .jersey()
+        .register(
+            new DocumentsResource(
+                documentService, tagmlImporter, texMECSImporter, tagmlExporter, configuration));
 
     environment.healthChecks().register("server", new ServerHealthCheck());
 
     SortedMap<String, Result> results = environment.healthChecks().runHealthChecks();
     AtomicBoolean healthy = new AtomicBoolean(true);
     LOG.info("Healthchecks:");
-    results.forEach((name, result) -> {
-      LOG.info("{}: {}, message='{}'", name, result.isHealthy() ? "healthy" : "unhealthy", result.getMessage());
-      healthy.set(healthy.get() && result.isHealthy());
-    });
+    results.forEach(
+        (name, result) -> {
+          LOG.info(
+              "{}: {}, message='{}'",
+              name,
+              result.isHealthy() ? "healthy" : "unhealthy",
+              result.getMessage());
+          healthy.set(healthy.get() && result.isHealthy());
+        });
     if (!healthy.get()) {
       throw new RuntimeException("Failing health check(s)");
     }
-
   }
 }

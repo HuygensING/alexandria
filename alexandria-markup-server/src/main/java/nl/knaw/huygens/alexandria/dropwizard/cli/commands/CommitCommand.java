@@ -160,9 +160,7 @@ public class CommitCommand extends AlexandriaCommand {
             }
             if (!errorMsg.isEmpty()) {
               final String revertCommands =
-                  reverts.stream()
-                      .map(r -> "  alexandria revert " + r + "\n")
-                      .collect(joining());
+                  reverts.stream().map(r -> "  alexandria revert " + r + "\n").collect(joining());
               System.err.printf(
                   "%s%nUse:%n"
                       + "%s"

@@ -38,13 +38,15 @@ public class DotEngine {
     final StringWriter errors = new StringWriter();
     try {
       CompletableFuture.allOf(
-          processErrorStream(dotProc, errors),
-          processOutputStream(dotProc, dot),
-          processInputStream(dotProc, outputStream),
-          waitForCompletion(dotProc, errors)
-      ).exceptionally(t -> {
-        throw new WebApplicationException(t);
-      }).get();
+              processErrorStream(dotProc, errors),
+              processOutputStream(dotProc, dot),
+              processInputStream(dotProc, outputStream),
+              waitForCompletion(dotProc, errors))
+          .exceptionally(
+              t -> {
+                throw new WebApplicationException(t);
+              })
+          .get();
     } catch (InterruptedException | ExecutionException e) {
       throw new WebApplicationException(e);
     }
@@ -52,54 +54,62 @@ public class DotEngine {
   }
 
   private CompletableFuture<Void> waitForCompletion(Process dotProc, StringWriter errors) {
-    return CompletableFuture.runAsync(() -> {
-      try {
-        if (!dotProc.waitFor(2, TimeUnit.MINUTES)) {
-          throw new CompletionException(new IllegalStateException(errors.toString()));
-        }
-      } catch (InterruptedException e) {
-        throw new CompletionException(e);
-      }
-    }, processThreads);
+    return CompletableFuture.runAsync(
+        () -> {
+          try {
+            if (!dotProc.waitFor(2, TimeUnit.MINUTES)) {
+              throw new CompletionException(new IllegalStateException(errors.toString()));
+            }
+          } catch (InterruptedException e) {
+            throw new CompletionException(e);
+          }
+        },
+        processThreads);
   }
 
   private CompletableFuture<Void> processInputStream(Process dotProc, OutputStream outputStream) {
-    return CompletableFuture.runAsync(() -> {
-      final byte[] buf = new byte[8192];
-      try (final InputStream in = dotProc.getInputStream(); final OutputStream out = outputStream) {
-        int len;
-        while ((len = in.read(buf)) >= 0) {
-          out.write(buf, 0, len);
-        }
-      } catch (IOException e) {
-        throw new CompletionException(e);
-      }
-    }, processThreads);
+    return CompletableFuture.runAsync(
+        () -> {
+          final byte[] buf = new byte[8192];
+          try (final InputStream in = dotProc.getInputStream();
+              final OutputStream out = outputStream) {
+            int len;
+            while ((len = in.read(buf)) >= 0) {
+              out.write(buf, 0, len);
+            }
+          } catch (IOException e) {
+            throw new CompletionException(e);
+          }
+        },
+        processThreads);
   }
 
   private CompletableFuture<Void> processOutputStream(Process dotProc, String dot) {
-    return CompletableFuture.runAsync(() -> {
-      try (final Writer dotProcStream = new OutputStreamWriter(dotProc.getOutputStream(), StandardCharsets.UTF_8)) {
-        dotProcStream.write(dot);
-      } catch (IOException e) {
-        throw new CompletionException(e);
-      }
-    }, processThreads);
+    return CompletableFuture.runAsync(
+        () -> {
+          try (final Writer dotProcStream =
+              new OutputStreamWriter(dotProc.getOutputStream(), StandardCharsets.UTF_8)) {
+            dotProcStream.write(dot);
+          } catch (IOException e) {
+            throw new CompletionException(e);
+          }
+        },
+        processThreads);
   }
 
   private CompletableFuture<Void> processErrorStream(Process dotProc, StringWriter errors) {
-    return CompletableFuture.runAsync(() -> {
-      final char[] buf = new char[8192];
-      try (final Reader errorStream = new InputStreamReader(dotProc.getErrorStream())) {
-        int len;
-        while ((len = errorStream.read(buf)) >= 0) {
-          errors.write(buf, 0, len);
-        }
-      } catch (IOException e) {
-        throw new CompletionException(e);
-      }
-
-    }, processThreads);
+    return CompletableFuture.runAsync(
+        () -> {
+          final char[] buf = new char[8192];
+          try (final Reader errorStream = new InputStreamReader(dotProc.getErrorStream())) {
+            int len;
+            while ((len = errorStream.read(buf)) >= 0) {
+              errors.write(buf, 0, len);
+            }
+          } catch (IOException e) {
+            throw new CompletionException(e);
+          }
+        },
+        processThreads);
   }
-
 }

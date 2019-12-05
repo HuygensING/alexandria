@@ -122,5 +122,4 @@ public class OptimisticAlexandriaMarkupClient {
     }
     return restResult.get();
   }
-
 }
