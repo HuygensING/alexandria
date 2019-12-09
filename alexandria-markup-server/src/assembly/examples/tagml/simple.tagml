@@ -1,1 +1,2 @@
+[!schema https://raw.githubusercontent.com/HuygensING/alexandria/develop/alexandria-markup-server/src/assembly/examples/simple.yaml]
 [tagml>[l>test [w>word<w]<l]<tagml]
