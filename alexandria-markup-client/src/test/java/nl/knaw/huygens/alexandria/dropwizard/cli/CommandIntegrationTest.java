@@ -9,9 +9,9 @@ package nl.knaw.huygens.alexandria.dropwizard.cli;
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -128,9 +128,9 @@ public abstract class CommandIntegrationTest {
   }
 
   void softlyAssertSucceedsWithStdoutContaining(
-      final boolean success, final String... outputSubString) {
+      final Optional<Throwable> success, final String outputSubString) {
     SoftAssertions softly = new SoftAssertions();
-    softly.assertThat(success).as("Exit success").isTrue();
+    softly.assertThat(success).as("Exit success").isEmpty();
 
     //    String normalizedExpectedOutput = normalize(expectedOutput);
     String normalizedStdOut = normalize(stdOut.toString());
@@ -140,9 +140,10 @@ public abstract class CommandIntegrationTest {
     resetStdOutErr();
   }
 
-  void softlyAssertSucceedsWithExpectedStdout(final boolean success, final String expectedOutput) {
+  void softlyAssertSucceedsWithExpectedStdout(
+      final Optional<Throwable> success, final String expectedOutput) {
     SoftAssertions softly = new SoftAssertions();
-    softly.assertThat(success).as("Exit success").isTrue();
+    softly.assertThat(success).as("Exit success").isEmpty();
 
     String normalizedExpectedOutput = normalize(expectedOutput);
     String normalizedStdOut = normalize(stdOut.toString());
@@ -152,8 +153,9 @@ public abstract class CommandIntegrationTest {
     resetStdOutErr();
   }
 
-  void assertSucceedsWithExpectedStdout(final boolean success, final String expectedOutput) {
-    assertThat(success).as("Exit success").isTrue();
+  void assertSucceedsWithExpectedStdout(
+      final Optional<Throwable> success, final String expectedOutput) {
+    assertThat(success).as("Exit success").isEmpty();
 
     String normalizedExpectedOutput = normalize(expectedOutput);
     String normalizedStdOut = normalize(stdOut.toString());
@@ -164,10 +166,10 @@ public abstract class CommandIntegrationTest {
     resetStdOutErr();
   }
 
-  void softlyAssertFailsWithExpectedStderr(final boolean success, final String expectedError) {
+  void softlyAssertFailsWithExpectedStderr(final Optional<Throwable> success, final String expectedError) {
     String normalizedExpectedError = normalize(expectedError);
     SoftAssertions softly = new SoftAssertions();
-    softly.assertThat(success).as("Exit success").isFalse();
+    softly.assertThat(success).as("Exit success").isPresent();
 
     String normalizeStdErr = normalize(stdErr.toString());
     softly.assertThat(normalizeStdErr).as("stderr").isEqualTo(normalizedExpectedError);
@@ -178,17 +180,18 @@ public abstract class CommandIntegrationTest {
     resetStdOutErr();
   }
 
-  void assertFailsWithExpectedStderr(final boolean success, final String expectedError) {
+  void assertFailsWithExpectedStderr(
+      final Optional<Throwable> success, final String expectedError) {
     String normalizedExpectedError = normalize(expectedError);
-    assertThat(success).as("Exit success").isFalse();
+    assertThat(success).as("Exit success").isPresent();
     String normalizeStdErr = normalize(stdErr.toString());
     assertThat(normalizeStdErr).as("stderr").isEqualTo(normalizedExpectedError);
     resetStdOutErr();
   }
 
   void assertFailsWithExpectedStdoutAndStderr(
-      final boolean success, final String expectedOutput, final String expectedError) {
-    assertThat(success).as("Exit success").isFalse();
+      final Optional<Throwable> success, final String expectedOutput, final String expectedError) {
+    assertThat(success).as("Exit success").isPresent();
 
     String normalizedExpectedOutput = normalize(expectedOutput);
     String normalizedStdOut = normalize(stdOut.toString());
@@ -233,7 +236,7 @@ public abstract class CommandIntegrationTest {
   }
 
   void runInitCommand() throws Exception {
-    assertThat(cli.run(INIT)).overridingErrorMessage(stdErr.toString()).isTrue();
+    assertThat(cli.run(INIT)).overridingErrorMessage(stdErr.toString()).isEmpty();
     resetStdOutErr();
   }
 
@@ -243,24 +246,24 @@ public abstract class CommandIntegrationTest {
     Collections.addAll(arguments, fileNames);
     String[] argumentArray = arguments.toArray(new String[] {});
     //    System.out.println("#" + Paths.get("").toAbsolutePath().toString());
-    assertThat(cli.run(argumentArray)).overridingErrorMessage(stdErr.toString()).isTrue();
+    assertThat(cli.run(argumentArray)).overridingErrorMessage(stdErr.toString()).isEmpty();
     resetStdOutErr();
   }
 
   void runCommitAllCommand() throws Exception {
-    final boolean success = cli.run(COMMIT, "-a");
+    final Optional<Throwable> throwable = cli.run(COMMIT, "-a");
     LOG.info("stdOut={}", stdOut.toString());
     SoftAssertions softly = new SoftAssertions();
-    softly.assertThat(success).overridingErrorMessage(stdErr.toString()).isTrue();
+    softly.assertThat(throwable).overridingErrorMessage(stdErr.toString()).isEmpty();
     softly.assertThat(getCliStdErrAsString()).isEmpty();
     softly.assertAll();
     resetStdOutErr();
   }
 
   void runCheckoutCommand(final String viewName) throws Exception {
-    final boolean success = cli.run(CHECKOUT, viewName);
+    final Optional<Throwable> throwable = cli.run(CHECKOUT, viewName);
     SoftAssertions softly = new SoftAssertions();
-    softly.assertThat(success).overridingErrorMessage(stdErr.toString()).isTrue();
+    softly.assertThat(throwable).overridingErrorMessage(stdErr.toString()).isEmpty();
     softly.assertThat(getCliStdErrAsString()).isEmpty();
     softly.assertThat(readCLIContext().getActiveView()).isEqualTo(viewName);
     softly.assertAll();
@@ -268,9 +271,9 @@ public abstract class CommandIntegrationTest {
   }
 
   void assertCommandRunsInAnInitializedDirectory(final String... cliArguments) throws Exception {
-    final boolean success = cli.run(cliArguments);
+    final Optional<Throwable> throwable = cli.run(cliArguments);
     SoftAssertions softly = new SoftAssertions();
-    softly.assertThat(success).isFalse();
+    softly.assertThat(throwable).isPresent();
     softly
         .assertThat(getCliStdOutAsString())
         .contains("This directory (or any of its parents) has not been initialized");

@@ -24,6 +24,7 @@ import org.junit.Test;
 
 import java.io.File;
 import java.nio.file.Path;
+import java.util.Optional;
 
 import static nl.knaw.huygens.alexandria.dropwizard.cli.commands.AlexandriaCommand.*;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -37,14 +38,14 @@ public class InitCommandIntegrationTest extends CommandIntegrationTest {
     File workDirectoryFile = workDirectory.toFile();
     boolean asFile = workDirectory.resolve(".alexandria").toFile().createNewFile();
     assertThat(asFile).isTrue();
-    final boolean success = cli.run(command);
+    final Optional<Throwable> success = cli.run(command);
     assertFailsWithExpectedStderr(
         success, "init failed: could not create directory " + workDirectory.resolve(".alexandria"));
   }
 
   @Test
   public void testCommand() throws Exception {
-    final boolean success = cli.run(command);
+    final Optional<Throwable> success = cli.run(command);
     softlyAssertSucceedsWithExpectedStdout(
         success,
         "initializing...\n"
@@ -77,7 +78,7 @@ public class InitCommandIntegrationTest extends CommandIntegrationTest {
 
   @Test
   public void testCommandHelp() throws Exception {
-    final boolean success = cli.run(command, "-h");
+    final Optional<Throwable> success = cli.run(command, "-h");
     assertSucceedsWithExpectedStdout(
         success,
         "usage: java -jar alexandria-app.jar\n"

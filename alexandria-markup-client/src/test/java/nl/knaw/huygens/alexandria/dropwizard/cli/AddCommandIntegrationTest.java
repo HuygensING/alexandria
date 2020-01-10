@@ -23,6 +23,8 @@ package nl.knaw.huygens.alexandria.dropwizard.cli;
 import nl.knaw.huygens.alexandria.dropwizard.cli.commands.AddCommand;
 import org.junit.Test;
 
+import java.util.Optional;
+
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class AddCommandIntegrationTest extends CommandIntegrationTest {
@@ -36,8 +38,8 @@ public class AddCommandIntegrationTest extends CommandIntegrationTest {
     String filename2 = "transcription2.tagml";
     String absolutePath1 = createFile(filename1, "");
     String absolutePath2 = createFile(filename2, "");
-    final boolean success = cli.run(command, absolutePath1, absolutePath2);
-    softlyAssertSucceedsWithExpectedStdout(success, "");
+    final Optional<Throwable> throwable = cli.run(command, absolutePath1, absolutePath2);
+    softlyAssertSucceedsWithExpectedStdout(throwable, "");
 
     CLIContext cliContext = readCLIContext();
     assertThat(cliContext.getWatchedFiles().keySet())
@@ -47,8 +49,8 @@ public class AddCommandIntegrationTest extends CommandIntegrationTest {
   @Test
   public void testCommandWithNonExistingFilesFails() throws Exception {
     runInitCommand();
-    final boolean success = cli.run(command, "transcription1.tagml", "transcription2.tagml");
-    assertThat(success).isTrue();
+    final Optional<Throwable> throwable = cli.run(command, "transcription1.tagml", "transcription2.tagml");
+    assertThat(throwable).isEmpty();
     assertThat(getCliStdErrAsString())
         .contains("transcription1.tagml is not a file!")
         .contains("transcription2.tagml is not a file!");
@@ -56,10 +58,10 @@ public class AddCommandIntegrationTest extends CommandIntegrationTest {
 
   @Test
   public void testCommandWithoutParametersFails() throws Exception {
-    final boolean success = cli.run(command);
+    final Optional<Throwable> throwable = cli.run(command);
     assertThat(getCliStdErrAsString()).contains("too few arguments");
     assertFailsWithExpectedStderr(
-        success,
+        throwable,
         "too few arguments\n"
             + "usage: java -jar alexandria-app.jar\n"
             + "       add [-h] <file> [<file> ...]\n"
@@ -75,9 +77,9 @@ public class AddCommandIntegrationTest extends CommandIntegrationTest {
 
   @Test
   public void testCommandHelp() throws Exception {
-    final boolean success = cli.run(command, "-h");
+    final Optional<Throwable> throwable = cli.run(command, "-h");
     assertSucceedsWithExpectedStdout(
-        success,
+        throwable,
         "usage: java -jar alexandria-app.jar\n"
             + "       add [-h] <file> [<file> ...]\n"
             + "\n"

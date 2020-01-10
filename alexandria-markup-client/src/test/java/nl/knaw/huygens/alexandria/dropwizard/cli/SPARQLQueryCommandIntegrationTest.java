@@ -23,6 +23,8 @@ package nl.knaw.huygens.alexandria.dropwizard.cli;
 import nl.knaw.huygens.alexandria.dropwizard.cli.commands.SPARQLQueryCommand;
 import org.junit.Test;
 
+import java.util.Optional;
+
 public class SPARQLQueryCommandIntegrationTest extends CommandIntegrationTest {
 
   private static final String command = new SPARQLQueryCommand().getName();
@@ -51,7 +53,7 @@ public class SPARQLQueryCommandIntegrationTest extends CommandIntegrationTest {
     runAddCommand(tagPath);
     runCommitAllCommand();
 
-    final boolean success = cli.run(command, "transcription", "-q", "query.sparql");
+    final Optional<Throwable> success = cli.run(command, "transcription", "-q", "query.sparql");
     String expectedOutput =
         "document: transcription\n\n"
             + "query:\n"
@@ -75,7 +77,7 @@ public class SPARQLQueryCommandIntegrationTest extends CommandIntegrationTest {
 
   @Test
   public void testCommandHelp() throws Exception {
-    final boolean success = cli.run(command, "-h");
+    final Optional<Throwable> success = cli.run(command, "-h");
     assertSucceedsWithExpectedStdout(
         success,
         "usage: java -jar alexandria-app.jar\n"

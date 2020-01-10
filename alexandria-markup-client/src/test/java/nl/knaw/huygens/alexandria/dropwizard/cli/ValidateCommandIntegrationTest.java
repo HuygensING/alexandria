@@ -24,6 +24,8 @@ import nl.knaw.huygens.alexandria.dropwizard.cli.commands.ValidateCommand;
 import org.jetbrains.annotations.NotNull;
 import org.junit.Test;
 
+import java.util.Optional;
+
 public class ValidateCommandIntegrationTest extends CommandIntegrationTest {
 
   private static final String command = new ValidateCommand().getName();
@@ -32,7 +34,7 @@ public class ValidateCommandIntegrationTest extends CommandIntegrationTest {
   public void testCommandWithMissingDocument() throws Exception {
     runInitCommand();
 
-    final boolean success = cli.run(command, "transcription");
+    final Optional<Throwable> success = cli.run(command, "transcription");
     final String expectedOutput = "";
     final String expectedError =
         "ERROR: No document 'transcription' was registered.\n" + "Registered documents:";
@@ -52,7 +54,7 @@ public class ValidateCommandIntegrationTest extends CommandIntegrationTest {
     runAddCommand(tagPath);
     runCommitAllCommand();
 
-    final boolean success = cli.run(command, "transcription");
+    final Optional<Throwable> success = cli.run(command, "transcription");
     String expectedError =
         "There was no schema location defined in transcription, please add\n"
             + "  [!schema <schemaLocationURL>]\n"
@@ -79,7 +81,7 @@ public class ValidateCommandIntegrationTest extends CommandIntegrationTest {
     runAddCommand(tagPath);
     runCommitAllCommand();
 
-    final boolean success = cli.run(command, "transcription");
+    final Optional<Throwable> success = cli.run(command, "transcription");
     String expectedOutput =
         "Parsing schema from "
             + schemaLocationURL
@@ -111,7 +113,7 @@ public class ValidateCommandIntegrationTest extends CommandIntegrationTest {
     runAddCommand(tagPath);
     runCommitAllCommand();
 
-    final boolean success = cli.run(command, "transcription");
+    final Optional<Throwable> success = cli.run(command, "transcription");
     String expectedOutputError =
         "Parsing schema from "
             + schemaLocationURL
@@ -144,7 +146,7 @@ public class ValidateCommandIntegrationTest extends CommandIntegrationTest {
     runAddCommand(tagPath);
     runCommitAllCommand();
 
-    final boolean success = cli.run(command, "transcription");
+    final Optional<Throwable> success = cli.run(command, "transcription");
     String expectedOutputError =
         "Parsing schema from "
             + schemaLocationURL
@@ -169,7 +171,7 @@ public class ValidateCommandIntegrationTest extends CommandIntegrationTest {
 
   @Test
   public void testCommandHelp() throws Exception {
-    final boolean success = cli.run(command, "-h");
+    final Optional<Throwable> success = cli.run(command, "-h");
     assertSucceedsWithExpectedStdout(
         success,
         "usage: java -jar alexandria-app.jar\n"

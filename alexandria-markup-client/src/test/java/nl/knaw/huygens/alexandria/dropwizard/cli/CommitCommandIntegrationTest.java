@@ -25,6 +25,7 @@ import org.junit.Ignore;
 import org.junit.Test;
 
 import java.time.Instant;
+import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -40,7 +41,7 @@ public class CommitCommandIntegrationTest extends CommandIntegrationTest {
     String viewPath = createFile(viewFilename, "{\"idontknowwhatimdoing\":[\"huh?\"]}");
     runAddCommand(viewPath);
 
-    final boolean success = cli.run(command, "-a");
+    final Optional<Throwable> success = cli.run(command, "-a");
 
     softlyAssertFailsWithExpectedStderr(
         success,
@@ -51,7 +52,7 @@ public class CommitCommandIntegrationTest extends CommandIntegrationTest {
   public void testCommandWithoutFileThrowsError() throws Exception {
     runInitCommand();
 
-    final boolean success = cli.run(command);
+    final Optional<Throwable> success = cli.run(command);
 
     softlyAssertFailsWithExpectedStderr(
         success, "Commit aborted: no files specified. Use -a to commit all changed tracked files.");
@@ -70,7 +71,7 @@ public class CommitCommandIntegrationTest extends CommandIntegrationTest {
 
     LOG.info("{}", dateAfterAdd);
 
-    final boolean success = cli.run(command, absolutePath);
+    final Optional<Throwable> success = cli.run(command, absolutePath);
 
     softlyAssertSucceedsWithExpectedStdout(
         success, "Parsing transcription1.tagml to document transcription1...\ndone!");
@@ -93,7 +94,7 @@ public class CommitCommandIntegrationTest extends CommandIntegrationTest {
     Instant viewDateAfterAdd = readLastCommittedInstant(viewFilename);
     assertThat(viewDateAfterAdd).isNotNull();
 
-    final boolean success = cli.run(command, "-a");
+    final Optional<Throwable> success = cli.run(command, "-a");
     softlyAssertSucceedsWithExpectedStdout(
         success,
         "Parsing tagml/transcription1.tagml to document transcription1...\n"
@@ -122,7 +123,7 @@ public class CommitCommandIntegrationTest extends CommandIntegrationTest {
     Instant viewDateAfterAdd = readLastCommittedInstant(viewFilename);
     assertThat(viewDateAfterAdd).isNotNull();
 
-    final boolean success = cli.run(command, "-a");
+    final Optional<Throwable> success = cli.run(command, "-a");
     softlyAssertSucceedsWithExpectedStdout(
         success,
         "Parsing tagml/transcription1.tagml to document transcription1...\n"
@@ -150,7 +151,7 @@ public class CommitCommandIntegrationTest extends CommandIntegrationTest {
     //    final boolean success2 = cli.run("status");
     //    assertSucceedsWithExpectedStdout(success2, "");
 
-    final boolean success3 = cli.run(command, "-a");
+    final Optional<Throwable> success3 = cli.run(command, "-a");
     assertFailsWithExpectedStdoutAndStderr(
         success3,
         "Parsing tagml/transcription2.tagml to document transcription2...\n"
@@ -193,7 +194,7 @@ public class CommitCommandIntegrationTest extends CommandIntegrationTest {
 
     LOG.info("{}", dateAfterAdd);
 
-    final boolean success = cli.run(command, absoluteViewPath2);
+    final Optional<Throwable> success = cli.run(command, absoluteViewPath2);
 
     softlyAssertSucceedsWithExpectedStdout(success, "Parsing views/v2.json to view v2...\ndone!");
     Instant dateAfterCommit = readLastCommittedInstant(viewFilename2);
@@ -226,7 +227,7 @@ public class CommitCommandIntegrationTest extends CommandIntegrationTest {
 
     runAddCommand(absoluteViewPath);
 
-    final boolean success = cli.run(command, absoluteViewPath);
+    final Optional<Throwable> success = cli.run(command, absoluteViewPath);
 
     assertFailsWithExpectedStderr(
         success,
@@ -246,7 +247,7 @@ public class CommitCommandIntegrationTest extends CommandIntegrationTest {
 
   @Test
   public void testCommandHelp() throws Exception {
-    final boolean success = cli.run(command, "-h");
+    final Optional<Throwable> success = cli.run(command, "-h");
     assertSucceedsWithExpectedStdout(
         success,
         "usage: java -jar alexandria-app.jar\n"

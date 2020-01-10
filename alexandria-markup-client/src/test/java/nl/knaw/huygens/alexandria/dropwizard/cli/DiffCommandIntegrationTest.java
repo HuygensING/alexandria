@@ -23,6 +23,8 @@ package nl.knaw.huygens.alexandria.dropwizard.cli;
 import nl.knaw.huygens.alexandria.dropwizard.cli.commands.DiffCommand;
 import org.junit.Test;
 
+import java.util.Optional;
+
 public class DiffCommandIntegrationTest extends CommandIntegrationTest {
 
   private static final String command = new DiffCommand().getName();
@@ -43,7 +45,7 @@ public class DiffCommandIntegrationTest extends CommandIntegrationTest {
     String tagml2 = "[tagml>[l>example [x>word<x]<l]<tagml]";
     modifyFile(tagFilename, tagml2);
 
-    final boolean success = cli.run(command, tagFilename);
+    final Optional<Throwable> success = cli.run(command, tagFilename);
     String expectedOutput =
         "diff for tagml/transcription.tagml:\n"
             + " [tagml>[l>\n"
@@ -76,7 +78,7 @@ public class DiffCommandIntegrationTest extends CommandIntegrationTest {
     String tagml2 = "[tagml>[l>example [x>word<x]<l]<tagml]";
     modifyFile(tagFilename, tagml2);
 
-    final boolean success = cli.run(command, "-m", tagFilename);
+    final Optional<Throwable> success = cli.run(command, "-m", tagFilename);
     String expectedOutput = "~[5,x]";
     //    softlyAssertSucceedsWithExpectedStdout(success, expectedOutput);
     assertSucceedsWithExpectedStdout(success, expectedOutput);
@@ -84,7 +86,7 @@ public class DiffCommandIntegrationTest extends CommandIntegrationTest {
 
   @Test
   public void testCommandHelp() throws Exception {
-    final boolean success = cli.run(command, "-h");
+    final Optional<Throwable> success = cli.run(command, "-h");
     assertSucceedsWithExpectedStdout(
         success,
         "usage: java -jar alexandria-app.jar\n"
