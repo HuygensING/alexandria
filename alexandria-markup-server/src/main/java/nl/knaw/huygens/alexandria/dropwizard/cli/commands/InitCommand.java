@@ -4,7 +4,7 @@ package nl.knaw.huygens.alexandria.dropwizard.cli.commands;
  * #%L
  * alexandria-markup-server
  * =======
- * Copyright (C) 2015 - 2019 Huygens ING (KNAW)
+ * Copyright (C) 2015 - 2020 Huygens ING (KNAW)
  * =======
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -46,7 +46,7 @@ public class InitCommand extends AlexandriaCommand {
     checkWeAreNotInUserHomeDir();
     CLIContext context = new CLIContext();
     initPaths(Paths.get("").toAbsolutePath());
-    context.getWatchedDirectories().add("");
+//    context.getWatchedDirectories().add("");
     System.out.println("initializing...");
     Path alexandriaPath = Paths.get(alexandriaDir);
     System.out.println("  mkdir " + alexandriaPath);
@@ -68,7 +68,7 @@ public class InitCommand extends AlexandriaCommand {
     Path sparqlPath = Paths.get(workDir, SPARQL_DIR);
     System.out.println("  mkdir " + sparqlPath);
     mkdir(sparqlPath);
-    //    context.getWatchedDirectories().add(SPARQL_DIR);
+//    context.getWatchedDirectories().add(SPARQL_DIR);
 
     storeContext(context);
 

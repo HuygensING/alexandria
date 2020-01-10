@@ -4,7 +4,7 @@ package nl.knaw.huygens.alexandria.dropwizard.cli;
  * #%L
  * alexandria-markup-client
  * =======
- * Copyright (C) 2015 - 2019 Huygens ING (KNAW)
+ * Copyright (C) 2015 - 2020 Huygens ING (KNAW)
  * =======
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -59,25 +59,6 @@ public class StatusCommandIntegrationTest extends CommandIntegrationTest {
 
     success = cli.run(command);
     assertSucceedsWithExpectedStdout(
-        success,
-        "Active view: -\n"
-            + "\n"
-            + "no documents\n"
-            + "no views\n"
-            + "\n\n"
-            + "Untracked files:\n"
-            + "  (use \"alexandria add <file>...\" to start tracking this file.)\n"
-            + "\n"
-            + "        "
-            + tagPathRelativeToCurrentDir
-            + "\n"
-            + "        "
-            + viewPathRelativeToCurrentDir);
-
-    // add files
-    runAddCommand(tagPath, viewPath);
-    success = cli.run(command);
-    softlyAssertSucceedsWithExpectedStdout(
         success,
         "Active view: -\n"
             + "\n"

@@ -4,7 +4,7 @@ package nl.knaw.huygens.alexandria.dropwizard.cli.commands;
  * #%L
  * alexandria-markup-server
  * =======
- * Copyright (C) 2015 - 2019 Huygens ING (KNAW)
+ * Copyright (C) 2015 - 2020 Huygens ING (KNAW)
  * =======
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -40,6 +40,7 @@ import nl.knaw.huygens.alexandria.view.TAGView;
 import nl.knaw.huygens.alexandria.view.TAGViewDefinition;
 import nl.knaw.huygens.alexandria.view.TAGViewFactory;
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang3.tuple.Pair;
 import org.fusesource.jansi.AnsiConsole;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -56,6 +57,7 @@ import java.util.*;
 import java.util.function.BiPredicate;
 
 import static java.lang.System.lineSeparator;
+import static java.time.temporal.ChronoUnit.DAYS;
 import static java.util.stream.Collectors.*;
 import static org.fusesource.jansi.Ansi.Color.RED;
 import static org.fusesource.jansi.Ansi.ansi;
@@ -290,6 +292,14 @@ public abstract class AlexandriaCommand extends Command {
     return fileName.replaceAll("^.*" + VIEWS_DIR + "/", "").replaceAll(".json", "");
   }
 
+  protected FileInfo makeFileInfo(final Path filePath) throws IOException {
+    Instant lastModifiedInstant = Files.getLastModifiedTime(filePath).toInstant();
+    Instant lastCommit =
+        lastModifiedInstant.minus(
+            365L, DAYS); // set lastCommit to instant sooner than lastModifiedInstant
+    return new FileInfo().setLastCommit(lastCommit);
+  }
+
   enum FileStatus {
     // all status is since last commit
     changed, // changed, can be committed
@@ -301,6 +311,7 @@ public abstract class AlexandriaCommand extends Command {
   Multimap<FileStatus, String> readWorkDirStatus(CLIContext context) throws IOException {
     Multimap<FileStatus, String> fileStatusMap = ArrayListMultimap.create();
     Path workDir = workFilePath("");
+    addNewFilesFromWatchedDirs(context);
     Set<String> watchedFiles = new HashSet<>(context.getWatchedFiles().keySet());
     BiPredicate<Path, BasicFileAttributes> matcher0 =
         (filePath, fileAttr) ->
@@ -318,6 +329,32 @@ public abstract class AlexandriaCommand extends Command {
     }
     watchedFiles.forEach(f -> fileStatusMap.put(FileStatus.deleted, f));
     return fileStatusMap;
+  }
+
+  private void addNewFilesFromWatchedDirs(final CLIContext context) {
+    final Map<String, FileInfo> watchedFiles = context.getWatchedFiles();
+    Path workDirPath = workFilePath("");
+    context.getWatchedDirectories().stream()
+        .map(this::workFilePath)
+        .map(Path::toFile)
+        .map(File::listFiles)
+        .flatMap(Arrays::stream)
+        .filter(File::isFile)
+        .map(File::toPath)
+        //        .peek(p -> System.out.println(p))
+        .map(p -> Pair.of(p, relativeToWorkDir(workDirPath, p).toString().replaceAll("\\\\", "/")))
+        //        .peek(p -> System.out.println(p))
+        .filter(p -> !watchedFiles.containsKey(p.getRight()))
+        //        .peek(p -> System.out.println(p))
+        .forEach(
+            p -> {
+              try {
+                watchedFiles.put(p.getRight(), makeFileInfo(p.getLeft()));
+              } catch (IOException e) {
+                e.printStackTrace();
+              }
+            });
+    storeContext(context);
   }
 
   private boolean isRelevantFile(
