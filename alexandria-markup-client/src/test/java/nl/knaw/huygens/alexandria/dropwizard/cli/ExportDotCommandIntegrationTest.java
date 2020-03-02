@@ -23,8 +23,6 @@ package nl.knaw.huygens.alexandria.dropwizard.cli;
 import nl.knaw.huygens.alexandria.dropwizard.cli.commands.ExportDotCommand;
 import org.junit.Test;
 
-import java.util.Optional;
-
 public class ExportDotCommandIntegrationTest extends CommandIntegrationTest {
 
   private static final String command = new ExportDotCommand().getName();
@@ -40,7 +38,7 @@ public class ExportDotCommandIntegrationTest extends CommandIntegrationTest {
     runAddCommand(file);
     runCommitAllCommand();
 
-    Optional<Throwable> success = cli.run(command, "transcription");
+    Boolean  success = cli.run(command, "transcription");
     softlyAssertSucceedsWithExpectedStdout(
         success,
         "digraph TextGraph{\n"
@@ -73,7 +71,7 @@ public class ExportDotCommandIntegrationTest extends CommandIntegrationTest {
     runCommitAllCommand();
     runCheckoutCommand(viewName);
 
-    Optional<Throwable> success = cli.run(command, "transcription");
+    Boolean  success = cli.run(command, "transcription");
     softlyAssertSucceedsWithExpectedStdout(
         success,
         "digraph TextGraph{\n"
@@ -93,7 +91,7 @@ public class ExportDotCommandIntegrationTest extends CommandIntegrationTest {
 
   @Test
   public void testCommandHelp() throws Exception {
-    final Optional<Throwable> success = cli.run(command, "-h");
+    final Boolean  success = cli.run(command, "-h");
     assertSucceedsWithExpectedStdout(
         success,
         "usage: java -jar alexandria-app.jar\n"

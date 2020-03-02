@@ -45,7 +45,7 @@ public class DiffCommandIntegrationTest extends CommandIntegrationTest {
     String tagml2 = "[tagml>[l>example [x>word<x]<l]<tagml]";
     modifyFile(tagFilename, tagml2);
 
-    final Optional<Throwable> success = cli.run(command, tagFilename);
+    final Boolean  success = cli.run(command, tagFilename);
     String expectedOutput =
         "diff for tagml/transcription.tagml:\n"
             + " [tagml>[l>\n"
@@ -78,7 +78,7 @@ public class DiffCommandIntegrationTest extends CommandIntegrationTest {
     String tagml2 = "[tagml>[l>example [x>word<x]<l]<tagml]";
     modifyFile(tagFilename, tagml2);
 
-    final Optional<Throwable> success = cli.run(command, "-m", tagFilename);
+    final Boolean  success = cli.run(command, "-m", tagFilename);
     String expectedOutput = "~[5,x]";
     //    softlyAssertSucceedsWithExpectedStdout(success, expectedOutput);
     assertSucceedsWithExpectedStdout(success, expectedOutput);
@@ -86,7 +86,7 @@ public class DiffCommandIntegrationTest extends CommandIntegrationTest {
 
   @Test
   public void testCommandHelp() throws Exception {
-    final Optional<Throwable> success = cli.run(command, "-h");
+    final Boolean  success = cli.run(command, "-h");
     assertSucceedsWithExpectedStdout(
         success,
         "usage: java -jar alexandria-app.jar\n"

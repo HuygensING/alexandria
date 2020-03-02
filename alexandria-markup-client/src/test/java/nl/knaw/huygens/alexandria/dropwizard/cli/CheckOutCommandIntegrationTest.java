@@ -26,7 +26,6 @@ import org.junit.Test;
 
 import java.nio.file.Files;
 import java.time.Instant;
-import java.util.Optional;
 
 import static nl.knaw.huygens.alexandria.dropwizard.cli.commands.CheckOutCommand.MAIN_VIEW;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -50,7 +49,7 @@ public class CheckOutCommandIntegrationTest extends CommandIntegrationTest {
     runAddCommand(absoluteTagmlPath, absoluteViewPath);
     runCommitAllCommand();
 
-    final Optional<Throwable> success = cli.run(command, viewName);
+    final Boolean  success = cli.run(command, viewName);
     softlyAssertSucceedsWithExpectedStdout(
         success,
         "Checking out view v1...\n" + "  updating tagml/transcription.tagml...\n" + "done!");
@@ -61,7 +60,7 @@ public class CheckOutCommandIntegrationTest extends CommandIntegrationTest {
     String newContent = readFileContents(tagFilename);
     assertThat(newContent).isEqualTo("[l>test<l]");
 
-    final Optional<Throwable> success2 = cli.run(command, MAIN_VIEW);
+    final Boolean  success2 = cli.run(command, MAIN_VIEW);
     softlyAssertSucceedsWithExpectedStdout(
         success2,
         "Checking out main view...\n" + "  updating tagml/transcription.tagml...\n" + "done!");
@@ -90,7 +89,7 @@ public class CheckOutCommandIntegrationTest extends CommandIntegrationTest {
     runAddCommand(tagFilename, viewFilename);
     runCommitAllCommand();
 
-    final Optional<Throwable> success = cli.run(command, viewName);
+    final Boolean  success = cli.run(command, viewName);
     softlyAssertSucceedsWithExpectedStdout(
         success,
         "Checking out view v1...\n" + "  updating tagml/transcription1.tagml...\n" + "done!");
@@ -104,7 +103,7 @@ public class CheckOutCommandIntegrationTest extends CommandIntegrationTest {
     // now, change the file contents
     modifyFile(tagFilename, "[l>foo bar<l]");
 
-    final Optional<Throwable> success2 = cli.run(command, MAIN_VIEW);
+    final Boolean  success2 = cli.run(command, MAIN_VIEW);
     String stdOut = normalize(getCliStdOutAsString());
     assertThat(stdOut)
         .isEqualTo(
@@ -122,7 +121,7 @@ public class CheckOutCommandIntegrationTest extends CommandIntegrationTest {
 
   @Test
   public void testCommandHelp() throws Exception {
-    final Optional<Throwable> success = cli.run(command, "-h");
+    final Boolean  success = cli.run(command, "-h");
     assertSucceedsWithExpectedStdout(
         success,
         "usage: java -jar alexandria-app.jar\n"

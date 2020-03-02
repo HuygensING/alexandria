@@ -38,14 +38,14 @@ public class InitCommandIntegrationTest extends CommandIntegrationTest {
     File workDirectoryFile = workDirectory.toFile();
     boolean asFile = workDirectory.resolve(".alexandria").toFile().createNewFile();
     assertThat(asFile).isTrue();
-    final Optional<Throwable> success = cli.run(command);
+    final Boolean  success = cli.run(command);
     assertFailsWithExpectedStderr(
         success, "init failed: could not create directory " + workDirectory.resolve(".alexandria"));
   }
 
   @Test
   public void testCommand() throws Exception {
-    final Optional<Throwable> success = cli.run(command);
+    final Boolean  success = cli.run(command);
     softlyAssertSucceedsWithExpectedStdout(
         success,
         "initializing...\n"
@@ -78,7 +78,7 @@ public class InitCommandIntegrationTest extends CommandIntegrationTest {
 
   @Test
   public void testCommandHelp() throws Exception {
-    final Optional<Throwable> success = cli.run(command, "-h");
+    final Boolean  success = cli.run(command, "-h");
     assertSucceedsWithExpectedStdout(
         success,
         "usage: java -jar alexandria-app.jar\n"

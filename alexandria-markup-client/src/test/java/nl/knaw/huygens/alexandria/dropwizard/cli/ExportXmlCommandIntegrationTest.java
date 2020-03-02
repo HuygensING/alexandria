@@ -9,9 +9,9 @@ package nl.knaw.huygens.alexandria.dropwizard.cli;
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- *
+ * 
  *      http://www.apache.org/licenses/LICENSE-2.0
- *
+ * 
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -22,8 +22,6 @@ package nl.knaw.huygens.alexandria.dropwizard.cli;
 
 import nl.knaw.huygens.alexandria.dropwizard.cli.commands.ExportXmlCommand;
 import org.junit.Test;
-
-import java.util.Optional;
 
 public class ExportXmlCommandIntegrationTest extends CommandIntegrationTest {
 
@@ -40,7 +38,7 @@ public class ExportXmlCommandIntegrationTest extends CommandIntegrationTest {
     runAddCommand(tagPath);
     runCommitAllCommand();
 
-    Optional<Throwable> success = cli.run(command, "transcription");
+    Boolean  success = cli.run(command, "transcription");
     assertSucceedsWithExpectedStdout(
         success,
         "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
@@ -65,7 +63,7 @@ public class ExportXmlCommandIntegrationTest extends CommandIntegrationTest {
     runCommitAllCommand();
     runCheckoutCommand(viewName);
 
-    Optional<Throwable> success = cli.run(command, "transcription");
+    Boolean  success = cli.run(command, "transcription");
     assertSucceedsWithExpectedStdout(
         success,
         "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" + "<xml>\n" + "<l>test</l>\n" + "</xml>");
@@ -73,7 +71,7 @@ public class ExportXmlCommandIntegrationTest extends CommandIntegrationTest {
 
   @Test
   public void testCommandHelp() throws Exception {
-    final Optional<Throwable> success = cli.run(command, "-h");
+    final Boolean  success = cli.run(command, "-h");
     assertSucceedsWithExpectedStdout(
         success,
         "usage: java -jar alexandria-app.jar\n"

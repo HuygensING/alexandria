@@ -9,9 +9,9 @@ package nl.knaw.huygens.alexandria.dropwizard.cli;
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- *
+ * 
  *      http://www.apache.org/licenses/LICENSE-2.0
- *
+ * 
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -23,8 +23,6 @@ package nl.knaw.huygens.alexandria.dropwizard.cli;
 import nl.knaw.huygens.alexandria.dropwizard.cli.commands.RevertCommand;
 import nl.knaw.huygens.alexandria.dropwizard.cli.commands.StatusCommand;
 import org.junit.Test;
-
-import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -51,14 +49,14 @@ public class RevertCommandIntegrationTest extends CommandIntegrationTest {
     String fileContentsBeforeRevert = readFileContents(viewFilename);
     assertThat(fileContentsBeforeRevert).isEqualTo(json2);
 
-    final Optional<Throwable> success = cli.run(command, viewDefinitionPath);
+    final Boolean  success = cli.run(command, viewDefinitionPath);
     assertSucceedsWithExpectedStdout(success, "Reverting " + viewFilename + "...\ndone!");
 
     String fileContentsAfterRevert = readFileContents(viewFilename);
     assertThat(fileContentsAfterRevert).isEqualTo(json);
 
-    Optional<Throwable> statusSuccess = cli.run(new StatusCommand().getName());
-    assertThat(statusSuccess).isEmpty();
+    Boolean  statusSuccess = cli.run(new StatusCommand().getName());
+    assertThat(statusSuccess).isTrue();
     String stdOut = normalize(this.stdOut.toString());
     assertThat(stdOut).doesNotContain("modified: " + viewFilename);
   }
@@ -82,14 +80,14 @@ public class RevertCommandIntegrationTest extends CommandIntegrationTest {
     String fileContentsBeforeRevert = readFileContents(tagFilename);
     assertThat(fileContentsBeforeRevert).isEqualTo(tagml2);
 
-    final Optional<Throwable> success = cli.run(command, tagPath);
+    final Boolean  success = cli.run(command, tagPath);
     assertSucceedsWithExpectedStdout(success, "Reverting " + tagFilename + "...\ndone!");
 
     String fileContentsAfterRevert = readFileContents(tagFilename);
     assertThat(fileContentsAfterRevert).isEqualTo(tagml);
 
-    Optional<Throwable> statusSuccess = cli.run(new StatusCommand().getName());
-    assertThat(statusSuccess).isEmpty();
+    Boolean  statusSuccess = cli.run(new StatusCommand().getName());
+    assertThat(statusSuccess).isTrue();
     String stdOut = normalize(this.stdOut.toString());
     assertThat(stdOut).doesNotContain("modified: tagml/transcription.tagml");
   }
@@ -120,7 +118,7 @@ public class RevertCommandIntegrationTest extends CommandIntegrationTest {
     String fileContentsBeforeRevert = readFileContents(tagFilename);
     assertThat(fileContentsBeforeRevert).isEqualTo(tagml2);
 
-    final Optional<Throwable> success = cli.run(command, tagPath);
+    final Boolean  success = cli.run(command, tagPath);
     assertSucceedsWithExpectedStdout(success, "Reverting " + tagFilename + "...\ndone!");
 
     String fileContentsAfterRevert = readFileContents(tagFilename);
@@ -129,7 +127,7 @@ public class RevertCommandIntegrationTest extends CommandIntegrationTest {
 
   @Test
   public void testCommandHelp() throws Exception {
-    final Optional<Throwable> success = cli.run(command, "-h");
+    final Boolean  success = cli.run(command, "-h");
     assertSucceedsWithExpectedStdout(
         success,
         "usage: java -jar alexandria-app.jar\n"

@@ -42,7 +42,7 @@ public class StatusCommandIntegrationTest extends CommandIntegrationTest {
     runInitCommand();
 
     // in an empty, initialized directory
-    Optional<Throwable> success = cli.run(command);
+    Boolean  success = cli.run(command);
     softlyAssertSucceedsWithExpectedStdout(
         success, "Active view: -\n" + "\n" + "no documents\n" + "no views\n");
 
@@ -118,7 +118,7 @@ public class StatusCommandIntegrationTest extends CommandIntegrationTest {
     runInitCommand();
 
     // in an empty, initialized directory
-    Optional<Throwable> success = cli.run(command);
+    Boolean  success = cli.run(command);
     softlyAssertSucceedsWithExpectedStdout(
         success, "Active view: -\n" + "\n" + "no documents\n" + "no views\n");
 
@@ -144,7 +144,7 @@ public class StatusCommandIntegrationTest extends CommandIntegrationTest {
     runInitCommand();
 
     // in an empty, initialized directory
-    Optional<Throwable> success = cli.run(command);
+    Boolean  success = cli.run(command);
     softlyAssertSucceedsWithExpectedStdout(
         success, "Active view: -\n" + "\n" + "no documents\n" + "no views\n");
 
@@ -170,7 +170,7 @@ public class StatusCommandIntegrationTest extends CommandIntegrationTest {
     runInitCommand();
 
     // in an empty, initialized directory
-    Optional<Throwable> success = cli.run(command);
+    Boolean  success = cli.run(command);
     softlyAssertSucceedsWithExpectedStdout(
         success, "Active view: -\n" + "\n" + "no documents\n" + "no views\n");
 
@@ -188,7 +188,7 @@ public class StatusCommandIntegrationTest extends CommandIntegrationTest {
     runInitCommand();
 
     // in an empty, initialized directory
-    Optional<Throwable> success = cli.run(command);
+    Boolean  success = cli.run(command);
     softlyAssertSucceedsWithExpectedStdout(
         success, "Active view: -\n" + "\n" + "no documents\n" + "no views\n");
 
@@ -224,7 +224,7 @@ public class StatusCommandIntegrationTest extends CommandIntegrationTest {
     runInitCommand();
 
     // in an empty, initialized directory
-    Optional<Throwable> success = cli.run(command);
+    Boolean  success = cli.run(command);
     softlyAssertSucceedsWithExpectedStdout(
         success, "Active view: -\n" + "\n" + "no documents\n" + "no views\n");
 
@@ -248,7 +248,7 @@ public class StatusCommandIntegrationTest extends CommandIntegrationTest {
     runInitCommand();
 
     // in an empty, initialized directory
-    Optional<Throwable> success = cli.run(command);
+    Boolean  success = cli.run(command);
     softlyAssertSucceedsWithExpectedStdout(
         success, "Active view: -\n" + "\n" + "no documents\n" + "no views\n");
 
@@ -265,7 +265,7 @@ public class StatusCommandIntegrationTest extends CommandIntegrationTest {
 
   @Test
   public void testCommandHelp() throws Exception {
-    final Optional<Throwable> success = cli.run(command, "-h");
+    final Boolean  success = cli.run(command, "-h");
     assertSucceedsWithExpectedStdout(
         success,
         "usage: java -jar alexandria-app.jar\n"

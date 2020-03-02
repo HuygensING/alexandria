@@ -24,8 +24,6 @@ import nl.knaw.huygens.alexandria.dropwizard.cli.commands.ExportRenderedDotComma
 import org.assertj.core.api.SoftAssertions;
 import org.junit.Test;
 
-import java.util.Optional;
-
 public class ExportPngCommandIntegrationTest extends CommandIntegrationTest {
 
   private static final String command = new ExportRenderedDotCommand("png").getName();
@@ -43,9 +41,9 @@ public class ExportPngCommandIntegrationTest extends CommandIntegrationTest {
     runAddCommand(tagPath);
     runCommitAllCommand();
 
-    Optional<Throwable> success = cli.run(command, "transcription");
+    Boolean  success = cli.run(command, "transcription");
     SoftAssertions softly = new SoftAssertions();
-    softly.assertThat(success).as("Exit success").isEmpty();
+    softly.assertThat(success).as("Exit success").isTrue();
     String pngContent = stdOut.toString();
     softly.assertThat(pngContent).as("stdout").isNotEmpty();
     //    softly.assertThat(pngContent).as("stdoutIsPing").startsWith(PNG_SIGNATURE);
@@ -55,7 +53,7 @@ public class ExportPngCommandIntegrationTest extends CommandIntegrationTest {
 
   @Test
   public void testCommandHelp() throws Exception {
-    final Optional<Throwable> success = cli.run(command, "-h");
+    final Boolean  success = cli.run(command, "-h");
     assertSucceedsWithExpectedStdout(
         success,
         "usage: java -jar alexandria-app.jar\n"

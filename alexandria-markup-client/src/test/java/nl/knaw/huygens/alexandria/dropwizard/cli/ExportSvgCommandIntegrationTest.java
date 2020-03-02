@@ -24,8 +24,6 @@ import nl.knaw.huygens.alexandria.dropwizard.cli.commands.ExportRenderedDotComma
 import org.assertj.core.api.SoftAssertions;
 import org.junit.Test;
 
-import java.util.Optional;
-
 public class ExportSvgCommandIntegrationTest extends CommandIntegrationTest {
 
   private static final String command = new ExportRenderedDotCommand("svg").getName();
@@ -41,9 +39,9 @@ public class ExportSvgCommandIntegrationTest extends CommandIntegrationTest {
     runAddCommand(tagPath);
     runCommitAllCommand();
 
-    Optional<Throwable> success = cli.run(command, "transcription");
+    Boolean  success = cli.run(command, "transcription");
     SoftAssertions softly = new SoftAssertions();
-    softly.assertThat(success).as("Exit success").isEmpty();
+    softly.assertThat(success).as("Exit success").isTrue();
     String svgContent = stdOut.toString();
     softly.assertThat(svgContent).as("stdout").isNotEmpty();
     softly.assertThat(svgContent).as("stdoutIsSvg").contains("<svg ");
@@ -53,7 +51,7 @@ public class ExportSvgCommandIntegrationTest extends CommandIntegrationTest {
 
   @Test
   public void testCommandHelp() throws Exception {
-    final Optional<Throwable> success = cli.run(command, "-h");
+    final Boolean  success = cli.run(command, "-h");
     assertSucceedsWithExpectedStdout(
         success,
         "usage: java -jar alexandria-app.jar\n"

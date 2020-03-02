@@ -23,8 +23,6 @@ package nl.knaw.huygens.alexandria.dropwizard.cli;
 import nl.knaw.huygens.alexandria.dropwizard.cli.commands.AboutCommand;
 import org.junit.Test;
 
-import java.util.Optional;
-
 public class AboutCommandIntegrationTest extends CommandIntegrationTest {
 
   private static final String command = new AboutCommand().getName();
@@ -32,14 +30,14 @@ public class AboutCommandIntegrationTest extends CommandIntegrationTest {
   @Test
   public void testCommand() throws Exception {
     runInitCommand();
-    final Optional<Throwable> throwable = cli.run(command);
+    final Boolean throwable = cli.run(command);
     softlyAssertSucceedsWithExpectedStdout(
         throwable, "Alexandria version $version$\n" + "Build date: $buildDate$");
   }
 
   @Test
   public void testCommandHelp() throws Exception {
-    final Optional<Throwable> throwable = cli.run(command, "-h");
+    final Boolean throwable = cli.run(command, "-h");
     assertSucceedsWithExpectedStdout(
         throwable,
         "usage: java -jar alexandria-app.jar\n"

@@ -23,8 +23,6 @@ package nl.knaw.huygens.alexandria.dropwizard.cli;
 import nl.knaw.huygens.alexandria.dropwizard.cli.commands.AddCommand;
 import org.junit.Test;
 
-import java.util.Optional;
-
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class AddCommandIntegrationTest extends CommandIntegrationTest {
@@ -38,7 +36,7 @@ public class AddCommandIntegrationTest extends CommandIntegrationTest {
     String filename2 = "transcription2.tagml";
     String absolutePath1 = createFile(filename1, "");
     String absolutePath2 = createFile(filename2, "");
-    final Optional<Throwable> throwable = cli.run(command, absolutePath1, absolutePath2);
+    final Boolean throwable = cli.run(command, absolutePath1, absolutePath2);
     softlyAssertSucceedsWithExpectedStdout(throwable, "");
 
     CLIContext cliContext = readCLIContext();
@@ -49,8 +47,8 @@ public class AddCommandIntegrationTest extends CommandIntegrationTest {
   @Test
   public void testCommandWithNonExistingFilesFails() throws Exception {
     runInitCommand();
-    final Optional<Throwable> throwable = cli.run(command, "transcription1.tagml", "transcription2.tagml");
-    assertThat(throwable).isEmpty();
+    final Boolean throwable = cli.run(command, "transcription1.tagml", "transcription2.tagml");
+    assertThat(throwable).isTrue();
     assertThat(getCliStdErrAsString())
         .contains("transcription1.tagml is not a file!")
         .contains("transcription2.tagml is not a file!");
@@ -58,7 +56,7 @@ public class AddCommandIntegrationTest extends CommandIntegrationTest {
 
   @Test
   public void testCommandWithoutParametersFails() throws Exception {
-    final Optional<Throwable> throwable = cli.run(command);
+    final Boolean throwable = cli.run(command);
     assertThat(getCliStdErrAsString()).contains("too few arguments");
     assertFailsWithExpectedStderr(
         throwable,
@@ -77,7 +75,7 @@ public class AddCommandIntegrationTest extends CommandIntegrationTest {
 
   @Test
   public void testCommandHelp() throws Exception {
-    final Optional<Throwable> throwable = cli.run(command, "-h");
+    final Boolean throwable = cli.run(command, "-h");
     assertSucceedsWithExpectedStdout(
         throwable,
         "usage: java -jar alexandria-app.jar\n"
