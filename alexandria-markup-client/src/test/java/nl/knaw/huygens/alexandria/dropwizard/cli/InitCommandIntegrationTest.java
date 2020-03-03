@@ -24,7 +24,6 @@ import org.junit.Test;
 
 import java.io.File;
 import java.nio.file.Path;
-import java.util.Optional;
 
 import static nl.knaw.huygens.alexandria.dropwizard.cli.commands.AlexandriaCommand.*;
 import static org.assertj.core.api.Assertions.assertThat;

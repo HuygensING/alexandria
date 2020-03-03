@@ -38,7 +38,7 @@ public class ExportXmlCommandIntegrationTest extends CommandIntegrationTest {
     runAddCommand(tagPath);
     runCommitAllCommand();
 
-    Boolean  success = cli.run(command, "transcription");
+    Boolean success = cli.run(command, "transcription");
     assertSucceedsWithExpectedStdout(
         success,
         "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
@@ -63,15 +63,41 @@ public class ExportXmlCommandIntegrationTest extends CommandIntegrationTest {
     runCommitAllCommand();
     runCheckoutCommand(viewName);
 
-    Boolean  success = cli.run(command, "transcription");
+    Boolean success = cli.run(command, "transcription");
     assertSucceedsWithExpectedStdout(
         success,
         "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" + "<xml>\n" + "<l>test</l>\n" + "</xml>");
   }
 
   @Test
+  public void testCommandInView2() throws Exception {
+    runInitCommand();
+
+    String tagFilename = createTagmlFileName("transcription");
+    String tagml =
+        "[tagml|+A,+B>[phr|A>Cookie Monster [r>really [phr|B>likes<phr|A] cookies<phr|B]<r]<tagml]";
+    String tagPath = createFile(tagFilename, tagml);
+
+    String viewName = "A";
+    String viewFilename = createViewFileName(viewName);
+    String viewPath = createFile(viewFilename, "{\"includeLayers\":[\"A\"]}");
+
+    runAddCommand(tagPath, viewPath);
+    runCommitAllCommand();
+    runCheckoutCommand(viewName);
+
+    Boolean success = cli.run(command, "transcription");
+    assertSucceedsWithExpectedStdout(
+        success,
+        "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
+            + "<xml>\n"
+            + "<tagml><phr>Cookie Monster really likes</phr> cookies</tagml>\n"
+            + "</xml>");
+  }
+
+  @Test
   public void testCommandHelp() throws Exception {
-    final Boolean  success = cli.run(command, "-h");
+    final Boolean success = cli.run(command, "-h");
     assertSucceedsWithExpectedStdout(
         success,
         "usage: java -jar alexandria-app.jar\n"

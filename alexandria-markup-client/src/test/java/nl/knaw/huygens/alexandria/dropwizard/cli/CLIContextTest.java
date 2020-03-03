@@ -52,7 +52,7 @@ public class CLIContextTest {
             .collect(toMap(f -> f, f -> new FileInfo().setLastCommit(Instant.now()), (a, b) -> b));
     final Map<String, TAGViewDefinition> tagViewDefinitionMap = new HashMap<>();
     TAGViewDefinition excludeALayer =
-        new TAGViewDefinition().setExcludeLayers(new HashSet(singletonList("a")));
+        new TAGViewDefinition().setExcludeLayers(new HashSet<>(singletonList("a")));
     tagViewDefinitionMap.put("exclude-a-layer", excludeALayer);
     CLIContext cliContext =
         new CLIContext()

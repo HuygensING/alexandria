@@ -22,8 +22,6 @@ package nl.knaw.huygens.alexandria.dropwizard.cli;
 
 import nl.knaw.huygens.alexandria.dropwizard.cli.commands.HelpCommand;
 
-import java.util.Optional;
-
 public class HelpCommandIntegrationTest extends CommandIntegrationTest {
 
   private static final String command = new HelpCommand().getName();

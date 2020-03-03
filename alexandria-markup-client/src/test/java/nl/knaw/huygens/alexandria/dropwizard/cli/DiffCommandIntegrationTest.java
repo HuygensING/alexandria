@@ -23,8 +23,6 @@ package nl.knaw.huygens.alexandria.dropwizard.cli;
 import nl.knaw.huygens.alexandria.dropwizard.cli.commands.DiffCommand;
 import org.junit.Test;
 
-import java.util.Optional;
-
 public class DiffCommandIntegrationTest extends CommandIntegrationTest {
 
   private static final String command = new DiffCommand().getName();
