@@ -132,12 +132,13 @@ public class ValidateCommand extends AlexandriaCommand {
     System.out.println("Document " + docName + " is ");
     if (!result.isValid()) {
       System.out.println("  not valid:");
-      System.out.println(result.errors.stream().map(e -> "  - error: " + e).collect(joining("\n")));
+      System.out.println(
+          result.getErrors().stream().map(e -> "  - error: " + e).collect(joining("\n")));
     } else {
       System.out.println("  valid");
     }
     System.out.println(
-        result.warnings.stream().map(e -> "  - warning: " + e).collect(joining("\n")));
+        result.getWarnings().stream().map(e -> "  - warning: " + e).collect(joining("\n")));
     System.out.println("according to the schema defined in " + schemaLocationURL);
   }
 }
