@@ -90,8 +90,8 @@ public class ExportXmlCommandIntegrationTest extends CommandIntegrationTest {
     assertSucceedsWithExpectedStdout(
         success,
         "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
-            + "<xml>\n"
-            + "<tagml><phr>Cookie Monster really likes</phr> cookies</tagml>\n"
+            + "<xml xmlns:th=\"http://www.blackmesatech.com/2017/nss/trojan-horse\" th:doc=\"A _default\">\n"
+            + "<tagml th:doc=\"A _default\" th:sId=\"tagml0\"/><phr th:doc=\"A\" th:sId=\"phr1\"/>Cookie Monster <r th:doc=\"_default\" th:sId=\"r2\"/>really likes<phr th:doc=\"A\" th:eId=\"phr1\"/> cookies<r th:doc=\"_default\" th:eId=\"r2\"/><tagml th:doc=\"A _default\" th:eId=\"tagml0\"/>\n"
             + "</xml>");
   }
 
