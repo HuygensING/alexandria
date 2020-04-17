@@ -9,9 +9,9 @@ package nl.knaw.huygens.alexandria.dropwizard.cli.commands;
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -109,12 +109,12 @@ public class ValidateCommand extends AlexandriaCommand {
     System.out.println("Parsing schema from " + schemaLocationURL + ":");
     String schemaYAML = IOUtils.toString(url, Charsets.UTF_8);
     final TAGMLSchemaParseResult schemaParseResult = TAGMLSchemaFactory.parseYAML(schemaYAML);
-    if (schemaParseResult.errors.isEmpty()) {
+    if (schemaParseResult.getErrors().isEmpty()) {
       continueWithValidSchema(docName, store, document, schemaParseResult, schemaLocationURL);
     } else {
       System.out.println(
           "  errors:\n"
-              + schemaParseResult.errors.stream()
+              + schemaParseResult.getErrors().stream()
                   .map(e -> "  - " + e.replaceAll("\\(StringReader\\)", schemaLocationURL))
                   .collect(joining("\n")));
     }
@@ -128,7 +128,7 @@ public class ValidateCommand extends AlexandriaCommand {
       final String schemaLocationURL) {
     System.out.println("  done\n");
     TAGValidationResult result =
-        new TAGValidator(store).validate(document, schemaParseResult.schema);
+        new TAGValidator(store).validate(document, schemaParseResult.getSchema());
     System.out.println("Document " + docName + " is ");
     if (!result.isValid()) {
       System.out.println("  not valid:");
