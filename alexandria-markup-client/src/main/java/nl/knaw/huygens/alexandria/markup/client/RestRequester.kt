@@ -1,103 +1,100 @@
-package nl.knaw.huygens.alexandria.markup.client;
-
-import javax.ws.rs.ProcessingException;
-import javax.ws.rs.core.Response;
-import javax.ws.rs.core.Response.Status;
-import java.time.Duration;
-import java.time.Instant;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.function.Function;
-import java.util.function.Supplier;
+package nl.knaw.huygens.alexandria.markup.client
 
 /*
- * #%L
+* #%L
  * alexandria-markup-client
  * =======
  * Copyright (C) 2015 - 2020 Huygens ING (KNAW)
  * =======
  * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- * 
- *      http://www.apache.org/licenses/LICENSE-2.0
- * 
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ *  you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *  
+ *       http://www.apache.org/licenses/LICENSE-2.0
+ *  
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
  * #L%
- */
+*/
 
-public class RestRequester<T> {
-  private int retries = 5;
-  private Supplier<Response> responseSupplier;
-  final Map<Status, Function<Response, RestResult<T>>> statusMappers = new HashMap<>();
-  private Function<Response, RestResult<T>> defaultMapper = RestResult::failingResult;
+import java.time.Duration
+import java.time.Instant
+import java.util.*
+import java.util.function.Supplier
+import javax.ws.rs.ProcessingException
+import javax.ws.rs.core.Response
 
-  public static <T> RestRequester<T> withResponseSupplier(Supplier<Response> responseSupplier) {
-    RestRequester<T> requester = new RestRequester<>();
-    requester.responseSupplier = responseSupplier;
-    return requester;
-  }
+typealias ResponseMapper<T> = (Response) -> RestResult<T>
 
-  public RestRequester<T> onStatus(Status status, Function<Response, RestResult<T>> mapper) {
-    statusMappers.put(status, mapper);
-    return this;
-  }
+class RestRequester<T> {
+    private val statusMappers: MutableMap<Response.Status, ResponseMapper<T>> = HashMap()
+    private var retries = 5
+    private var responseSupplier: Supplier<Response>? = null
+    private var defaultMapper = { response: Response -> RestResult.failingResult<T>(response) }
 
-  public RestRequester<T> onOtherStatus(Function<Response, RestResult<T>> defaultMapper) {
-    this.defaultMapper = defaultMapper;
-    return this;
-  }
-
-  public RestResult<T> getResult() {
-    int attempt = 0;
-    Response response = null;
-    Instant start = Instant.now();
-    while (response == null && attempt < retries) {
-      attempt++;
-      try {
-        response = responseSupplier.get();
-
-      } catch (ProcessingException pe) {
-        pe.printStackTrace();
-
-      } catch (Exception e) {
-        e.printStackTrace();
-        return timed(RestResult.failingResult(e), start);
-      }
-    }
-    if (response == null) {
-      return timed(
-          RestResult.failingResult("No response from server after " + retries + " attempts."),
-          start);
+    fun onStatus(status: Response.Status, mapper: ResponseMapper<T>): RestRequester<T> {
+        statusMappers[status] = mapper
+        return this
     }
 
-    Status status = Status.fromStatusCode(response.getStatus());
-
-    if (statusMappers.containsKey(status)) {
-      RestResult<T> timed = timed(statusMappers.get(status).apply(response), start);
-      timed.setResponse(response);
-      return timed;
-
-    } else {
-      RestResult<T> timed = timed(defaultMapper.apply(response), start);
-      timed.setResponse(response);
-      return timed;
+    fun onOtherStatus(defaultMapper: ResponseMapper<T>): RestRequester<T> {
+        this.defaultMapper = defaultMapper
+        return this
     }
-  }
 
-  private RestResult<T> timed(RestResult<T> restResult, Instant start) {
-    return restResult.setTurnaroundTime(timeSince(start));
-  }
+    val result: RestResult<T>
+        get() {
+            var attempt = 0
+            var response: Response? = null
+            val start = Instant.now()
+            while (response == null && attempt < retries) {
+                attempt++
+                try {
+                    response = responseSupplier!!.get()
+                } catch (pe: ProcessingException) {
+                    pe.printStackTrace()
+                } catch (e: Exception) {
+                    e.printStackTrace()
+                    return timed(RestResult.Companion.failingResult(e), start)
+                }
+            }
+            if (response == null) {
+                return timed(
+                        RestResult.Companion.failingResult("No response from server after $retries attempts."),
+                        start)
+            }
+            val status = Response.Status.fromStatusCode(response.status)
+            return if (statusMappers.containsKey(status)) {
+                val timed = timed(statusMappers[status]!!.invoke(response), start)
+                timed.withResponse(response)
+                timed
+            } else {
+                val timed = timed(defaultMapper.invoke(response), start)
+                timed.withResponse(response)
+                timed
+            }
+        }
 
-  private Duration timeSince(Instant start) {
-    return Duration.between(start, Instant.now());
-  }
+    private fun timed(restResult: RestResult<T>, start: Instant): RestResult<T> {
+        return restResult.withTurnaroundTime(timeSince(start))
+    }
 
-  public void setRetries(int retries) {
-    this.retries = retries;
-  }
+    private fun timeSince(start: Instant): Duration {
+        return Duration.between(start, Instant.now())
+    }
+
+    fun setRetries(retries: Int) {
+        this.retries = retries
+    }
+
+    companion object {
+        fun <T> withResponseSupplier(responseSupplier: Supplier<Response>): RestRequester<T> {
+            val requester = RestRequester<T>()
+            requester.responseSupplier = responseSupplier
+            return requester
+        }
+    }
 }

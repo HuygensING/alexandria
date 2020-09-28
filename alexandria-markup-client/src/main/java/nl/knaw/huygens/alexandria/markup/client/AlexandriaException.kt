@@ -1,4 +1,4 @@
-package nl.knaw.huygens.alexandria.markup.client;
+package nl.knaw.huygens.alexandria.markup.client
 
 /*
  * #%L
@@ -20,14 +20,12 @@ package nl.knaw.huygens.alexandria.markup.client;
  * #L%
  */
 
-public class AlexandriaException extends RuntimeException {
-  private static final long serialVersionUID = 1L;
+class AlexandriaException : RuntimeException {
+    constructor() : super() {}
 
-  public AlexandriaException() {
-    super();
-  }
+    constructor(message: String) : super(message) {}
 
-  public AlexandriaException(String message) {
-    super(message);
-  }
+    companion object {
+        private const val serialVersionUID = 1L
+    }
 }

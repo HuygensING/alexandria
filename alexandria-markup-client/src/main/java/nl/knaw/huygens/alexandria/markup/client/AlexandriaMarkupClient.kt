@@ -1,283 +1,263 @@
-package nl.knaw.huygens.alexandria.markup.client;
+package nl.knaw.huygens.alexandria.markup.client
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.jaxrs.json.JacksonJaxbJsonProvider;
-import nl.knaw.huygens.alexandria.markup.api.AppInfo;
-import nl.knaw.huygens.alexandria.markup.api.ResourcePaths;
-import nl.knaw.huygens.alexandria.markup.api.UTF8MediaType;
-import org.apache.http.impl.conn.PoolingHttpClientConnectionManager;
-import org.glassfish.jersey.apache.connector.ApacheClientProperties;
-import org.glassfish.jersey.apache.connector.ApacheConnectorProvider;
-import org.glassfish.jersey.client.ClientConfig;
-import org.glassfish.jersey.client.ClientProperties;
-
-import javax.net.ssl.SSLContext;
-import javax.ws.rs.client.*;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
-import javax.ws.rs.core.Response.Status;
-import java.net.URI;
-import java.util.UUID;
-import java.util.function.Function;
-import java.util.function.Supplier;
 
 /*
- * #%L
+* #%L
  * alexandria-markup-client
  * =======
  * Copyright (C) 2015 - 2020 Huygens ING (KNAW)
  * =======
  * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- * 
- *      http://www.apache.org/licenses/LICENSE-2.0
- * 
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ *  you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *  
+ *       http://www.apache.org/licenses/LICENSE-2.0
+ *  
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
  * #L%
- */
+*/
 
-public class AlexandriaMarkupClient implements AutoCloseable {
+import com.fasterxml.jackson.databind.JsonNode
+import com.fasterxml.jackson.databind.ObjectMapper
+import com.fasterxml.jackson.jaxrs.json.JacksonJaxbJsonProvider
+import nl.knaw.huygens.alexandria.markup.api.AppInfo
+import nl.knaw.huygens.alexandria.markup.api.ResourcePaths
+import nl.knaw.huygens.alexandria.markup.api.UTF8MediaType
+import org.apache.http.impl.conn.PoolingHttpClientConnectionManager
+import org.glassfish.jersey.apache.connector.ApacheClientProperties
+import org.glassfish.jersey.apache.connector.ApacheConnectorProvider
+import org.glassfish.jersey.client.ClientConfig
+import org.glassfish.jersey.client.ClientProperties
+import java.net.URI
+import java.util.*
+import java.util.function.Supplier
+import javax.net.ssl.SSLContext
+import javax.ws.rs.client.*
+import javax.ws.rs.core.MediaType
+import javax.ws.rs.core.Response
 
-  public static final String LOCATION = "Location";
-  private static final String HEADER_AUTH = "auth";
-  private WebTarget rootTarget;
-  private final Client client;
-  private final URI alexandriaMarkupURI;
-  // private boolean autoConfirm = true;
-
-  public AlexandriaMarkupClient(final URI alexandriaMarkupURI) {
-    this(alexandriaMarkupURI, null);
-  }
-
-  public AlexandriaMarkupClient(final URI alexandriaMarkupURI, SSLContext sslContext) {
-    this.alexandriaMarkupURI = alexandriaMarkupURI;
-    final ObjectMapper objectMapper = new ObjectMapper();
-    objectMapper.findAndRegisterModules();
-
-    final JacksonJaxbJsonProvider jacksonProvider = new JacksonJaxbJsonProvider();
-    jacksonProvider.setMapper(objectMapper);
-
-    PoolingHttpClientConnectionManager cm = new PoolingHttpClientConnectionManager();
-    cm.setMaxTotal(50);
-    cm.setDefaultMaxPerRoute(50);
-
-    ApacheConnectorProvider connectorProvider = new ApacheConnectorProvider();
-    ClientConfig clientConfig =
-        new ClientConfig(jacksonProvider)
-            .connectorProvider(connectorProvider)
-            .property(ApacheClientProperties.CONNECTION_MANAGER, cm)
-            .property(ClientProperties.CONNECT_TIMEOUT, 60000)
-            .property(ClientProperties.READ_TIMEOUT, 60000);
-
-    if (sslContext == null) {
-      if ("https".equals(alexandriaMarkupURI.getScheme())) {
-        throw new RuntimeException(
-            "SSL connections need an SSLContext, use: new AlexandriaClient(uri, sslContext) instead.");
-      }
-      client = ClientBuilder.newClient(clientConfig);
-
-    } else {
-      client = ClientBuilder.newBuilder().sslContext(sslContext).withConfig(clientConfig).build();
+class AlexandriaMarkupClient @JvmOverloads constructor(private val alexandriaMarkupURI: URI, sslContext: SSLContext? = null) : AutoCloseable {
+    var rootTarget: WebTarget
+        private set
+    private var client: Client? = null
+    override fun close() {
+        client!!.close()
     }
-    rootTarget = client.target(alexandriaMarkupURI);
-  }
 
-  @Override
-  public void close() {
-    client.close();
-  }
+    fun register(component: Any?) {
+        client!!.register(component)
+        rootTarget = client!!.target(alexandriaMarkupURI)
+    }
 
-  public void register(Object component) {
-    client.register(component);
-    rootTarget = client.target(alexandriaMarkupURI);
-  }
+    fun setProperty(jerseyClientProperty: String?, value: Any?) {
+        client!!.property(jerseyClientProperty, value)
+        rootTarget = client!!.target(alexandriaMarkupURI)
+    }
 
-  public void setProperty(final String jerseyClientProperty, final Object value) {
-    client.property(jerseyClientProperty, value);
-    rootTarget = client.target(alexandriaMarkupURI);
-  }
+    // Alexandria Markup API methods
+    val about: RestResult<AppInfo>
+        get() {
+            val path = rootTarget.path(ResourcePaths.ABOUT)
+            val responseSupplier = anonymousGet(path)
+            val requester: RestRequester<AppInfo> = RestRequester.Companion.withResponseSupplier<AppInfo>(responseSupplier)
+            return requester.onStatus(Response.Status.OK) { response: Response -> toAboutInfoRestResult(response) }.result
+        }
 
-  // Alexandria Markup API methods
+    fun setDocumentFromTAGML(documentUUID: UUID, tagml: String): RestResult<Void> {
+        val path = documentTarget(documentUUID).path("tagml")
+        return setDocument(tagml, path)
+    }
 
-  public RestResult<AppInfo> getAbout() {
-    WebTarget path = rootTarget.path(ResourcePaths.ABOUT);
-    Supplier<Response> responseSupplier = anonymousGet(path);
-    final RestRequester<AppInfo> requester = RestRequester.withResponseSupplier(responseSupplier);
-    return requester.onStatus(Status.OK, this::toAboutInfoRestResult).getResult();
-  }
+    fun setDocumentFromTexMECS(documentUUID: UUID, texMECS: String): RestResult<Void> {
+        val path = documentTarget(documentUUID).path("tagml")
+        return setDocument(texMECS, path)
+    }
 
-  public RestResult<Void> setDocumentFromTAGML(UUID documentUUID, String tagml) {
-    final WebTarget path = documentTarget(documentUUID).path("tagml");
-    return setDocument(tagml, path);
-  }
+    private fun setDocument(serializedDocument: String, path: WebTarget): RestResult<Void> {
+        val entity = Entity.entity(serializedDocument, MediaType.TEXT_PLAIN)
+        val responseSupplier = anonymousPut(path, entity)
+        val requester: RestRequester<Void> = RestRequester.Companion.withResponseSupplier<Void>(responseSupplier)
+        return requester
+                .onStatus(Response.Status.CREATED, voidRestResult())
+                .onStatus(Response.Status.NO_CONTENT, voidRestResult())
+                .result
+    }
 
-  public RestResult<Void> setDocumentFromTexMECS(UUID documentUUID, String texMECS) {
-    final WebTarget path = documentTarget(documentUUID).path("tagml");
-    return setDocument(texMECS, path);
-  }
+    fun addDocumentFromTAGML(tagml: String): RestResult<UUID> {
+        val path = documentsTarget().path("tagml")
+        return addDocument(tagml, path)
+    }
 
-  private RestResult<Void> setDocument(String serializedDocument, final WebTarget path) {
-    final Entity<String> entity = Entity.entity(serializedDocument, MediaType.TEXT_PLAIN);
-    final Supplier<Response> responseSupplier = anonymousPut(path, entity);
-    final RestRequester<Void> requester = RestRequester.withResponseSupplier(responseSupplier);
-    return requester
-        .onStatus(Status.CREATED, voidRestResult())
-        .onStatus(Status.NO_CONTENT, voidRestResult())
-        .getResult();
-  }
+    fun addDocumentFromTexMECS(texMECS: String): RestResult<UUID> {
+        val path = documentsTarget().path("texmecs")
+        return addDocument(texMECS, path)
+    }
 
-  public RestResult<UUID> addDocumentFromTAGML(String tagml) {
-    final WebTarget path = documentsTarget().path("tagml");
-    return addDocument(tagml, path);
-  }
+    private fun addDocument(serializedDocument: String, path: WebTarget): RestResult<UUID> {
+        val entity = Entity.entity(serializedDocument, UTF8MediaType.TEXT_PLAIN)
+        val responseSupplier = anonymousPost(path, entity)
+        val requester: RestRequester<UUID> = RestRequester.Companion.withResponseSupplier<UUID>(responseSupplier)
+        return requester
+                .onStatus(Response.Status.CREATED) { response: Response -> uuidFromLocationHeader(response) }
+                .result
+    }
 
-  public RestResult<UUID> addDocumentFromTexMECS(String texMECS) {
-    final WebTarget path = documentsTarget().path("texmecs");
-    return addDocument(texMECS, path);
-  }
+    fun getTAGML(documentUUID: UUID): RestResult<String> {
+        val path = documentTarget(documentUUID).path(ResourcePaths.DOCUMENTS_TAGML)
+        return stringResult(path)
+    }
 
-  private RestResult<UUID> addDocument(String serializedDocument, final WebTarget path) {
-    final Entity<String> entity = Entity.entity(serializedDocument, UTF8MediaType.TEXT_PLAIN);
-    final Supplier<Response> responseSupplier = anonymousPost(path, entity);
-    final RestRequester<UUID> requester = RestRequester.withResponseSupplier(responseSupplier);
-    return requester.onStatus(Status.CREATED, this::uuidFromLocationHeader).getResult();
-  }
+    fun getDocumentLaTeX(documentUUID: UUID): RestResult<String> {
+        val path = documentTarget(documentUUID).path(ResourcePaths.DOCUMENTS_LATEX)
+        return stringResult(path)
+    }
 
-  public RestResult<String> getTAGML(UUID documentUUID) {
-    WebTarget path = documentTarget(documentUUID).path(ResourcePaths.DOCUMENTS_TAGML);
-    return stringResult(path);
-  }
+    fun getMarkupDepthLaTex(documentUUID: UUID): RestResult<String> {
+        val path = documentTarget(documentUUID).path(ResourcePaths.DOCUMENTS_MARKUPDEPTH)
+        return stringResult(path)
+    }
 
-  public RestResult<String> getDocumentLaTeX(UUID documentUUID) {
-    WebTarget path = documentTarget(documentUUID).path(ResourcePaths.DOCUMENTS_LATEX);
-    return stringResult(path);
-  }
+    fun getMatrixLaTex(documentUUID: UUID): RestResult<String> {
+        val path = documentTarget(documentUUID).path(ResourcePaths.DOCUMENTS_MATRIX)
+        return stringResult(path)
+    }
 
-  public RestResult<String> getMarkupDepthLaTex(UUID documentUUID) {
-    WebTarget path = documentTarget(documentUUID).path(ResourcePaths.DOCUMENTS_MARKUPDEPTH);
-    return stringResult(path);
-  }
+    fun getKdTreeLaTex(documentUUID: UUID): RestResult<String> {
+        val path = documentTarget(documentUUID).path(ResourcePaths.DOCUMENTS_KDTREE)
+        return stringResult(path)
+    }
 
-  public RestResult<String> getMatrixLaTex(UUID documentUUID) {
-    WebTarget path = documentTarget(documentUUID).path(ResourcePaths.DOCUMENTS_MATRIX);
-    return stringResult(path);
-  }
+    fun postTAGQLQuery(documentUUID: UUID, query: String): RestResult<JsonNode> {
+        val path = documentTarget(documentUUID).path(ResourcePaths.DOCUMENTS_QUERY)
+        val entity = Entity.entity(query, UTF8MediaType.TEXT_PLAIN)
+        val responseSupplier = anonymousPost(path, entity)
+        val requester: RestRequester<JsonNode> = RestRequester.Companion.withResponseSupplier<JsonNode>(responseSupplier)
+        return requester
+                .onStatus(Response.Status.OK) { response: Response -> toJsonObjectRestResult(response) }
+                .result
+    }
 
-  public RestResult<String> getKdTreeLaTex(UUID documentUUID) {
-    WebTarget path = documentTarget(documentUUID).path(ResourcePaths.DOCUMENTS_KDTREE);
-    return stringResult(path);
-  }
+    // private methods
+    private fun documentTarget(documentUUID: UUID): WebTarget {
+        return documentsTarget().path(documentUUID.toString())
+    }
 
-  public RestResult<JsonNode> postTAGQLQuery(UUID documentUUID, String query) {
-    WebTarget path = documentTarget(documentUUID).path(ResourcePaths.DOCUMENTS_QUERY);
-    final Entity<String> entity = Entity.entity(query, UTF8MediaType.TEXT_PLAIN);
-    final Supplier<Response> responseSupplier = anonymousPost(path, entity);
-    final RestRequester<JsonNode> requester = RestRequester.withResponseSupplier(responseSupplier);
-    return requester.onStatus(Status.OK, this::toJsonObjectRestResult).getResult();
-  }
+    private fun documentsTarget(): WebTarget {
+        return rootTarget.path(ResourcePaths.DOCUMENTS)
+    }
 
-  // private methods
-  private WebTarget documentTarget(UUID documentUUID) {
-    return documentsTarget().path(documentUUID.toString());
-  }
+    private fun toStringRestResult(response: Response): RestResult<String> {
+        return toEntityRestResult<String>(response, String::class.java)
+    }
 
-  private WebTarget documentsTarget() {
-    return rootTarget.path(ResourcePaths.DOCUMENTS);
-  }
+    private fun toAboutInfoRestResult(response: Response): RestResult<AppInfo> {
+        return toEntityRestResult<AppInfo>(response, AppInfo::class.java)
+    }
 
-  private RestResult<String> toStringRestResult(final Response response) {
-    return toEntityRestResult(response, String.class);
-  }
+    private fun toJsonObjectRestResult(response: Response): RestResult<JsonNode> {
+        return toEntityRestResult<JsonNode>(response, JsonNode::class.java)
+    }
 
-  private RestResult<AppInfo> toAboutInfoRestResult(final Response response) {
-    return toEntityRestResult(response, AppInfo.class);
-  }
+    private fun <E> toEntityRestResult(
+            response: Response,
+            entityClass: Class<E>
+    ): RestResult<E> {
+        val result = RestResult<E>()
+        val cargo = response.readEntity(entityClass)
+        return result.withCargo(cargo)
+    }
 
-  private RestResult<JsonNode> toJsonObjectRestResult(final Response response) {
-    return toEntityRestResult(response, JsonNode.class);
-  }
+    private fun uriFromLocationHeader(response: Response): RestResult<URI> {
+        val result = RestResult<URI>()
+        val location = response.getHeaderString(LOCATION)
+        val uri = URI.create(location)
+        result.withCargo(uri)
+        return result
+    }
 
-  private <E> RestResult<E> toEntityRestResult(
-      final Response response, final Class<E> entityClass) {
-    final RestResult<E> result = new RestResult<>();
-    final E cargo = response.readEntity(entityClass);
-    result.setCargo(cargo);
-    return result;
-  }
+    private fun uuidFromLocationHeader(response: Response): RestResult<UUID> {
+        val result = RestResult<UUID>()
+        val location = response.getHeaderString(LOCATION)
+        val uuid = UUID.fromString(location.replaceFirst(".*/".toRegex(), ""))
+        return result.withCargo(uuid)
+    }
 
-  private RestResult<URI> uriFromLocationHeader(final Response response) {
-    final RestResult<URI> result = new RestResult<>();
-    final String location = response.getHeaderString(LOCATION);
-    final URI uri = URI.create(location);
-    result.setCargo(uri);
-    return result;
-  }
+    private fun anonymousGet(target: WebTarget): Supplier<Response> {
+        return Supplier { target.request().get() }
+    }
 
-  private RestResult<UUID> uuidFromLocationHeader(final Response response) {
-    final RestResult<UUID> result = new RestResult<>();
-    final String location = response.getHeaderString(LOCATION);
-    final UUID uuid = UUID.fromString(location.replaceFirst(".*/", ""));
-    result.setCargo(uuid);
-    return result;
-  }
+    private fun anonymousPut(target: WebTarget, entity: Entity<*>): Supplier<Response> {
+        return Supplier { target.request().accept(MediaType.APPLICATION_JSON_TYPE).put(entity) }
+    }
 
-  private Supplier<Response> anonymousGet(final WebTarget target) {
-    return () -> target.request().get();
-  }
+    private fun authorizedPut(path: WebTarget, entity: Entity<*>): Supplier<Response> {
+        return Supplier { authorizedRequest(path).put(entity) }
+    }
 
-  private Supplier<Response> anonymousPut(final WebTarget target, final Entity<?> entity) {
-    return () -> target.request().accept(MediaType.APPLICATION_JSON_TYPE).put(entity);
-  }
+    private fun anonymousPost(target: WebTarget, entity: Entity<*>): Supplier<Response> {
+        return Supplier { target.request().accept(MediaType.APPLICATION_JSON_TYPE).post(entity) }
+    }
 
-  private Supplier<Response> authorizedPut(final WebTarget path, final Entity<?> entity) {
-    return () -> authorizedRequest(path).put(entity);
-  }
+    private fun authorizedPost(path: WebTarget, entity: Entity<*>): Supplier<Response> {
+        return Supplier { authorizedRequest(path).post(entity) }
+    }
 
-  private Supplier<Response> anonymousPost(final WebTarget target, final Entity<?> entity) {
-    return () -> target.request().accept(MediaType.APPLICATION_JSON_TYPE).post(entity);
-  }
+    private fun authorizedDelete(path: WebTarget): Supplier<Response> {
+        return Supplier { authorizedRequest(path).delete() }
+    }
 
-  private Supplier<Response> authorizedPost(final WebTarget path, final Entity<?> entity) {
-    return () -> authorizedRequest(path).post(entity);
-  }
+    private fun authorizedRequest(target: WebTarget): SyncInvoker {
+        val authHeader = ""
+        return target.request().accept(MediaType.APPLICATION_JSON_TYPE).header(HEADER_AUTH, authHeader)
+    }
 
-  private Supplier<Response> authorizedDelete(final WebTarget path) {
-    return () -> authorizedRequest(path).delete();
-  }
+    private fun stringResult(path: WebTarget): RestResult<String> {
+        val responseSupplier = anonymousGet(path)
+        val requester: RestRequester<String> = RestRequester.Companion.withResponseSupplier<String>(responseSupplier)
+        return requester.onStatus(Response.Status.OK) { response: Response -> toStringRestResult(response) }.result
+    }
 
-  private SyncInvoker authorizedRequest(final WebTarget target) {
-    String authHeader = "";
-    return target.request().accept(MediaType.APPLICATION_JSON_TYPE).header(HEADER_AUTH, authHeader);
-  }
+    private fun voidRestResult(): ResponseMapper<Void> =
+            { response: Response ->
+                response.bufferEntity() // to notify connectors, such as the ApacheConnector, that the entity has
+                RestResult()
+            }
 
-  private RestResult<String> stringResult(WebTarget path) {
-    Supplier<Response> responseSupplier = anonymousGet(path);
-    final RestRequester<String> requester = RestRequester.withResponseSupplier(responseSupplier);
-    return requester.onStatus(Status.OK, this::toStringRestResult).getResult();
-  }
+    private val documentTarget: WebTarget
+        get() = rootTarget.path(ResourcePaths.DOCUMENTS)
 
-  private Function<Response, RestResult<Void>> voidRestResult() {
-    return (response) -> {
-      response
-          .bufferEntity(); // to notify connectors, such as the ApacheConnector, that the entity has
-                           // been "consumed" and that it should release the current connection back
-                           // into the Apache
-      // ConnectionManager pool (if being used). https://java.net/jira/browse/JERSEY-3149
-      return new RestResult<>();
-    };
-  }
+    companion object {
+        const val LOCATION = "Location"
+        private const val HEADER_AUTH = "auth"
+    }
 
-  private WebTarget getDocumentTarget() {
-    return rootTarget.path(ResourcePaths.DOCUMENTS);
-  }
-
-  public WebTarget getRootTarget() {
-    return rootTarget;
-  }
+    // private boolean autoConfirm = true;
+    init {
+        val objectMapper = ObjectMapper().apply { findAndRegisterModules() }
+        val jacksonProvider = JacksonJaxbJsonProvider().apply { setMapper(objectMapper) }
+        val cm = PoolingHttpClientConnectionManager().apply {
+            maxTotal = 50
+            defaultMaxPerRoute = 50
+        }
+        val connectorProvider = ApacheConnectorProvider()
+        val clientConfig = ClientConfig(jacksonProvider)
+                .connectorProvider(connectorProvider)
+                .property(ApacheClientProperties.CONNECTION_MANAGER, cm)
+                .property(ClientProperties.CONNECT_TIMEOUT, 60000)
+                .property(ClientProperties.READ_TIMEOUT, 60000)
+        client = if (sslContext == null) {
+            if ("https" == alexandriaMarkupURI.scheme) {
+                throw RuntimeException(
+                        "SSL connections need an SSLContext, use: new AlexandriaClient(uri, sslContext) instead.")
+            }
+            ClientBuilder.newClient(clientConfig)
+        } else {
+            ClientBuilder.newBuilder().sslContext(sslContext).withConfig(clientConfig).build()
+        }
+        rootTarget = client!!.target(alexandriaMarkupURI)
+    }
 }
