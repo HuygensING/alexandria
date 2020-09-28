@@ -1,149 +1,140 @@
-package nl.knaw.huygens.alexandria.dropwizard.cli;
+package nl.knaw.huygens.alexandria.dropwizard.cli
 
 /*-
- * #%L
+* #%L
  * alexandria-markup-client
  * =======
  * Copyright (C) 2015 - 2020 Huygens ING (KNAW)
  * =======
  * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- * 
- *      http://www.apache.org/licenses/LICENSE-2.0
- * 
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ *  you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *  
+ *       http://www.apache.org/licenses/LICENSE-2.0
+ *  
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
  * #L%
- */
+*/
 
-import nl.knaw.huygens.alexandria.dropwizard.cli.commands.RevertCommand;
-import nl.knaw.huygens.alexandria.dropwizard.cli.commands.StatusCommand;
-import org.junit.Test;
+import nl.knaw.huygens.alexandria.dropwizard.cli.commands.RevertCommand
+import nl.knaw.huygens.alexandria.dropwizard.cli.commands.StatusCommand
+import org.assertj.core.api.Assertions.assertThat
+import org.junit.Test
 
-import static org.assertj.core.api.Assertions.assertThat;
+class RevertCommandIntegrationTest : CommandIntegrationTest() {
+    @Test
+    @Throws(Exception::class)
+    fun testRevertOfViewDefinition() {
+        runInitCommand()
 
-public class RevertCommandIntegrationTest extends CommandIntegrationTest {
+        // create sourcefile
+        val viewFilename = createViewFileName("v1")
+        val json = "{\"excludeMarkup\":[\"l\"]}"
+        val viewDefinitionPath = createFile(viewFilename, json)
+        runAddCommand(viewDefinitionPath)
+        runCommitAllCommand()
 
-  private static final String command = new RevertCommand().getName();
+        // overwrite sourcefile
+        val json2 = "{\"excludeMarkup\":[\"blablabla\"]}"
+        modifyFile(viewDefinitionPath, json2)
+        val fileContentsBeforeRevert = readFileContents(viewFilename)
+        assertThat(fileContentsBeforeRevert).isEqualTo(json2)
+        val success = cli!!.run(command, viewDefinitionPath)
+        assertSucceedsWithExpectedStdout(success, "Reverting $viewFilename...\ndone!")
+        val fileContentsAfterRevert = readFileContents(viewFilename)
+        assertThat(fileContentsAfterRevert).isEqualTo(json)
+        val statusSuccess = cli!!.run(StatusCommand().name)
+        assertThat(statusSuccess).isTrue
+        val stdOut = stdOut.toString().normalized()
+        assertThat(stdOut).doesNotContain("modified: $viewFilename")
+    }
 
-  @Test
-  public void testRevertOfViewDefinition() throws Exception {
-    runInitCommand();
+    @Test
+    @Throws(Exception::class)
+    fun testCommandInMainView() {
+        runInitCommand()
 
-    // create sourcefile
-    String viewFilename = createViewFileName("v1");
-    String json = "{\"excludeMarkup\":[\"l\"]}";
-    String viewDefinitionPath = createFile(viewFilename, json);
+        // create sourcefile
+        val tagFilename = createTagmlFileName("transcription")
+        val tagml = "[tagml>[l>test<l]<tagml]"
+        val tagPath = createFile(tagFilename, tagml)
+        runAddCommand(tagPath)
+        runCommitAllCommand()
 
-    runAddCommand(viewDefinitionPath);
-    runCommitAllCommand();
+        // overwrite sourcefile
+        val tagml2 = "[x>And now for something completely different.<x]"
+        modifyFile(tagFilename, tagml2)
+        val fileContentsBeforeRevert = readFileContents(tagFilename)
+        assertThat(fileContentsBeforeRevert).isEqualTo(tagml2)
+        val success = cli!!.run(command, tagPath)
+        assertSucceedsWithExpectedStdout(success, "Reverting $tagFilename...\ndone!")
+        val fileContentsAfterRevert = readFileContents(tagFilename)
+        assertThat(fileContentsAfterRevert).isEqualTo(tagml)
+        val statusSuccess = cli!!.run(StatusCommand().name)
+        assertThat(statusSuccess).isTrue
+        val stdOut = stdOut.toString().normalized()
+        assertThat(stdOut).doesNotContain("modified: tagml/transcription.tagml")
+    }
 
-    // overwrite sourcefile
-    String json2 = "{\"excludeMarkup\":[\"blablabla\"]}";
-    modifyFile(viewDefinitionPath, json2);
+    @Test
+    @Throws(Exception::class)
+    fun testCommandInView() {
+        runInitCommand()
 
-    String fileContentsBeforeRevert = readFileContents(viewFilename);
-    assertThat(fileContentsBeforeRevert).isEqualTo(json2);
+        // create sourcefile
+        val tagFilename = createTagmlFileName("transcription1")
+        val tagml = "[tagml>[l>test<l]<tagml]"
+        val tagPath = createFile(tagFilename, tagml)
 
-    final Boolean  success = cli.run(command, viewDefinitionPath);
-    assertSucceedsWithExpectedStdout(success, "Reverting " + viewFilename + "...\ndone!");
+        // create viewfile
+        val viewName = "l"
+        val viewFilename = createViewFileName(viewName)
+        val viewPath = createFile(viewFilename, "{\"includeMarkup\":[\"l\"]}")
+        runAddCommand(tagPath, viewPath)
+        runCommitAllCommand()
+        runCheckoutCommand(viewName)
+        val tagml_l = "[l>test<l]"
 
-    String fileContentsAfterRevert = readFileContents(viewFilename);
-    assertThat(fileContentsAfterRevert).isEqualTo(json);
+        // overwrite sourcefile
+        val tagml2 = "[x>And now for something completely different.<x]"
+        modifyFile(tagFilename, tagml2)
+        val fileContentsBeforeRevert = readFileContents(tagFilename)
+        assertThat(fileContentsBeforeRevert).isEqualTo(tagml2)
+        val success = cli!!.run(command, tagPath)
+        assertSucceedsWithExpectedStdout(success, "Reverting $tagFilename...\ndone!")
+        val fileContentsAfterRevert = readFileContents(tagFilename)
+        assertThat(fileContentsAfterRevert).isEqualTo(tagml_l)
+    }
 
-    Boolean  statusSuccess = cli.run(new StatusCommand().getName());
-    assertThat(statusSuccess).isTrue();
-    String stdOut = normalize(this.stdOut.toString());
-    assertThat(stdOut).doesNotContain("modified: " + viewFilename);
-  }
+    @Test
+    @Throws(Exception::class)
+    fun testCommandHelp() {
+        val success = cli!!.run(command, "-h")
+        assertSucceedsWithExpectedStdout(
+                success,
+                """usage: java -jar alexandria-app.jar
+       revert [-h] <file> [<file> ...]
 
-  @Test
-  public void testCommandInMainView() throws Exception {
-    runInitCommand();
+Restore the document file(s).
 
-    // create sourcefile
-    String tagFilename = createTagmlFileName("transcription");
-    String tagml = "[tagml>[l>test<l]<tagml]";
-    String tagPath = createFile(tagFilename, tagml);
+positional arguments:
+  <file>                 the file to be reverted
 
-    runAddCommand(tagPath);
-    runCommitAllCommand();
+named arguments:
+  -h, --help             show this help message and exit""")
+    }
 
-    // overwrite sourcefile
-    String tagml2 = "[x>And now for something completely different.<x]";
-    modifyFile(tagFilename, tagml2);
+    @Test
+    @Throws(Exception::class)
+    fun testCommandShouldBeRunInAnInitializedDirectory() {
+        assertCommandRunsInAnInitializedDirectory(command, "something")
+    }
 
-    String fileContentsBeforeRevert = readFileContents(tagFilename);
-    assertThat(fileContentsBeforeRevert).isEqualTo(tagml2);
-
-    final Boolean  success = cli.run(command, tagPath);
-    assertSucceedsWithExpectedStdout(success, "Reverting " + tagFilename + "...\ndone!");
-
-    String fileContentsAfterRevert = readFileContents(tagFilename);
-    assertThat(fileContentsAfterRevert).isEqualTo(tagml);
-
-    Boolean  statusSuccess = cli.run(new StatusCommand().getName());
-    assertThat(statusSuccess).isTrue();
-    String stdOut = normalize(this.stdOut.toString());
-    assertThat(stdOut).doesNotContain("modified: tagml/transcription.tagml");
-  }
-
-  @Test
-  public void testCommandInView() throws Exception {
-    runInitCommand();
-
-    // create sourcefile
-    String tagFilename = createTagmlFileName("transcription1");
-    String tagml = "[tagml>[l>test<l]<tagml]";
-    String tagPath = createFile(tagFilename, tagml);
-
-    // create viewfile
-    String viewName = "l";
-    String viewFilename = createViewFileName(viewName);
-    String viewPath = createFile(viewFilename, "{\"includeMarkup\":[\"l\"]}");
-    runAddCommand(tagPath, viewPath);
-    runCommitAllCommand();
-    runCheckoutCommand(viewName);
-
-    String tagml_l = "[l>test<l]";
-
-    // overwrite sourcefile
-    String tagml2 = "[x>And now for something completely different.<x]";
-    modifyFile(tagFilename, tagml2);
-
-    String fileContentsBeforeRevert = readFileContents(tagFilename);
-    assertThat(fileContentsBeforeRevert).isEqualTo(tagml2);
-
-    final Boolean  success = cli.run(command, tagPath);
-    assertSucceedsWithExpectedStdout(success, "Reverting " + tagFilename + "...\ndone!");
-
-    String fileContentsAfterRevert = readFileContents(tagFilename);
-    assertThat(fileContentsAfterRevert).isEqualTo(tagml_l);
-  }
-
-  @Test
-  public void testCommandHelp() throws Exception {
-    final Boolean  success = cli.run(command, "-h");
-    assertSucceedsWithExpectedStdout(
-        success,
-        "usage: java -jar alexandria-app.jar\n"
-            + "       revert [-h] <file> [<file> ...]\n"
-            + "\n"
-            + "Restore the document file(s).\n"
-            + "\n"
-            + "positional arguments:\n"
-            + "  <file>                 the file to be reverted\n"
-            + "\n"
-            + "named arguments:\n"
-            + "  -h, --help             show this help message and exit");
-  }
-
-  @Test
-  public void testCommandShouldBeRunInAnInitializedDirectory() throws Exception {
-    assertCommandRunsInAnInitializedDirectory(command, "something");
-  }
+    companion object {
+        private val command = RevertCommand().name
+    }
 }

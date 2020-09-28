@@ -1,200 +1,191 @@
-package nl.knaw.huygens.alexandria.dropwizard.cli;
+package nl.knaw.huygens.alexandria.dropwizard.cli
 
 /*-
- * #%L
+* #%L
  * alexandria-markup-client
  * =======
  * Copyright (C) 2015 - 2020 Huygens ING (KNAW)
  * =======
  * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- * 
- *      http://www.apache.org/licenses/LICENSE-2.0
- * 
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ *  you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *  
+ *       http://www.apache.org/licenses/LICENSE-2.0
+ *  
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
  * #L%
- */
+*/
 
-import nl.knaw.huygens.alexandria.dropwizard.cli.commands.ValidateCommand;
-import org.jetbrains.annotations.NotNull;
-import org.junit.Test;
+import nl.knaw.huygens.alexandria.dropwizard.cli.commands.ValidateCommand
+import org.junit.Test
 
-public class ValidateCommandIntegrationTest extends CommandIntegrationTest {
+class ValidateCommandIntegrationTest : CommandIntegrationTest() {
+    @Test
+    @Throws(Exception::class)
+    fun testCommandWithMissingDocument() {
+        runInitCommand()
+        val success = cli!!.run(command, "transcription")
+        val expectedOutput = ""
+        val expectedError = """
+            ERROR: No document 'transcription' was registered.
+            Registered documents:
+            """.trimIndent()
+        //    assertFailsWithExpectedStdoutAndStderr(success, expectedOutput, expectedError);
+        softlyAssertFailsWithExpectedStderr(success, expectedError)
+    }
 
-  private static final String command = new ValidateCommand().getName();
+    @Test
+    @Throws(Exception::class)
+    fun testCommandWithMissingSchemaLocation() {
+        runInitCommand()
 
-  @Test
-  public void testCommandWithMissingDocument() throws Exception {
-    runInitCommand();
+        // create sourcefile
+        val tagFilename = createTagmlFileName("transcription")
+        val tagml = "[tagml>[l>test [w>word<w]<l]<tagml]"
+        val tagPath = createFile(tagFilename, tagml)
+        runAddCommand(tagPath)
+        runCommitAllCommand()
+        val success = cli!!.run(command, "transcription")
+        val expectedError = """There was no schema location defined in transcription, please add
+  [!schema <schemaLocationURL>]
+to the tagml sourcefile."""
+        softlyAssertFailsWithExpectedStderr(success, expectedError)
+        //    assertFailsWithExpectedStderr(success, expectedError);
+    }
 
-    final Boolean  success = cli.run(command, "transcription");
-    final String expectedOutput = "";
-    final String expectedError =
-        "ERROR: No document 'transcription' was registered.\n" + "Registered documents:";
-    //    assertFailsWithExpectedStdoutAndStderr(success, expectedOutput, expectedError);
-    softlyAssertFailsWithExpectedStderr(success, expectedError);
-  }
+    @Test
+    @Throws(Exception::class)
+    fun testCommandWithValidInput() {
+        runInitCommand()
 
-  @Test
-  public void testCommandWithMissingSchemaLocation() throws Exception {
-    runInitCommand();
+        // create schema sourcefile
+        val schemaFilename = "schema.yaml"
+        val yaml = """
+            |---
+            |$:
+            |  tagml:
+            |    - l:
+            |      - w
+            |""".trimMargin()
+        val schemaFile = createFile(schemaFilename, yaml)
 
-    // create sourcefile
-    String tagFilename = createTagmlFileName("transcription");
-    String tagml = "[tagml>[l>test [w>word<w]<l]<tagml]";
-    String tagPath = createFile(tagFilename, tagml);
+        // create sourcefile
+        val tagFilename = createTagmlFileName("transcription")
+        val schemaLocationURL = Companion.schemaLocationURL(schemaFile)
+        val tagml = Companion.schemaLocationElement(schemaFile) + "[tagml>[l>test [w>word<w]<l]<tagml]"
+        val tagPath = createFile(tagFilename, tagml)
+        runAddCommand(tagPath)
+        runCommitAllCommand()
+        val success = cli!!.run(command, "transcription")
+        val expectedOutput = """Parsing schema from $schemaLocationURL:
+  done
 
-    runAddCommand(tagPath);
-    runCommitAllCommand();
+Document transcription is 
+  valid
 
-    final Boolean  success = cli.run(command, "transcription");
-    String expectedError =
-        "There was no schema location defined in transcription, please add\n"
-            + "  [!schema <schemaLocationURL>]\n"
-            + "to the tagml sourcefile.";
-    softlyAssertFailsWithExpectedStderr(success, expectedError);
-    //    assertFailsWithExpectedStderr(success, expectedError);
-  }
+according to the schema defined in $schemaLocationURL"""
+        softlyAssertSucceedsWithExpectedStdout(success, expectedOutput)
+        //    assertSucceedsWithExpectedStdout(success, expectedOutput);
+    }
 
-  @Test
-  public void testCommandWithValidInput() throws Exception {
-    runInitCommand();
+    @Test
+    @Throws(Exception::class)
+    fun testCommandWithInvalidTAGMLInput() {
+        runInitCommand()
 
-    // create schema sourcefile
-    String schemaFilename = "schema.yaml";
-    String yaml = "---\n$:\n  tagml:\n    - l:\n      - w\n";
-    final String schemaFile = createFile(schemaFilename, yaml);
+        // create schema sourcefile
+        val schemaFilename = "schema.yaml"
+        val yaml = "---\n$:\n  a:\n    - bb:\n      - aaa\n"
+        val schemaFile = createFile(schemaFilename, yaml)
 
-    // create sourcefile
-    String tagFilename = createTagmlFileName("transcription");
-    String schemaLocationURL = schemaLocationURL(schemaFile);
-    String tagml = schemaLocationElement(schemaFile) + "[tagml>[l>test [w>word<w]<l]<tagml]";
-    String tagPath = createFile(tagFilename, tagml);
+        // create sourcefile
+        val tagFilename = createTagmlFileName("transcription")
+        val schemaLocationURL = Companion.schemaLocationURL(schemaFile)
+        val tagml = Companion.schemaLocationElement(schemaFile) + "[a>[aa>test [aaa>word<aaa]<aa]<a]"
+        val tagPath = createFile(tagFilename, tagml)
+        runAddCommand(tagPath)
+        runCommitAllCommand()
+        val success = cli!!.run(command, "transcription")
+        val expectedOutputError = """Parsing schema from $schemaLocationURL:
+  done
 
-    runAddCommand(tagPath);
-    runCommitAllCommand();
+Document transcription is 
+  not valid:
+  - error: Layer $ (default): expected [bb> as child markup of [a>, but found [aa>
 
-    final Boolean  success = cli.run(command, "transcription");
-    String expectedOutput =
-        "Parsing schema from "
-            + schemaLocationURL
-            + ":\n"
-            + "  done\n\n"
-            + "Document transcription is \n"
-            + "  valid\n\n"
-            + "according to the schema defined in "
-            + schemaLocationURL;
-    softlyAssertSucceedsWithExpectedStdout(success, expectedOutput);
-    //    assertSucceedsWithExpectedStdout(success, expectedOutput);
-  }
+according to the schema defined in $schemaLocationURL"""
+        //    softlyAssertSucceedsWithExpectedStdout(success, expectedOutputError);
+        assertSucceedsWithExpectedStdout(success, expectedOutputError)
+    }
 
-  @Test
-  public void testCommandWithInvalidTAGMLInput() throws Exception {
-    runInitCommand();
+    @Test
+    @Throws(Exception::class)
+    fun testCommandWithInvalidSchema() {
+        runInitCommand()
 
-    // create schema sourcefile
-    String schemaFilename = "schema.yaml";
-    String yaml = "---\n$:\n  a:\n    - bb:\n      - aaa\n";
-    final String schemaFile = createFile(schemaFilename, yaml);
+        // create schema sourcefile
+        val schemaFilename = "schema.yaml"
+        val yaml = "%!invalid YAML@:"
+        val schemaFile = createFile(schemaFilename, yaml)
 
-    // create sourcefile
-    String tagFilename = createTagmlFileName("transcription");
-    String schemaLocationURL = schemaLocationURL(schemaFile);
-    String tagml = schemaLocationElement(schemaFile) + "[a>[aa>test [aaa>word<aaa]<aa]<a]";
-    String tagPath = createFile(tagFilename, tagml);
+        // create sourcefile
+        val tagFilename = createTagmlFileName("transcription")
+        val schemaLocationURL = Companion.schemaLocationURL(schemaFile)
+        val tagml = Companion.schemaLocationElement(schemaFile) + "[a>[aa>test [aaa>word<aaa]<aa]<a]"
+        val tagPath = createFile(tagFilename, tagml)
+        runAddCommand(tagPath)
+        runCommitAllCommand()
+        val success = cli!!.run(command, "transcription")
+        val expectedOutputError = """Parsing schema from $schemaLocationURL:
+  errors:
+  - while scanning a directive
+ in 'reader', line 1, column 1:
+    %!invalid YAML@:
+    ^
+expected alphabetic or numeric character, but found !(33)
+ in 'reader', line 1, column 2:
+    %!invalid YAML@:
+     ^
 
-    runAddCommand(tagPath);
-    runCommitAllCommand();
+ at [Source: $schemaLocationURL; line: 1, column: 1]
+  - no layer definitions found"""
+        //    softlyAssertSucceedsWithExpectedStdout(success, expectedOutputError);
+        assertSucceedsWithExpectedStdout(success, expectedOutputError)
+    }
 
-    final Boolean  success = cli.run(command, "transcription");
-    String expectedOutputError =
-        "Parsing schema from "
-            + schemaLocationURL
-            + ":\n"
-            + "  done\n\n"
-            + "Document transcription is \n"
-            + "  not valid:\n"
-            + "  - error: Layer $ (default): expected [bb> as child markup of [a>, but found [aa>\n\n"
-            + "according to the schema defined in "
-            + schemaLocationURL;
-    //    softlyAssertSucceedsWithExpectedStdout(success, expectedOutputError);
-    assertSucceedsWithExpectedStdout(success, expectedOutputError);
-  }
+    @Test
+    @Throws(Exception::class)
+    fun testCommandHelp() {
+        val success = cli!!.run(command, "-h")
+        assertSucceedsWithExpectedStdout(
+                success,
+                """usage: java -jar alexandria-app.jar
+       schema-validate [-h] <document>
 
-  @Test
-  public void testCommandWithInvalidSchema() throws Exception {
-    runInitCommand();
+Validate a document against a TAG schema.
 
-    // create schema sourcefile
-    String schemaFilename = "schema.yaml";
-    String yaml = "%!invalid YAML@:";
-    final String schemaFile = createFile(schemaFilename, yaml);
+positional arguments:
+  <document>             The name of  the  document  to  validate.  It must
+                         have a valid URL to a  valid schema file (in YAML)
+                         defined using  '[!schema  <schemaLocationURL>]' in
+                         the TAGML source file.
 
-    // create sourcefile
-    String tagFilename = createTagmlFileName("transcription");
-    String schemaLocationURL = schemaLocationURL(schemaFile);
-    String tagml = schemaLocationElement(schemaFile) + "[a>[aa>test [aaa>word<aaa]<aa]<a]";
-    String tagPath = createFile(tagFilename, tagml);
+named arguments:
+  -h, --help             show this help message and exit""")
+    }
 
-    runAddCommand(tagPath);
-    runCommitAllCommand();
+    companion object {
+        private val command = ValidateCommand().name
 
-    final Boolean  success = cli.run(command, "transcription");
-    String expectedOutputError =
-        "Parsing schema from "
-            + schemaLocationURL
-            + ":\n"
-            + "  errors:\n"
-            + "  - while scanning a directive\n"
-            + " in 'reader', line 1, column 1:\n"
-            + "    %!invalid YAML@:\n"
-            + "    ^\n"
-            + "expected alphabetic or numeric character, but found !(33)\n"
-            + " in 'reader', line 1, column 2:\n"
-            + "    %!invalid YAML@:\n"
-            + "     ^\n"
-            + "\n"
-            + " at [Source: "
-            + schemaLocationURL
-            + "; line: 1, column: 1]\n"
-            + "  - no layer definitions found";
-    //    softlyAssertSucceedsWithExpectedStdout(success, expectedOutputError);
-    assertSucceedsWithExpectedStdout(success, expectedOutputError);
-  }
+        private fun schemaLocationURL(file: String): String = "file:///${file.replace("\\\\".toRegex(), "/")}"
 
-  @Test
-  public void testCommandHelp() throws Exception {
-    final Boolean  success = cli.run(command, "-h");
-    assertSucceedsWithExpectedStdout(
-        success,
-        "usage: java -jar alexandria-app.jar\n"
-            + "       schema-validate [-h] <document>\n"
-            + "\n"
-            + "Validate a document against a TAG schema.\n"
-            + "\n"
-            + "positional arguments:\n"
-            + "  <document>             The name of  the  document  to  validate.  It must\n"
-            + "                         have a valid URL to a  valid schema file (in YAML)\n"
-            + "                         defined using  '[!schema  <schemaLocationURL>]' in\n"
-            + "                         the TAGML source file.\n"
-            + "\n"
-            + "named arguments:\n"
-            + "  -h, --help             show this help message and exit");
-  }
-
-  @NotNull
-  private String schemaLocationElement(final String file) {
-    final String url = schemaLocationURL(file);
-    return "[!schema " + url + "]";
-  }
-
-  @NotNull
-  private String schemaLocationURL(final String file) {
-    return "file:///" + file.replaceAll("\\\\", "/");
-  }
+        private fun schemaLocationElement(file: String): String {
+            val url = schemaLocationURL(file)
+            return "[!schema $url]"
+        }
+    }
 }

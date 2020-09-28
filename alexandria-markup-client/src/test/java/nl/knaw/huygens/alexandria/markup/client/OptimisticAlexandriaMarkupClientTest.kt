@@ -1,5 +1,4 @@
-package nl.knaw.huygens.alexandria.markup.client;
-
+package nl.knaw.huygens.alexandria.markup.client
 /*
  * #%L
  * alexandria-markup-client
@@ -20,152 +19,130 @@ package nl.knaw.huygens.alexandria.markup.client;
  * #L%
  */
 
-import com.fasterxml.jackson.databind.JsonNode;
-import nl.knaw.huygens.alexandria.markup.api.AppInfo;
-import org.junit.*;
+import nl.knaw.huygens.alexandria.markup.api.AppInfo
+import org.assertj.core.api.AssertionsForClassTypes.assertThat
+import org.junit.*
+import java.lang.reflect.Method
+import java.lang.reflect.Parameter
+import java.lang.reflect.ParameterizedType
+import java.lang.reflect.Type
+import java.text.MessageFormat
+import java.util.*
+import java.util.stream.Collectors
 
-import java.lang.reflect.Method;
-import java.lang.reflect.Parameter;
-import java.lang.reflect.ParameterizedType;
-import java.lang.reflect.Type;
-import java.text.MessageFormat;
-import java.util.Arrays;
-import java.util.UUID;
+class OptimisticAlexandriaMarkupClientTest : AlexandriaTestWithTestMarkupServer() {
 
-import static java.util.stream.Collectors.joining;
-import static org.assertj.core.api.Assertions.assertThat;
-
-public class OptimisticAlexandriaMarkupClientTest extends AlexandriaTestWithTestMarkupServer {
-  // private final Logger LOG = LoggerFactory.getLogger(getClass());
-  private static final String EVERYTHING_UPTO_AND_INCLUDING_THE_LAST_PERIOD_REGEX = ".*\\.";
-  private static OptimisticAlexandriaMarkupClient client;
-
-  @BeforeClass
-  public static void startClient() {
-    client = new OptimisticAlexandriaMarkupClient("http://localhost:2017/");
-  }
-
-  @AfterClass
-  public static void stopClient() {
-    client.close();
-  }
-
-  @Before
-  public void before() {}
-
-  @Ignore
-  @Test
-  public void testAbout() {
-    AppInfo about = client.getAbout();
-    assertThat(about.getVersion()).isNotEmpty();
-  }
-
-  @Ignore
-  @Test
-  public void
-      testOptimisticAlexandriaMarkupClientHasDelegatedUnwrappedMethodForEachRelevantMethodInAlexandriaMarkupClient() {
-    Class<AlexandriaMarkupClient> a = AlexandriaMarkupClient.class;
-
-    String stubs =
-        Arrays.stream(a.getMethods())
-            .filter(this::returnsRestResult)
-            .filter(this::hasNoDelegatedMethodInOptimisticAlexandriaMarkupClient)
-            .map(this::toDelegatedMethodStub)
-            .collect(joining("\n"));
-    // LOG.info("Methods to add to OptimisticAlexandriaMarkupClient:\n{}", stubs);
-    assertThat(stubs).isEmpty();
-  }
-
-  @Ignore
-  @Test
-  public void test() {
-    String tagmlIn = "[text}[p=p-1}This is a simple paragraph.{p=p-1]{text]";
-    UUID documentUUID = client.addDocumentFromTAGML(tagmlIn);
-    assertThat(documentUUID).isNotNull();
-
-    String tagmlOut = client.getTAGML(documentUUID);
-    assertThat(tagmlOut).isNotNull();
-    // assertThat(tagmlOut).isEqualTo(tagmlIn);
-
-    String latex = client.getDocumentLaTeX(documentUUID);
-    assertThat(latex).isNotEmpty();
-
-    String latex2 = client.getKdTreeLaTex(documentUUID);
-    assertThat(latex2).isNotEmpty();
-
-    String latex3 = client.getMarkupDepthLaTex(documentUUID);
-    assertThat(latex3).isNotEmpty();
-
-    String latex4 = client.getMatrixLaTex(documentUUID);
-    assertThat(latex4).isNotEmpty();
-
-    JsonNode queryResult = client.postTAGQLQuery(documentUUID, "select text from markup('text')");
-    assertThat(queryResult).isNotNull();
-    JsonNode values = queryResult.get("values");
-    assertThat(values).isNotNull();
-    JsonNode value = values.get(0);
-    assertThat(value).isNotNull();
-    assertThat(value.asText()).isEqualTo("This is a simple paragraph.");
-  }
-
-  /// end tests
-
-  boolean returnsRestResult(Method method) {
-    return method.getReturnType().equals(RestResult.class);
-  }
-
-  boolean hasNoDelegatedMethodInOptimisticAlexandriaMarkupClient(Method method) {
-    Class<OptimisticAlexandriaMarkupClient> o = OptimisticAlexandriaMarkupClient.class;
-    try {
-      Method oMethod = o.getMethod(method.getName(), method.getParameterTypes());
-      Type type = actualReturnType(method);
-      boolean equals =
-          type.equals(Void.class)
-              ? oMethod.getReturnType().equals(Void.TYPE)
-              : oMethod.getReturnType().equals(type);
-      return !equals;
-    } catch (Exception e) {
-      return true;
+    @Before
+    fun before() {
     }
-  }
 
-  private Type actualReturnType(Method method) {
-    Type genericReturnType = method.getGenericReturnType();
-    return ((ParameterizedType) genericReturnType).getActualTypeArguments()[0];
-  }
+    @Ignore
+    @Test
+    fun testAbout() {
+        val about: AppInfo = client!!.about
+        assertThat(about.version).isNotEmpty
+    }
 
-  String toDelegatedMethodStub(Method method) {
-    String returnType =
-        actualReturnType(method)
-            .getTypeName()
-            .replaceFirst(EVERYTHING_UPTO_AND_INCLUDING_THE_LAST_PERIOD_REGEX, "")
-            .replace("Void", "void");
-    String methodName = method.getName();
-    String qualifiedParameters =
-        Arrays.stream(method.getParameters())
-            .map(this::toQualifiedParameter)
-            .collect(joining(", "));
-    String returnStatement = "void".equals(returnType) ? "" : "return ";
-    String parameters =
-        Arrays.stream(method.getParameters()).map(this::parameterName).collect(joining(", "));
+    @Ignore
+    @Test
+    fun testOptimisticAlexandriaMarkupClientHasDelegatedUnwrappedMethodForEachRelevantMethodInAlexandriaMarkupClient() {
+        val a = AlexandriaMarkupClient::class.java
+        val stubs = Arrays.stream(a.methods)
+                .filter { method: Method -> returnsRestResult(method) }
+                .filter { method: Method -> hasNoDelegatedMethodInOptimisticAlexandriaMarkupClient(method) }
+                .map { method: Method -> toDelegatedMethodStub(method) }
+                .collect(Collectors.joining("\n"))
+        // LOG.info("Methods to add to OptimisticAlexandriaMarkupClient:\n{}", stubs);
+        assertThat(stubs).isEmpty()
+    }
 
-    return MessageFormat.format(
-        "public {0} {1}({2}) '{' {3}unwrap(delegate.{4}({5}));'}'",
-        returnType, methodName, qualifiedParameters, returnStatement, methodName, parameters);
-  }
+    @Ignore
+    @Test
+    fun test() {
+        val tagmlIn = "[text}[p=p-1}This is a simple paragraph.{p=p-1]{text]"
+        val documentUUID = client!!.addDocumentFromTAGML(tagmlIn)
+        assertThat(documentUUID).isNotNull
+        val tagmlOut = client!!.getTAGML(documentUUID)
+        assertThat(tagmlOut).isNotNull
+        // assertThat(tagmlOut).isEqualTo(tagmlIn);
+        val latex = client!!.getDocumentLaTeX(documentUUID)
+        assertThat(latex).isNotEmpty
+        val latex2 = client!!.getKdTreeLaTex(documentUUID)
+        assertThat(latex2).isNotEmpty
+        val latex3 = client!!.getMarkupDepthLaTex(documentUUID)
+        assertThat(latex3).isNotEmpty
+        val latex4 = client!!.getMatrixLaTex(documentUUID)
+        assertThat(latex4).isNotEmpty
+        val queryResult = client!!.postTAGQLQuery(documentUUID, "select text from markup('text')")
+        assertThat(queryResult).isNotNull
+        val values = queryResult["values"]
+        assertThat(values).isNotNull
+        val value = values[0]
+        assertThat(value).isNotNull
+        assertThat(value.asText()).isEqualTo("This is a simple paragraph.")
+    }
 
-  String toQualifiedParameter(Parameter parameter) {
-    return typeString(parameter) + " " + parameterName(parameter);
-  }
+    private fun hasNoDelegatedMethodInOptimisticAlexandriaMarkupClient(method: Method): Boolean {
+        val o = OptimisticAlexandriaMarkupClient::class.java
+        return try {
+            val oMethod = o.getMethod(method.name, *method.parameterTypes)
+            val type = actualReturnType(method)
+            val equals = if (type == Void::class.java) oMethod.returnType == Void.TYPE else oMethod.returnType == type
+            !equals
+        } catch (e: Exception) {
+            true
+        }
+    }
 
-  private String typeString(Parameter parameter) {
-    return parameter
-        .getType()
-        .getName()
-        .replaceFirst(EVERYTHING_UPTO_AND_INCLUDING_THE_LAST_PERIOD_REGEX, "");
-  }
+    private fun actualReturnType(method: Method): Type {
+        val genericReturnType = method.genericReturnType
+        return (genericReturnType as ParameterizedType).actualTypeArguments[0]
+    }
 
-  String parameterName(Parameter parameter) {
-    return typeString(parameter).toLowerCase();
-  }
+    private fun toDelegatedMethodStub(method: Method): String {
+        val returnType = actualReturnType(method)
+                .typeName
+                .replaceFirst(EVERYTHING_UPTO_AND_INCLUDING_THE_LAST_PERIOD_REGEX.toRegex(), "")
+                .replace("Void", "void")
+        val methodName = method.name
+        val qualifiedParameters = Arrays.stream(method.parameters)
+                .map { parameter: Parameter -> toQualifiedParameter(parameter) }
+                .collect(Collectors.joining(", "))
+        val returnStatement = if ("void" == returnType) "" else "return "
+        val parameters = Arrays.stream(method.parameters).map { parameter: Parameter -> parameterName(parameter) }.collect(Collectors.joining(", "))
+        return MessageFormat.format(
+                "public {0} {1}({2}) '{' {3}unwrap(delegate.{4}({5}));'}'",
+                returnType, methodName, qualifiedParameters, returnStatement, methodName, parameters)
+    }
+
+    fun toQualifiedParameter(parameter: Parameter): String =
+            "${typeString(parameter)} ${parameterName(parameter)}"
+
+    private fun typeString(parameter: Parameter): String =
+            parameter
+                    .type
+                    .name
+                    .replaceFirst(EVERYTHING_UPTO_AND_INCLUDING_THE_LAST_PERIOD_REGEX.toRegex(), "")
+
+    private fun parameterName(parameter: Parameter): String = typeString(parameter).toLowerCase()
+
+    companion object {
+        // private final Logger LOG = LoggerFactory.getLogger(getClass());
+        private const val EVERYTHING_UPTO_AND_INCLUDING_THE_LAST_PERIOD_REGEX = ".*\\."
+        private var client: OptimisticAlexandriaMarkupClient? = null
+
+        @BeforeClass
+        fun startClient() {
+            client = OptimisticAlexandriaMarkupClient("http://localhost:2017/")
+        }
+
+        @AfterClass
+        fun stopClient() {
+            client!!.close()
+        }
+
+        /// end tests
+        private fun returnsRestResult(method: Method): Boolean =
+                method.returnType == RestResult::class.java
+    }
 }

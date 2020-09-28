@@ -1,94 +1,91 @@
-package nl.knaw.huygens.alexandria.dropwizard.cli;
+package nl.knaw.huygens.alexandria.dropwizard.cli
+
 
 /*-
- * #%L
+* #%L
  * alexandria-markup-client
  * =======
  * Copyright (C) 2015 - 2020 Huygens ING (KNAW)
  * =======
  * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- * 
- *      http://www.apache.org/licenses/LICENSE-2.0
- * 
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ *  you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *  
+ *       http://www.apache.org/licenses/LICENSE-2.0
+ *  
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
  * #L%
- */
+*/
 
-import nl.knaw.huygens.alexandria.dropwizard.cli.commands.SPARQLQueryCommand;
-import org.junit.Test;
+import nl.knaw.huygens.alexandria.dropwizard.cli.commands.SPARQLQueryCommand
+import org.junit.Test
 
-public class SPARQLQueryCommandIntegrationTest extends CommandIntegrationTest {
+class SPARQLQueryCommandIntegrationTest : CommandIntegrationTest() {
+    @Test
+    @Throws(Exception::class)
+    fun testCommand() {
+        runInitCommand()
 
-  private static final String command = new SPARQLQueryCommand().getName();
+        // create sourcefile
+        val tagFilename = createTagmlFileName("transcription")
+        val tagml = "[tagml>[l>test [w>word<w]<l]<tagml]"
+        val tagPath = createFile(tagFilename, tagml)
 
-  @Test
-  public void testCommand() throws Exception {
-    runInitCommand();
+        // create sourcefile
+        val queryFilename = "query.sparql"
+        val sparql = ("prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> "
+                + "prefix tag: <https://huygensing.github.io/TAG/TAGML/ontology/tagml.ttl#> "
+                + "select ?markup (count(?markup) as ?count) "
+                + "where { [] tag:markup_name ?markup . } "
+                + "group by ?markup "
+                +  // otherwise: "Non-group key variable in SELECT"
+                "order by ?markup")
+        createFile(queryFilename, sparql)
+        runAddCommand(tagPath)
+        runCommitAllCommand()
+        val success = cli!!.run(command, "transcription", "-q", "query.sparql")
+        val expectedOutput = """document: transcription
 
-    // create sourcefile
-    String tagFilename = createTagmlFileName("transcription");
-    String tagml = "[tagml>[l>test [w>word<w]<l]<tagml]";
-    String tagPath = createFile(tagFilename, tagml);
+query:
+  prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> prefix tag: <https://huygensing.github.io/TAG/TAGML/ontology/tagml.ttl#> select ?markup (count(?markup) as ?count) where { [] tag:markup_name ?markup . } group by ?markup order by ?markup
 
-    // create sourcefile
-    String queryFilename = "query.sparql";
-    String sparql =
-        "prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> "
-            + "prefix tag: <https://huygensing.github.io/TAG/TAGML/ontology/tagml.ttl#> "
-            + "select ?markup (count(?markup) as ?count) "
-            + "where { [] tag:markup_name ?markup . } "
-            + "group by ?markup "
-            + // otherwise: "Non-group key variable in SELECT"
-            "order by ?markup";
-    createFile(queryFilename, sparql);
+result:
+-------------------
+| markup  | count |
+===================
+| "l"     | 1     |
+| "tagml" | 1     |
+| "w"     | 1     |
+-------------------"""
+        //    softlyAssertSucceedsWithExpectedStdout(success, expectedOutput);
+        assertSucceedsWithExpectedStdout(success, expectedOutput)
+    }
 
-    runAddCommand(tagPath);
-    runCommitAllCommand();
+    @Test
+    @Throws(Exception::class)
+    fun testCommandHelp() {
+        val success = cli!!.run(command, "-h")
+        assertSucceedsWithExpectedStdout(
+                success,
+                """usage: java -jar alexandria-app.jar
+       query -q <sparql-file> [-h] <document>
 
-    final Boolean  success = cli.run(command, "transcription", "-q", "query.sparql");
-    String expectedOutput =
-        "document: transcription\n\n"
-            + "query:\n"
-            + "  prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>"
-            + " prefix tag: <https://huygensing.github.io/TAG/TAGML/ontology/tagml.ttl#>"
-            + " select ?markup (count(?markup) as ?count)"
-            + " where { [] tag:markup_name ?markup . }"
-            + " group by ?markup"
-            + " order by ?markup\n\n"
-            + "result:\n"
-            + "-------------------\n"
-            + "| markup  | count |\n"
-            + "===================\n"
-            + "| \"l\"     | 1     |\n"
-            + "| \"tagml\" | 1     |\n"
-            + "| \"w\"     | 1     |\n"
-            + "-------------------";
-    //    softlyAssertSucceedsWithExpectedStdout(success, expectedOutput);
-    assertSucceedsWithExpectedStdout(success, expectedOutput);
-  }
+Query the document using SPARQL.
 
-  @Test
-  public void testCommandHelp() throws Exception {
-    final Boolean  success = cli.run(command, "-h");
-    assertSucceedsWithExpectedStdout(
-        success,
-        "usage: java -jar alexandria-app.jar\n"
-            + "       query -q <sparql-file> [-h] <document>\n"
-            + "\n"
-            + "Query the document using SPARQL.\n"
-            + "\n"
-            + "positional arguments:\n"
-            + "  <document>             The name of the document to query.\n"
-            + "\n"
-            + "named arguments:\n"
-            + "  -q <sparql-file>, --query <sparql-file>\n"
-            + "                         The file containing the SPARQL query.\n"
-            + "  -h, --help             show this help message and exit");
-  }
+positional arguments:
+  <document>             The name of the document to query.
+
+named arguments:
+  -q <sparql-file>, --query <sparql-file>
+                         The file containing the SPARQL query.
+  -h, --help             show this help message and exit""")
+    }
+
+    companion object {
+        private val command = SPARQLQueryCommand().name
+    }
 }

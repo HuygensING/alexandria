@@ -1,97 +1,107 @@
-package nl.knaw.huygens.alexandria.dropwizard.cli;
+package nl.knaw.huygens.alexandria.dropwizard.cli
+
 
 /*-
- * #%L
+* #%L
  * alexandria-markup-client
  * =======
  * Copyright (C) 2015 - 2020 Huygens ING (KNAW)
  * =======
  * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- * 
- *      http://www.apache.org/licenses/LICENSE-2.0
- * 
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ *  you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *  
+ *       http://www.apache.org/licenses/LICENSE-2.0
+ *  
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
  * #L%
- */
+*/
 
-import nl.knaw.huygens.alexandria.dropwizard.cli.commands.AddCommand;
-import org.junit.Test;
+import nl.knaw.huygens.alexandria.dropwizard.cli.commands.AddCommand
+import org.assertj.core.api.Assertions.assertThat
+import org.junit.Test
 
-import static org.assertj.core.api.Assertions.assertThat;
+class AddCommandIntegrationTest : CommandIntegrationTest() {
+    @Test
+    @Throws(Exception::class)
+    fun testCommand() {
+        runInitCommand()
+        val filename1 = "transcription1.tagml"
+        val absolutePath1 = createFile(filename1, "")
+        val filename2 = "transcription2.tagml"
+        val absolutePath2 = createFile(filename2, "")
+        val throwable = cli!!.run(command, absolutePath1, absolutePath2)
+        softlyAssertSucceedsWithExpectedStdout(throwable, "")
 
-public class AddCommandIntegrationTest extends CommandIntegrationTest {
+        val cliContext = readCLIContext()
+        assertThat(cliContext.watchedFiles.keys)
+                .containsExactlyInAnyOrder(filename1, filename2)
+    }
 
-  private static final String command = new AddCommand().getName();
+    @Test
+    @Throws(Exception::class)
+    fun testCommandWithNonExistingFilesFails() {
+        runInitCommand()
+        val throwable = cli!!.run(command, "transcription1.tagml", "transcription2.tagml")
+        assertThat(throwable).isTrue
+        assertThat(cliStdErrAsString)
+                .contains("transcription1.tagml is not a file!")
+                .contains("transcription2.tagml is not a file!")
+    }
 
-  @Test
-  public void testCommand() throws Exception {
-    runInitCommand();
-    String filename1 = "transcription1.tagml";
-    String filename2 = "transcription2.tagml";
-    String absolutePath1 = createFile(filename1, "");
-    String absolutePath2 = createFile(filename2, "");
-    final Boolean throwable = cli.run(command, absolutePath1, absolutePath2);
-    softlyAssertSucceedsWithExpectedStdout(throwable, "");
+    @Test
+    @Throws(Exception::class)
+    fun testCommandWithoutParametersFails() {
+        val throwable = cli!!.run(command)
+        assertThat(cliStdErrAsString).contains("too few arguments")
+        assertFailsWithExpectedStderr(
+                throwable,
+                """
+                too few arguments
+                usage: java -jar alexandria-app.jar
+                       add [-h] <file> [<file> ...]
+                
+                Add file context to the index.
+                
+                positional arguments:
+                  <file>                 the files to watch
+                
+                named arguments:
+                  -h, --help             show this help message and exit
+                """.trimIndent())
+    }
 
-    CLIContext cliContext = readCLIContext();
-    assertThat(cliContext.getWatchedFiles().keySet())
-        .containsExactlyInAnyOrder(filename1, filename2);
-  }
+    @Test
+    @Throws(Exception::class)
+    fun testCommandHelp() {
+        val throwable = cli!!.run(command, "-h")
+        assertSucceedsWithExpectedStdout(
+                throwable,
+                """
+                usage: java -jar alexandria-app.jar
+                       add [-h] <file> [<file> ...]
+                
+                Add file context to the index.
+                
+                positional arguments:
+                  <file>                 the files to watch
+                
+                named arguments:
+                  -h, --help             show this help message and exit
+                """.trimIndent())
+    }
 
-  @Test
-  public void testCommandWithNonExistingFilesFails() throws Exception {
-    runInitCommand();
-    final Boolean throwable = cli.run(command, "transcription1.tagml", "transcription2.tagml");
-    assertThat(throwable).isTrue();
-    assertThat(getCliStdErrAsString())
-        .contains("transcription1.tagml is not a file!")
-        .contains("transcription2.tagml is not a file!");
-  }
+    @Test
+    @Throws(Exception::class)
+    fun testCommandShouldBeRunInAnInitializedDirectory() {
+        assertCommandRunsInAnInitializedDirectory(command, "something")
+    }
 
-  @Test
-  public void testCommandWithoutParametersFails() throws Exception {
-    final Boolean throwable = cli.run(command);
-    assertThat(getCliStdErrAsString()).contains("too few arguments");
-    assertFailsWithExpectedStderr(
-        throwable,
-        "too few arguments\n"
-            + "usage: java -jar alexandria-app.jar\n"
-            + "       add [-h] <file> [<file> ...]\n"
-            + "\n"
-            + "Add file context to the index.\n"
-            + "\n"
-            + "positional arguments:\n"
-            + "  <file>                 the files to watch\n"
-            + "\n"
-            + "named arguments:\n"
-            + "  -h, --help             show this help message and exit");
-  }
-
-  @Test
-  public void testCommandHelp() throws Exception {
-    final Boolean throwable = cli.run(command, "-h");
-    assertSucceedsWithExpectedStdout(
-        throwable,
-        "usage: java -jar alexandria-app.jar\n"
-            + "       add [-h] <file> [<file> ...]\n"
-            + "\n"
-            + "Add file context to the index.\n"
-            + "\n"
-            + "positional arguments:\n"
-            + "  <file>                 the files to watch\n"
-            + "\n"
-            + "named arguments:\n"
-            + "  -h, --help             show this help message and exit");
-  }
-
-  @Test
-  public void testCommandShouldBeRunInAnInitializedDirectory() throws Exception {
-    assertCommandRunsInAnInitializedDirectory(command, "something");
-  }
+    companion object {
+        private val command = AddCommand().name
+    }
 }

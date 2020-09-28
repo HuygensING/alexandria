@@ -1,283 +1,317 @@
-package nl.knaw.huygens.alexandria.dropwizard.cli;
+package nl.knaw.huygens.alexandria.dropwizard.cli
 
 /*-
- * #%L
+* #%L
  * alexandria-markup-client
  * =======
  * Copyright (C) 2015 - 2020 Huygens ING (KNAW)
  * =======
  * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- * 
- *      http://www.apache.org/licenses/LICENSE-2.0
- * 
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ *  you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *  
+ *       http://www.apache.org/licenses/LICENSE-2.0
+ *  
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
  * #L%
- */
+*/
 
-import nl.knaw.huygens.alexandria.dropwizard.cli.commands.StatusCommand;
-import org.junit.Ignore;
-import org.junit.Test;
+import nl.knaw.huygens.alexandria.dropwizard.cli.commands.StatusCommand
+import org.assertj.core.api.Assertions.assertThat
+import org.junit.Ignore
+import org.junit.Test
+import java.nio.file.Files
+import java.nio.file.Paths
 
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.time.Instant;
+class StatusCommandIntegrationTest : CommandIntegrationTest() {
+    @Ignore("Works fine in isolation, but otherwise has a problem with empty stdOut")
+    @Test
+    @Throws(Exception::class)
+    fun testCommand() {
+        runInitCommand()
 
-import static org.assertj.core.api.Assertions.assertThat;
+        // in an empty, initialized directory
+        var success = cli!!.run(command)
+        softlyAssertSucceedsWithExpectedStdout(
+                success,
+                """
+                 Active view: -
+                 
+                 no documents
+                 no views
+                 
+                 """.trimIndent())
+        val currentPath = Paths.get("").toAbsolutePath()
 
-public class StatusCommandIntegrationTest extends CommandIntegrationTest {
+        // add a sourcefile and a view definition
+        val tagFilename = createTagmlFileName("transcription")
+        val tagPath = createFile(tagFilename, "[tagml>[l>test<l]<tagml]")
+        val tagPathRelativeToCurrentDir = currentPath.relativize(Paths.get(tagPath))
+        val viewName = "l"
+        val viewFilename = createViewFileName(viewName)
+        val viewPath = createFile(viewFilename, "{\"includeMarkup\":[\"l\"]}")
+        val viewPathRelativeToCurrentDir = currentPath.relativize(Paths.get(viewPath))
+        success = cli!!.run(command)
+        assertSucceedsWithExpectedStdout(
+                success,
+                """Active view: -
 
-  private static final String command = new StatusCommand().getName();
+no documents
+no views
 
-  @Ignore("Works fine in isolation, but otherwise has a problem with empty stdOut")
-  @Test
-  public void testCommand() throws Exception {
-    runInitCommand();
+Uncommitted changes:
+  (use "alexandria commit <file>..." to commit the selected changes)
+  (use "alexandria commit -a" to commit all changes)
+  (use "alexandria revert <file>..." to discard changes)
 
-    // in an empty, initialized directory
-    Boolean  success = cli.run(command);
-    softlyAssertSucceedsWithExpectedStdout(
-        success, "Active view: -\n" + "\n" + "no documents\n" + "no views\n");
+        modified: $tagPathRelativeToCurrentDir
+        modified: $viewPathRelativeToCurrentDir""")
 
-    Path currentPath = Paths.get("").toAbsolutePath();
+        // commit files
+        runCommitAllCommand()
+        success = cli!!.run(command)
+        softlyAssertSucceedsWithStdoutContaining(success, "Active view: -\n")
 
-    // add a sourcefile and a view definition
-    String tagFilename = createTagmlFileName("transcription");
-    String tagPath = createFile(tagFilename, "[tagml>[l>test<l]<tagml]");
-    Path tagPathRelativeToCurrentDir = currentPath.relativize(Paths.get(tagPath));
+        // checkout view
+        runCheckoutCommand(viewName)
+        success = cli!!.run(command)
+        val cliContext2 = readCLIContext()
+        val lastCommit = cliContext2.watchedFiles[tagFilename]!!.lastCommit
+        val lastModified = Files.getLastModifiedTime(workFilePath(tagFilename)).toInstant()
+        assertThat(lastCommit.isAfter(lastModified))
+        softlyAssertSucceedsWithStdoutContaining(success, "Active view: l\n")
 
-    String viewName = "l";
-    String viewFilename = createViewFileName(viewName);
-    String viewPath = createFile(viewFilename, "{\"includeMarkup\":[\"l\"]}");
-    Path viewPathRelativeToCurrentDir = currentPath.relativize(Paths.get(viewPath));
+        // checkout main view and change a file
+        runCheckoutCommand("-")
+        val newTagml = "[tagml>something else<tagml]"
+        modifyFile(tagFilename, newTagml)
+        success = cli!!.run(command)
+        softlyAssertSucceedsWithStdoutContaining(
+                success,
+                "Active view: -\n"
+        )
 
-    success = cli.run(command);
-    assertSucceedsWithExpectedStdout(
-        success,
-        "Active view: -\n"
-            + "\n"
-            + "no documents\n"
-            + "no views\n"
-            + "\n"
-            + "Uncommitted changes:\n"
-            + "  (use \"alexandria commit <file>...\" to commit the selected changes)\n"
-            + "  (use \"alexandria commit -a\" to commit all changes)\n"
-            + "  (use \"alexandria revert <file>...\" to discard changes)\n"
-            + "\n"
-            + "        modified: "
-            + tagPathRelativeToCurrentDir
-            + "\n"
-            + "        modified: "
-            + viewPathRelativeToCurrentDir);
+        // delete file
+        deleteFile(tagFilename)
+        success = cli!!.run(command)
+        softlyAssertSucceedsWithStdoutContaining(
+                success,
+                "Active view: -\n"
+        )
+    }
 
-    // commit files
-    runCommitAllCommand();
-    success = cli.run(command);
-    softlyAssertSucceedsWithStdoutContaining(success, "Active view: -\n");
+    @Ignore("Works fine in isolation, but otherwise has a problem with empty stdOut")
+    @Test
+    @Throws(Exception::class)
+    fun testTagmlFileInRootShownAsUntrackedFile() {
+        runInitCommand()
 
-    // checkout view
-    runCheckoutCommand(viewName);
-    success = cli.run(command);
+        // in an empty, initialized directory
+        var success = cli!!.run(command)
+        softlyAssertSucceedsWithExpectedStdout(
+                success, """
+     Active view: -
+     
+     no documents
+     no views
+     
+     """.trimIndent())
+        val currentPath = Paths.get("").toAbsolutePath()
+        val tagFilename = "transcription.tag"
+        val tagPath = createFile(tagFilename, "[tagml>[l>test<l]<tagml]")
+        val tagPathRelativeToCurrentDir = currentPath.relativize(Paths.get(tagPath))
+        success = cli!!.run(command)
+        softlyAssertSucceedsWithStdoutContaining(
+                success,
+                """Untracked files:
+  (use "alexandria add <file>..." to start tracking this file.)
 
-    CLIContext cliContext2 = readCLIContext();
-    Instant lastCommit = cliContext2.getWatchedFiles().get(tagFilename).getLastCommit();
-    Instant lastModified = Files.getLastModifiedTime(workFilePath(tagFilename)).toInstant();
-    assertThat(lastCommit.isAfter(lastModified));
+        $tagPathRelativeToCurrentDir""")
+    }
 
-    softlyAssertSucceedsWithStdoutContaining(success, "Active view: l\n");
+    @Ignore("Works fine in isolation, but otherwise has a problem with empty stdOut")
+    @Test
+    @Throws(Exception::class)
+    fun testJsonFileInRootShownAsUntrackedFile() {
+        runInitCommand()
 
-    // checkout main view and change a file
-    runCheckoutCommand("-");
-    String newTagml = "[tagml>something else<tagml]";
-    modifyFile(tagFilename, newTagml);
-    success = cli.run(command);
-    softlyAssertSucceedsWithStdoutContaining(
-        success,
-        "Active view: -\n"
-    );
+        // in an empty, initialized directory
+        var success = cli!!.run(command)
+        softlyAssertSucceedsWithExpectedStdout(
+                success,
+                """
+                Active view: -
+                
+                no documents
+                no views
+                
+                """.trimIndent())
+        val currentPath = Paths.get("").toAbsolutePath()
+        val viewFilename = "viewdef.json"
+        val viewPath = createFile(viewFilename, "{}")
+        val viewPathRelativeToCurrentDir = currentPath.relativize(Paths.get(viewPath))
+        success = cli!!.run(command)
+        softlyAssertSucceedsWithStdoutContaining(
+                success,
+                """Untracked files:
+  (use "alexandria add <file>..." to start tracking this file.)
 
-    // delete file
-    deleteFile(tagFilename);
-    success = cli.run(command);
-    softlyAssertSucceedsWithStdoutContaining(
-        success,
-        "Active view: -\n"
-    );
-  }
+        $viewPathRelativeToCurrentDir""")
+    }
 
-  @Ignore("Works fine in isolation, but otherwise has a problem with empty stdOut")
-  @Test
-  public void testTagmlFileInRootShownAsUntrackedFile() throws Exception {
-    runInitCommand();
+    @Ignore("Works fine in isolation, but otherwise has a problem with empty stdOut")
+    @Test
+    @Throws(Exception::class)
+    fun testOtherFileInRootNotShownAsUntrackedFile() {
+        runInitCommand()
 
-    // in an empty, initialized directory
-    Boolean  success = cli.run(command);
-    softlyAssertSucceedsWithExpectedStdout(
-        success, "Active view: -\n" + "\n" + "no documents\n" + "no views\n");
+        // in an empty, initialized directory
+        var success = cli!!.run(command)
+        softlyAssertSucceedsWithExpectedStdout(
+                success, """
+     Active view: -
+     
+     no documents
+     no views
+     
+     """.trimIndent())
+        val otherFilename = "other.md"
+        createFile(otherFilename, "bla bla bla")
+        success = cli!!.run(command)
+        softlyAssertSucceedsWithExpectedStdout(
+                success, """
+     Active view: -
+     
+     no documents
+     no views
+     """.trimIndent())
+    }
 
-    Path currentPath = Paths.get("").toAbsolutePath();
+    @Ignore("Works fine in isolation, but otherwise has a problem with empty stdOut")
+    @Test
+    @Throws(Exception::class)
+    fun testDirectoryWithTagmlFileShownAsUntrackedFile() {
+        runInitCommand()
 
-    String tagFilename = "transcription.tag";
-    String tagPath = createFile(tagFilename, "[tagml>[l>test<l]<tagml]");
-    Path tagPathRelativeToCurrentDir = currentPath.relativize(Paths.get(tagPath));
+        // in an empty, initialized directory
+        var success = cli!!.run(command)
+        softlyAssertSucceedsWithExpectedStdout(
+                success, """
+     Active view: -
+     
+     no documents
+     no views
+     
+     """.trimIndent())
+        val currentPath = Paths.get("").toAbsolutePath()
+        val directoryName = "subdir"
+        val directoryPath = createDirectory(directoryName)
+        val directoryPathRelativeToCurrentDir = currentPath.relativize(Paths.get(directoryPath))
+        val tagFilename = "subdir/transcription.tag"
+        createFile(tagFilename, "[tagml>[l>test<l]<tagml]")
+        success = cli!!.run(command)
+        softlyAssertSucceedsWithExpectedStdout(
+                success,
+                """Active view: -
 
-    success = cli.run(command);
-    softlyAssertSucceedsWithStdoutContaining(
-        success,
-        "Untracked files:\n"
-            + "  (use \"alexandria add <file>...\" to start tracking this file.)\n"
-            + "\n"
-            + "        "
-            + tagPathRelativeToCurrentDir);
-  }
+no documents
+no views
 
-  @Ignore("Works fine in isolation, but otherwise has a problem with empty stdOut")
-  @Test
-  public void testJsonFileInRootShownAsUntrackedFile() throws Exception {
-    runInitCommand();
 
-    // in an empty, initialized directory
-    Boolean  success = cli.run(command);
-    softlyAssertSucceedsWithExpectedStdout(
-        success, "Active view: -\n" + "\n" + "no documents\n" + "no views\n");
+Untracked files:
+  (use "alexandria add <file>..." to start tracking this file.)
 
-    Path currentPath = Paths.get("").toAbsolutePath();
+        $directoryPathRelativeToCurrentDir""")
+    }
 
-    String viewFilename = "viewdef.json";
-    String viewPath = createFile(viewFilename, "{}");
-    Path viewPathRelativeToCurrentDir = currentPath.relativize(Paths.get(viewPath));
+    @Ignore("Works fine in isolation, but otherwise has a problem with empty stdOut")
+    @Test
+    @Throws(Exception::class)
+    fun testDirectoryStartingWithPointWithTagmlFileNotShownAsUntrackedFile() {
+        runInitCommand()
 
-    success = cli.run(command);
-    softlyAssertSucceedsWithStdoutContaining(
-        success,
-        "Untracked files:\n"
-            + "  (use \"alexandria add <file>...\" to start tracking this file.)\n"
-            + "\n"
-            + "        "
-            + viewPathRelativeToCurrentDir);
-  }
+        // in an empty, initialized directory
+        var success = cli!!.run(command)
+        softlyAssertSucceedsWithExpectedStdout(
+                success, """
+     Active view: -
+     
+     no documents
+     no views
+     
+     """.trimIndent())
+        val currentPath = Paths.get("").toAbsolutePath()
+        val directoryName = ".subdir"
+        val directoryPath = createDirectory(directoryName)
+        val directoryPathRelativeToCurrentDir = currentPath.relativize(Paths.get(directoryPath))
+        val tagFilename = ".subdir/transcription.tag"
+        createFile(tagFilename, "[tagml>[l>test<l]<tagml]")
+        success = cli!!.run(command)
+        softlyAssertSucceedsWithExpectedStdout(
+                success, """
+     Active view: -
+     
+     no documents
+     no views
+     """.trimIndent())
+    }
 
-  @Ignore("Works fine in isolation, but otherwise has a problem with empty stdOut")
-  @Test
-  public void testOtherFileInRootNotShownAsUntrackedFile() throws Exception {
-    runInitCommand();
+    @Ignore("Works fine in isolation, but otherwise has a problem with empty stdOut")
+    @Test
+    @Throws(Exception::class)
+    fun testDirectoryWithoutTagmlOrJsonFileNotShownAsUntrackedFile() {
+        runInitCommand()
 
-    // in an empty, initialized directory
-    Boolean  success = cli.run(command);
-    softlyAssertSucceedsWithExpectedStdout(
-        success, "Active view: -\n" + "\n" + "no documents\n" + "no views\n");
+        // in an empty, initialized directory
+        var success = cli!!.run(command)
+        softlyAssertSucceedsWithExpectedStdout(
+                success, """
+     Active view: -
+     
+     no documents
+     no views
+     
+     """.trimIndent())
+        val directoryName = "subdir"
+        createDirectory(directoryName)
+        val otherFilename = "subdir/other.txt"
+        createFile(otherFilename, "Don't feed them after dark.")
+        success = cli!!.run(command)
+        softlyAssertSucceedsWithExpectedStdout(
+                success, """
+     Active view: -
+     
+     no documents
+     no views
+     """.trimIndent())
+    }
 
-    String otherFilename = "other.md";
-    createFile(otherFilename, "bla bla bla");
+    @Test
+    @Throws(Exception::class)
+    fun testCommandHelp() {
+        val success = cli!!.run(command, "-h")
+        assertSucceedsWithExpectedStdout(
+                success,
+                """usage: java -jar alexandria-app.jar
+       status [-h]
 
-    success = cli.run(command);
-    softlyAssertSucceedsWithExpectedStdout(
-        success, "Active view: -\n" + "\n" + "no documents\n" + "no views");
-  }
+Show the directory status (active view, modified files, etc.).
 
-  @Ignore("Works fine in isolation, but otherwise has a problem with empty stdOut")
-  @Test
-  public void testDirectoryWithTagmlFileShownAsUntrackedFile() throws Exception {
-    runInitCommand();
+named arguments:
+  -h, --help             show this help message and exit""")
+    }
 
-    // in an empty, initialized directory
-    Boolean  success = cli.run(command);
-    softlyAssertSucceedsWithExpectedStdout(
-        success, "Active view: -\n" + "\n" + "no documents\n" + "no views\n");
+    @Test
+    @Throws(Exception::class)
+    fun testCommandShouldBeRunInAnInitializedDirectory() {
+        assertCommandRunsInAnInitializedDirectory(command)
+    }
 
-    Path currentPath = Paths.get("").toAbsolutePath();
-
-    String directoryName = "subdir";
-    String directoryPath = createDirectory(directoryName);
-    Path directoryPathRelativeToCurrentDir = currentPath.relativize(Paths.get(directoryPath));
-
-    String tagFilename = "subdir/transcription.tag";
-    createFile(tagFilename, "[tagml>[l>test<l]<tagml]");
-
-    success = cli.run(command);
-    softlyAssertSucceedsWithExpectedStdout(
-        success,
-        "Active view: -\n"
-            + "\n"
-            + "no documents\n"
-            + "no views\n"
-            + "\n"
-            + "\n"
-            + "Untracked files:\n"
-            + "  (use \"alexandria add <file>...\" to start tracking this file.)\n"
-            + "\n"
-            + "        "
-            + directoryPathRelativeToCurrentDir);
-  }
-
-  @Ignore("Works fine in isolation, but otherwise has a problem with empty stdOut")
-  @Test
-  public void testDirectoryStartingWithPointWithTagmlFileNotShownAsUntrackedFile()
-      throws Exception {
-    runInitCommand();
-
-    // in an empty, initialized directory
-    Boolean  success = cli.run(command);
-    softlyAssertSucceedsWithExpectedStdout(
-        success, "Active view: -\n" + "\n" + "no documents\n" + "no views\n");
-
-    Path currentPath = Paths.get("").toAbsolutePath();
-
-    String directoryName = ".subdir";
-    String directoryPath = createDirectory(directoryName);
-    Path directoryPathRelativeToCurrentDir = currentPath.relativize(Paths.get(directoryPath));
-
-    String tagFilename = ".subdir/transcription.tag";
-    createFile(tagFilename, "[tagml>[l>test<l]<tagml]");
-
-    success = cli.run(command);
-    softlyAssertSucceedsWithExpectedStdout(
-        success, "Active view: -\n" + "\n" + "no documents\n" + "no views");
-  }
-
-  @Ignore("Works fine in isolation, but otherwise has a problem with empty stdOut")
-  @Test
-  public void testDirectoryWithoutTagmlOrJsonFileNotShownAsUntrackedFile() throws Exception {
-    runInitCommand();
-
-    // in an empty, initialized directory
-    Boolean  success = cli.run(command);
-    softlyAssertSucceedsWithExpectedStdout(
-        success, "Active view: -\n" + "\n" + "no documents\n" + "no views\n");
-
-    String directoryName = "subdir";
-    createDirectory(directoryName);
-
-    String otherFilename = "subdir/other.txt";
-    createFile(otherFilename, "Don't feed them after dark.");
-
-    success = cli.run(command);
-    softlyAssertSucceedsWithExpectedStdout(
-        success, "Active view: -\n" + "\n" + "no documents\n" + "no views");
-  }
-
-  @Test
-  public void testCommandHelp() throws Exception {
-    final Boolean  success = cli.run(command, "-h");
-    assertSucceedsWithExpectedStdout(
-        success,
-        "usage: java -jar alexandria-app.jar\n"
-            + "       status [-h]\n"
-            + "\n"
-            + "Show the directory status (active view, modified files, etc.).\n"
-            + "\n"
-            + "named arguments:\n"
-            + "  -h, --help             show this help message and exit");
-  }
-
-  @Test
-  public void testCommandShouldBeRunInAnInitializedDirectory() throws Exception {
-    assertCommandRunsInAnInitializedDirectory(command);
-  }
+    companion object {
+        private val command = StatusCommand().name
+    }
 }

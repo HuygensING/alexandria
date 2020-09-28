@@ -1,143 +1,145 @@
-package nl.knaw.huygens.alexandria.dropwizard.cli;
+package nl.knaw.huygens.alexandria.dropwizard.cli
 
 /*-
- * #%L
+* #%L
  * alexandria-markup-client
  * =======
  * Copyright (C) 2015 - 2020 Huygens ING (KNAW)
  * =======
  * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- * 
- *      http://www.apache.org/licenses/LICENSE-2.0
- * 
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ *  you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *  
+ *       http://www.apache.org/licenses/LICENSE-2.0
+ *  
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
  * #L%
- */
+*/
 
-import nl.knaw.huygens.alexandria.dropwizard.cli.commands.CheckOutCommand;
-import org.junit.Ignore;
-import org.junit.Test;
+import nl.knaw.huygens.alexandria.dropwizard.cli.commands.AlexandriaCommand
+import nl.knaw.huygens.alexandria.dropwizard.cli.commands.CheckOutCommand
+import org.assertj.core.api.Assertions.assertThat
+import org.junit.Ignore
+import org.junit.Test
+import java.nio.file.Files
 
-import java.nio.file.Files;
-import java.time.Instant;
+class CheckOutCommandIntegrationTest : CommandIntegrationTest() {
+    @Test
+    @Throws(Exception::class)
+    fun testCommand() {
+        runInitCommand()
+        val tagFilename = createTagmlFileName("transcription")
+        val tagml = "[tagml>[l>test<l]<tagml]"
+        val absoluteTagmlPath = createFile(tagFilename, tagml)
+        val viewName = "v1"
+        val viewFilename = createViewFileName(viewName)
+        val absoluteViewPath = createFile(viewFilename, "{\"includeMarkup\":[\"l\"]}")
+        runAddCommand(absoluteTagmlPath, absoluteViewPath)
+        runCommitAllCommand()
+        val success = cli!!.run(command, viewName)
+        softlyAssertSucceedsWithExpectedStdout(
+                success,
+                """
+                |Checking out view v1...
+                |  updating tagml/transcription.tagml...
+                |done!
+                """.trimMargin())
 
-import static nl.knaw.huygens.alexandria.dropwizard.cli.commands.CheckOutCommand.MAIN_VIEW;
-import static org.assertj.core.api.Assertions.assertThat;
+        val cliContext = readCLIContext()
+        assertThat(cliContext.activeView).isEqualTo(viewName)
 
-public class CheckOutCommandIntegrationTest extends CommandIntegrationTest {
+        val newContent = readFileContents(tagFilename)
+        assertThat(newContent).isEqualTo("[l>test<l]")
 
-  private static final String command = new CheckOutCommand().getName();
+        val success2 = cli!!.run(command, AlexandriaCommand.MAIN_VIEW)
+        softlyAssertSucceedsWithExpectedStdout(
+                success2,
+                """
+                |Checking out main view...
+                |  updating tagml/transcription.tagml...
+                |done!
+                """.trimMargin())
+        val cliContext2 = readCLIContext()
+        assertThat(cliContext2.activeView).isEqualTo(AlexandriaCommand.MAIN_VIEW)
 
-  @Test
-  public void testCommand() throws Exception {
-    runInitCommand();
+        val lastCommit = cliContext2.watchedFiles[tagFilename]!!.lastCommit
+        val lastModified = Files.getLastModifiedTime(workFilePath(tagFilename)).toInstant()
+        assertThat(lastCommit.isAfter(lastModified))
 
-    String tagFilename = createTagmlFileName("transcription");
-    String tagml = "[tagml>[l>test<l]<tagml]";
-    String absoluteTagmlPath = createFile(tagFilename, tagml);
+        val newContent2 = readFileContents(tagFilename)
+        assertThat(newContent2).isEqualTo(tagml)
+    }
 
-    String viewName = "v1";
-    String viewFilename = createViewFileName(viewName);
-    String absoluteViewPath = createFile(viewFilename, "{\"includeMarkup\":[\"l\"]}");
+    @Ignore("race condition? fails on Jenkins")
+    @Test
+    @Throws(Exception::class)
+    fun testCheckoutNotPossibleWithUncommittedFilesPresent() {
+        runInitCommand()
+        val tagFilename = createTagmlFileName("transcription1")
+        val tagml = "[tagml>[l>test<l]<tagml]"
+        createFile(tagFilename, tagml)
+        val viewName = "v1"
+        val viewFilename = createViewFileName(viewName)
+        createFile(viewFilename, "{\"includeMarkup\":[\"l\"]}")
+        runAddCommand(tagFilename, viewFilename)
+        runCommitAllCommand()
+        val success = cli!!.run(command, viewName)
+        softlyAssertSucceedsWithExpectedStdout(
+                success,
+                """Checking out view v1...
+  updating tagml/transcription1.tagml...
+done!""")
+        val cliContext = readCLIContext()
+        assertThat(cliContext.activeView).isEqualTo(viewName)
+        val newContent = readFileContents(tagFilename)
+        assertThat(newContent).isEqualTo("[l>test<l]")
 
-    runAddCommand(absoluteTagmlPath, absoluteViewPath);
-    runCommitAllCommand();
+        // now, change the file contents
+        modifyFile(tagFilename, "[l>foo bar<l]")
+        val success2 = cli!!.run(command, AlexandriaCommand.MAIN_VIEW)
+        val stdOut = cliStdOutAsString.normalized()
+        assertThat(stdOut)
+                .isEqualTo(
+                        """Uncommitted changes:
+  (use "alexandria commit <file>..." to commit the selected changes)
+  (use "alexandria commit -a" to commit all changes)
+  (use "alexandria revert <file>..." to discard changes)
 
-    final Boolean  success = cli.run(command, viewName);
-    softlyAssertSucceedsWithExpectedStdout(
-        success,
-        "Checking out view v1...\n" + "  updating tagml/transcription.tagml...\n" + "done!");
+        modified: tagml/transcription1.tagml""")
+        softlyAssertFailsWithExpectedStderr(
+                success2, "Uncommitted changes found, cannot checkout another view.")
+    }
 
-    CLIContext cliContext = readCLIContext();
-    assertThat(cliContext.getActiveView()).isEqualTo(viewName);
+    // On checkout, the lastcommitted dates should be adjusted.
+    @Test
+    @Throws(Exception::class)
+    fun testCommandHelp() {
+        val success = cli!!.run(command, "-h")
+        assertSucceedsWithExpectedStdout(
+                success,
+                """usage: java -jar alexandria-app.jar
+       checkout [-h] <view>
 
-    String newContent = readFileContents(tagFilename);
-    assertThat(newContent).isEqualTo("[l>test<l]");
+Activate or deactivate a view in this directory.
 
-    final Boolean  success2 = cli.run(command, MAIN_VIEW);
-    softlyAssertSucceedsWithExpectedStdout(
-        success2,
-        "Checking out main view...\n" + "  updating tagml/transcription.tagml...\n" + "done!");
+positional arguments:
+  <view>                 The name of the view to use
 
-    CLIContext cliContext2 = readCLIContext();
-    assertThat(cliContext2.getActiveView()).isEqualTo(MAIN_VIEW);
-    Instant lastCommit = cliContext2.getWatchedFiles().get(tagFilename).getLastCommit();
-    Instant lastModified = Files.getLastModifiedTime(workFilePath(tagFilename)).toInstant();
-    assertThat(lastCommit.isAfter(lastModified));
+named arguments:
+  -h, --help             show this help message and exit""")
+    }
 
-    String newContent2 = readFileContents(tagFilename);
-    assertThat(newContent2).isEqualTo(tagml);
-  }
+    @Test
+    @Throws(Exception::class)
+    fun testCommandShouldBeRunInAnInitializedDirectory() {
+        assertCommandRunsInAnInitializedDirectory(command, "-")
+    }
 
-  @Ignore("race condition? fails on Jenkins")
-  @Test
-  public void testCheckoutNotPossibleWithUncommittedFilesPresent() throws Exception {
-    runInitCommand();
-
-    String tagFilename = createTagmlFileName("transcription1");
-    String tagml = "[tagml>[l>test<l]<tagml]";
-    createFile(tagFilename, tagml);
-    String viewName = "v1";
-    String viewFilename = createViewFileName(viewName);
-    createFile(viewFilename, "{\"includeMarkup\":[\"l\"]}");
-    runAddCommand(tagFilename, viewFilename);
-    runCommitAllCommand();
-
-    final Boolean  success = cli.run(command, viewName);
-    softlyAssertSucceedsWithExpectedStdout(
-        success,
-        "Checking out view v1...\n" + "  updating tagml/transcription1.tagml...\n" + "done!");
-
-    CLIContext cliContext = readCLIContext();
-    assertThat(cliContext.getActiveView()).isEqualTo(viewName);
-
-    String newContent = readFileContents(tagFilename);
-    assertThat(newContent).isEqualTo("[l>test<l]");
-
-    // now, change the file contents
-    modifyFile(tagFilename, "[l>foo bar<l]");
-
-    final Boolean  success2 = cli.run(command, MAIN_VIEW);
-    String stdOut = normalize(getCliStdOutAsString());
-    assertThat(stdOut)
-        .isEqualTo(
-            "Uncommitted changes:\n"
-                + "  (use \"alexandria commit <file>...\" to commit the selected changes)\n"
-                + "  (use \"alexandria commit -a\" to commit all changes)\n"
-                + "  (use \"alexandria revert <file>...\" to discard changes)\n"
-                + "\n"
-                + "        modified: tagml/transcription1.tagml");
-    softlyAssertFailsWithExpectedStderr(
-        success2, "Uncommitted changes found, cannot checkout another view.");
-  }
-
-  // On checkout, the lastcommitted dates should be adjusted.
-
-  @Test
-  public void testCommandHelp() throws Exception {
-    final Boolean  success = cli.run(command, "-h");
-    assertSucceedsWithExpectedStdout(
-        success,
-        "usage: java -jar alexandria-app.jar\n"
-            + "       checkout [-h] <view>\n"
-            + "\n"
-            + "Activate or deactivate a view in this directory.\n"
-            + "\n"
-            + "positional arguments:\n"
-            + "  <view>                 The name of the view to use\n"
-            + "\n"
-            + "named arguments:\n"
-            + "  -h, --help             show this help message and exit");
-  }
-
-  @Test
-  public void testCommandShouldBeRunInAnInitializedDirectory() throws Exception {
-    assertCommandRunsInAnInitializedDirectory(command, "-");
-  }
+    companion object {
+        private val command = CheckOutCommand().name
+    }
 }

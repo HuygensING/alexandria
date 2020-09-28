@@ -29,7 +29,7 @@ class ErrorEntity : JsonWrapperObject {
     var message: String? = null
     var exception: String? = null
 
-    constructor() {}
+    constructor()
     constructor(message: String) {
         this.message = message
     }
