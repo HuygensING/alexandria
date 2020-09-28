@@ -24,6 +24,7 @@ import io.dropwizard.setup.Bootstrap;
 import net.sourceforge.argparse4j.inf.Namespace;
 import net.sourceforge.argparse4j.inf.Subparser;
 import nl.knaw.huc.di.tag.TAGViews;
+import nl.knaw.huc.di.tag.tagml.TAGML;
 import nl.knaw.huc.di.tag.tagml.xml.exporter.XMLExporter;
 import nl.knaw.huygens.alexandria.dropwizard.cli.CLIContext;
 import nl.knaw.huygens.alexandria.storage.TAGDocument;
@@ -34,6 +35,8 @@ import java.io.IOException;
 import java.nio.file.Files;
 
 public class ExportXmlCommand extends AlexandriaCommand {
+
+  static final String LEADING_LAYER = "leading_layer";
 
   public ExportXmlCommand() {
     super("export-xml", "Export the document as xml.");
@@ -49,6 +52,13 @@ public class ExportXmlCommand extends AlexandriaCommand {
         .required(true)
         .help("The name of the document to export.");
     subparser
+        .addArgument("-l", "--leadinglayer")
+        .dest(LEADING_LAYER)
+        .metavar("<leading_layer>")
+        .type(String.class)
+        .required(false)
+        .help("In case of overlapping layers, the layer that defines the xml hierarchy.");
+    subparser
         .addArgument("-o", "--outputfile")
         .dest(OUTPUTFILE)
         .metavar("<file>")
@@ -63,6 +73,7 @@ public class ExportXmlCommand extends AlexandriaCommand {
 
     String docName = namespace.getString(DOCUMENT);
     String outputFile = namespace.getString(OUTPUTFILE);
+    String leadingLayer = namespace.getString(LEADING_LAYER);
     Long docId = getIdForExistingDocument(docName);
     try (TAGStore store = getTAGStore()) {
       store.runInTransaction(
@@ -75,7 +86,8 @@ public class ExportXmlCommand extends AlexandriaCommand {
                     : getExistingView(viewName, store, context);
             TAGDocument document = store.getDocument(docId);
             XMLExporter xmlExporter = new XMLExporter(store, tagView);
-            String xml = xmlExporter.asXML(document);
+            String leading = leadingLayer == null ? TAGML.DEFAULT_LAYER : leadingLayer;
+            String xml = xmlExporter.asXML(document, leading);
             if (outputFile != null) {
               writeToFile(outputFile, xml);
             } else {

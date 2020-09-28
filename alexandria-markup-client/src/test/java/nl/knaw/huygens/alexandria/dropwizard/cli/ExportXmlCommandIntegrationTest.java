@@ -48,6 +48,26 @@ public class ExportXmlCommandIntegrationTest extends CommandIntegrationTest {
   }
 
   @Test
+  public void testCommandWithLeadingLayer() throws Exception {
+    runInitCommand();
+
+    String tagFilename = createTagmlFileName("transcription");
+    String tagml = "[tagml|+A,+B>[a|A>Romeo [b|B>loves<a] Juliet<b]<tagml]";
+    String tagPath = createFile(tagFilename, tagml);
+
+    runAddCommand(tagPath);
+    runCommitAllCommand();
+
+    Boolean success = cli.run(command, "-l", "B", "transcription");
+    assertSucceedsWithExpectedStdout(
+        success,
+        "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
+            + "<xml xmlns:th=\"http://www.blackmesatech.com/2017/nss/trojan-horse\" th:doc=\"A _default\">\n"
+            + "<tagml><a th:doc=\"A\" th:sId=\"a0\"/>Romeo <b>loves<a th:doc=\"A\" th:eId=\"a0\"/> Juliet</b></tagml>\n"
+            + "</xml>");
+  }
+
+  @Test
   public void testCommandInView() throws Exception {
     runInitCommand();
 
@@ -90,8 +110,8 @@ public class ExportXmlCommandIntegrationTest extends CommandIntegrationTest {
     assertSucceedsWithExpectedStdout(
         success,
         "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
-            + "<xml xmlns:th=\"http://www.blackmesatech.com/2017/nss/trojan-horse\" th:doc=\"A _default\">\n"
-            + "<tagml th:doc=\"A _default\" th:sId=\"tagml0\"/><phr th:doc=\"A\" th:sId=\"phr1\"/>Cookie Monster <r th:doc=\"_default\" th:sId=\"r2\"/>really likes<phr th:doc=\"A\" th:eId=\"phr1\"/> cookies<r th:doc=\"_default\" th:eId=\"r2\"/><tagml th:doc=\"A _default\" th:eId=\"tagml0\"/>\n"
+            + "<xml xmlns:th=\"http://www.blackmesatech.com/2017/nss/trojan-horse\" th:doc=\"A\">\n"
+            + "<tagml><phr th:doc=\"A\" th:sId=\"phr0\"/>Cookie Monster <r>really likes<phr th:doc=\"A\" th:eId=\"phr0\"/> cookies</r></tagml>\n"
             + "</xml>");
   }
 
@@ -101,7 +121,7 @@ public class ExportXmlCommandIntegrationTest extends CommandIntegrationTest {
     assertSucceedsWithExpectedStdout(
         success,
         "usage: java -jar alexandria-app.jar\n"
-            + "       export-xml [-o <file>] [-h] <document>\n"
+            + "       export-xml [-l <leading_layer>] [-o <file>] [-h] <document>\n"
             + "\n"
             + "Export the document as xml.\n"
             + "\n"
@@ -109,6 +129,9 @@ public class ExportXmlCommandIntegrationTest extends CommandIntegrationTest {
             + "  <document>             The name of the document to export.\n"
             + "\n"
             + "named arguments:\n"
+            + "  -l <leading_layer>, --leadinglayer <leading_layer>\n"
+            + "                         In case  of  overlapping  layers,  the  layer that\n"
+            + "                         defines the xml hierarchy.\n"
             + "  -o <file>, --outputfile <file>\n"
             + "                         The file to export to.\n"
             + "  -h, --help             show this help message and exit");

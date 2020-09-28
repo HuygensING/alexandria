@@ -1,13 +1,5 @@
 package nl.knaw.huygens.alexandria.markup.client;
 
-import nl.knaw.huygens.alexandria.api.model.ErrorEntity;
-import org.apache.commons.lang3.builder.ToStringBuilder;
-import org.apache.commons.lang3.builder.ToStringStyle;
-
-import javax.ws.rs.core.Response;
-import java.time.Duration;
-import java.util.Optional;
-
 /*
  * #%L
  * alexandria-markup-client
@@ -27,6 +19,14 @@ import java.util.Optional;
  * limitations under the License.
  * #L%
  */
+
+import nl.knaw.huygens.alexandria.markup.api.ErrorEntity;
+import org.apache.commons.lang3.builder.ToStringBuilder;
+import org.apache.commons.lang3.builder.ToStringStyle;
+
+import javax.ws.rs.core.Response;
+import java.time.Duration;
+import java.util.Optional;
 
 public class RestResult<T> {
   private boolean failure = false;
