@@ -34,7 +34,7 @@ class RestResult<T> {
     private var exception: Exception? = null
     private var errorMessage: String? = null
 
-    var turnaroundTime: Duration? = null
+    private var turnaroundTime: Duration? = null
         private set
 
     fun withCargo(cargo: T): RestResult<T> {

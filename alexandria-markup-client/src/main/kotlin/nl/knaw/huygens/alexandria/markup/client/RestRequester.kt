@@ -30,7 +30,7 @@ import javax.ws.rs.core.Response
 typealias ResponseMapper<T> = (Response) -> RestResult<T>
 
 class RestRequester<T> {
-    private val statusMappers: MutableMap<Response.Status, ResponseMapper<T>> = HashMap()
+    private val statusMappers: MutableMap<Response.Status, ResponseMapper<T>> = EnumMap(javax.ws.rs.core.Response.Status::class.java)
     private var retries = 5
     private var responseSupplier: Supplier<Response>? = null
     private var defaultMapper = { response: Response -> RestResult.failingResult<T>(response) }
@@ -58,12 +58,12 @@ class RestRequester<T> {
                     pe.printStackTrace()
                 } catch (e: Exception) {
                     e.printStackTrace()
-                    return timed(RestResult.Companion.failingResult(e), start)
+                    return timed(RestResult.failingResult(e), start)
                 }
             }
             if (response == null) {
                 return timed(
-                        RestResult.Companion.failingResult("No response from server after $retries attempts."),
+                        RestResult.failingResult("No response from server after $retries attempts."),
                         start)
             }
             val status = Response.Status.fromStatusCode(response.status)

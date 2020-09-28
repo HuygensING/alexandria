@@ -22,17 +22,13 @@ package nl.knaw.huygens.alexandria.markup.api
 
 class AppInfo {
     private var appName: String? = null
-        private set
     private var startedAt: String? = null
-        private set
     var version: String? = null
         private set
     var buildDate: String? = null
         private set
     private var commitId: String? = null
-        private set
     private var scmBranch: String? = null
-        private set
 
     fun setAppName(appName: String): AppInfo {
         this.appName = appName

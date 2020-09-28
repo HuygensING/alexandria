@@ -28,7 +28,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 
 public class ExportRenderedDotCommand extends AbstractGraphvizCommand {
-  private String format;
+  private final String format;
 
   public ExportRenderedDotCommand(String format) {
     super(

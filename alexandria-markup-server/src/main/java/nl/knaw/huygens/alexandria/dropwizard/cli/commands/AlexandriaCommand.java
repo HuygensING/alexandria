@@ -82,7 +82,7 @@ public abstract class AlexandriaCommand extends Command {
   String alexandriaDir;
   private File contextFile;
   String workDir;
-  static ObjectMapper mapper =
+  static final ObjectMapper mapper =
       new ObjectMapper().registerModule(new Jdk8Module()).registerModule(new JavaTimeModule());
 
   public AlexandriaCommand(String name, String description) {

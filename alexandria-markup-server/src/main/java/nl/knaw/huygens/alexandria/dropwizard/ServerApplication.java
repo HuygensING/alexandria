@@ -52,7 +52,7 @@ public class ServerApplication extends Application<ServerConfiguration> {
   private static final String PROPERTIES_FILE = "about.properties";
   private final Logger LOG = LoggerFactory.getLogger(getClass());
 
-  private AppInfo appInfo = getAppInfo();
+  private final AppInfo appInfo = getAppInfo();
 
   public static void main(String[] args) throws Exception {
     new ServerApplication().run(args);

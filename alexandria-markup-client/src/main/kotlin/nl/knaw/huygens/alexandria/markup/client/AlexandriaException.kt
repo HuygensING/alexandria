@@ -21,9 +21,9 @@ package nl.knaw.huygens.alexandria.markup.client
  */
 
 class AlexandriaException : RuntimeException {
-    constructor() : super() {}
+    constructor() : super()
 
-    constructor(message: String) : super(message) {}
+    constructor(message: String) : super(message)
 
     companion object {
         private const val serialVersionUID = 1L

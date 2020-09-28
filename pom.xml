@@ -158,6 +158,8 @@
                     <excludes>
                         <exclude>**/*.ftl</exclude>
                         <exclude>**/*.xml</exclude>
+                        <exclude>**/*.json</exclude>
+                        <exclude>**/*.jsonld</exclude>
                     </excludes>
                     <sectionDelimiter>=======</sectionDelimiter>
                     <canUpdateCopyright>true</canUpdateCopyright>
@@ -238,29 +240,6 @@
                 <version>${maven-failsafe-plugin.version}</version>
             </plugin>
 
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-compiler-plugin</artifactId>
-                <version>${maven-compiler.version}</version>
-                <configuration>
-                    <source>${java.version}</source>
-                    <target>${java.version}</target>
-                </configuration>
-            </plugin>
-
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-jar-plugin</artifactId>
-                <version>${maven-jar.version}</version>
-                <configuration>
-                    <archive>
-                        <manifest>
-                            <addDefaultImplementationEntries>true</addDefaultImplementationEntries>
-                        </manifest>
-                    </archive>
-                </configuration>
-            </plugin>
-
             <!-- Makes GIT commit id and branch available for use in about.properties -->
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
@@ -277,30 +256,6 @@
                 <configuration>
                     <doCheck>false</doCheck>
                     <doUpdate>false</doUpdate>
-                </configuration>
-            </plugin>
-
-            <plugin>
-                <groupId>org.codehaus.mojo</groupId>
-                <artifactId>license-maven-plugin</artifactId>
-                <version>${maven-license.version}</version>
-                <executions>
-                    <execution>
-                        <phase>verify</phase>
-                        <goals>
-                            <goal>update-file-header</goal>
-                        </goals>
-                    </execution>
-                </executions>
-                <configuration>
-                    <licenseName>apache_v2</licenseName>
-                    <excludes>
-                        <exclude>**/*.json</exclude>
-                        <exclude>**/*.jsonld</exclude>
-                    </excludes>
-                    <sectionDelimiter>=======</sectionDelimiter>
-                    <canUpdateCopyright>true</canUpdateCopyright>
-                    <canUpdateDescription>true</canUpdateDescription>
                 </configuration>
             </plugin>
 

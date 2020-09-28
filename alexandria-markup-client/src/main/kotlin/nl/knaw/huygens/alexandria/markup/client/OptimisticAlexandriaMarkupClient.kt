@@ -36,12 +36,12 @@ class OptimisticAlexandriaMarkupClient {
         delegate = AlexandriaMarkupClient(alexandriaURI)
     }
 
-    constructor(alexandriaURI: String?) : this(URI.create(alexandriaURI)) {}
+    constructor(alexandriaURI: String?) : this(URI.create(alexandriaURI))
     constructor(alexandriaURI: URI, sslContext: SSLContext?) {
         delegate = AlexandriaMarkupClient(alexandriaURI, sslContext)
     }
 
-    constructor(alexandriaURI: String?, sslContext: SSLContext?) : this(URI.create(alexandriaURI), sslContext) {}
+    constructor(alexandriaURI: String?, sslContext: SSLContext?) : this(URI.create(alexandriaURI), sslContext)
 
     // convenience methods
     // delegated methods

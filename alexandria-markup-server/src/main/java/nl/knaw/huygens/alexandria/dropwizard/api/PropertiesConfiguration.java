@@ -30,7 +30,7 @@ import java.util.*;
 
 public class PropertiesConfiguration {
   private static final Logger LOG = LoggerFactory.getLogger(PropertiesConfiguration.class);
-  private PropertyResourceBundle propertyResourceBundle;
+  private final PropertyResourceBundle propertyResourceBundle;
 
   public PropertiesConfiguration(String propertiesFile, boolean isResource) {
     try {
