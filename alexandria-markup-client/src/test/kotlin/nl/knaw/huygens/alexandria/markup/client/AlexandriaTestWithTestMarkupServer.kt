@@ -50,19 +50,20 @@ val tmpFolder = TemporaryFolder()
 
 abstract class AlexandriaTestWithTestMarkupServer {
     companion object {
-        private const val BASEURI = "http://localhost:2017/"
-        protected val testURI: URI = URI.create(BASEURI)
+        private const val BASE_URI = "http://localhost:2017/"
+        protected val testURI: URI = URI.create(BASE_URI)
         private var testServer: HttpServer? = null
 
         @BeforeClass
         @Throws(IOException::class)
         fun startTestServer() {
-            val config = ServerConfiguration()
-            config.baseURI = BASEURI
-            config.store = BDBTAGStore(tmpFolder.newFolder("db").path, false)
+            val config = ServerConfiguration().apply {
+                setBaseURI(BASE_URI)
+                store = BDBTAGStore(tmpFolder.newFolder("db").path, false)
+            }
             val resourceConfig = ResourceConfig()
             resourceConfig.register(AboutResource())
-            val store = config.store
+            val store = config.store!!
             resourceConfig.register(
                     DocumentsResource(
                             DocumentService(config),
@@ -79,20 +80,19 @@ abstract class AlexandriaTestWithTestMarkupServer {
         }
 
         @JvmOverloads
-        fun prettyFormat(input: String?, indent: Int = 2): String {
-            return try {
-                val xmlInput: Source = StreamSource(StringReader(input))
-                val stringWriter = StringWriter()
-                val xmlOutput = StreamResult(stringWriter)
-                val transformerFactory = TransformerFactory.newInstance()
-                // transformerFactory.setAttribute("indent-number", indent);
-                val transformer = transformerFactory.newTransformer()
-                transformer.setOutputProperty(OutputKeys.INDENT, "yes")
-                transformer.transform(xmlInput, xmlOutput)
-                xmlOutput.writer.toString()
-            } catch (e: Exception) {
-                throw RuntimeException(e) // simple exception handling, please review it
-            }
-        }
+        fun prettyFormat(input: String, indent: Int = 2): String =
+                try {
+                    val xmlInput: Source = StreamSource(StringReader(input))
+                    val stringWriter = StringWriter()
+                    val xmlOutput = StreamResult(stringWriter)
+                    val transformerFactory = TransformerFactory.newInstance()
+                    // transformerFactory.setAttribute("indent-number", indent);
+                    val transformer = transformerFactory.newTransformer()
+                    transformer.setOutputProperty(OutputKeys.INDENT, "yes")
+                    transformer.transform(xmlInput, xmlOutput)
+                    xmlOutput.writer.toString()
+                } catch (e: Exception) {
+                    throw RuntimeException(e) // simple exception handling, please review it
+                }
     }
 }

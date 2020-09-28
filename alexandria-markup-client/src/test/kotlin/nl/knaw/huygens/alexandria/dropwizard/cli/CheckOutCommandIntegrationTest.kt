@@ -37,7 +37,7 @@ class CheckOutCommandIntegrationTest : CommandIntegrationTest() {
         val absoluteTagmlPath = createFile(tagFilename, tagml)
         val viewName = "v1"
         val viewFilename = createViewFileName(viewName)
-        val absoluteViewPath = createFile(viewFilename, "{\"includeMarkup\":[\"l\"]}")
+        val absoluteViewPath = createFile(viewFilename, """{"includeMarkup":["l"]}""")
         runAddCommand(absoluteTagmlPath, absoluteViewPath)
         runCommitAllCommand()
         val success = cli!!.run(command, viewName)
@@ -68,7 +68,7 @@ class CheckOutCommandIntegrationTest : CommandIntegrationTest() {
 
         val lastCommit = cliContext2.watchedFiles[tagFilename]!!.lastCommit
         val lastModified = Files.getLastModifiedTime(workFilePath(tagFilename)).toInstant()
-        assertThat(lastCommit.isAfter(lastModified))
+        assertThat(lastCommit!!.isAfter(lastModified))
 
         val newContent2 = readFileContents(tagFilename)
         assertThat(newContent2).isEqualTo(tagml)
@@ -84,7 +84,7 @@ class CheckOutCommandIntegrationTest : CommandIntegrationTest() {
         createFile(tagFilename, tagml)
         val viewName = "v1"
         val viewFilename = createViewFileName(viewName)
-        createFile(viewFilename, "{\"includeMarkup\":[\"l\"]}")
+        createFile(viewFilename, """{"includeMarkup":["l"]}""")
         runAddCommand(tagFilename, viewFilename)
         runCommitAllCommand()
         val success = cli!!.run(command, viewName)

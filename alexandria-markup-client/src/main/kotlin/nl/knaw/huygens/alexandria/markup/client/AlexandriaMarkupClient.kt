@@ -63,7 +63,7 @@ class AlexandriaMarkupClient @JvmOverloads constructor(private val alexandriaMar
         get() {
             val path = rootTarget.path(ResourcePaths.ABOUT)
             val responseSupplier = anonymousGet(path)
-            val requester: RestRequester<AppInfo> = RestRequester.Companion.withResponseSupplier<AppInfo>(responseSupplier)
+            val requester: RestRequester<AppInfo> = RestRequester.withResponseSupplier(responseSupplier)
             return requester.onStatus(Response.Status.OK) { response: Response -> toAboutInfoRestResult(response) }.result
         }
 
@@ -80,7 +80,7 @@ class AlexandriaMarkupClient @JvmOverloads constructor(private val alexandriaMar
     private fun setDocument(serializedDocument: String, path: WebTarget): RestResult<Void> {
         val entity = Entity.entity(serializedDocument, MediaType.TEXT_PLAIN)
         val responseSupplier = anonymousPut(path, entity)
-        val requester: RestRequester<Void> = RestRequester.Companion.withResponseSupplier<Void>(responseSupplier)
+        val requester: RestRequester<Void> = RestRequester.withResponseSupplier(responseSupplier)
         return requester
                 .onStatus(Response.Status.CREATED, voidRestResult())
                 .onStatus(Response.Status.NO_CONTENT, voidRestResult())
@@ -100,7 +100,7 @@ class AlexandriaMarkupClient @JvmOverloads constructor(private val alexandriaMar
     private fun addDocument(serializedDocument: String, path: WebTarget): RestResult<UUID> {
         val entity = Entity.entity(serializedDocument, UTF8MediaType.TEXT_PLAIN)
         val responseSupplier = anonymousPost(path, entity)
-        val requester: RestRequester<UUID> = RestRequester.Companion.withResponseSupplier<UUID>(responseSupplier)
+        val requester: RestRequester<UUID> = RestRequester.withResponseSupplier(responseSupplier)
         return requester
                 .onStatus(Response.Status.CREATED) { response: Response -> uuidFromLocationHeader(response) }
                 .result
@@ -135,7 +135,7 @@ class AlexandriaMarkupClient @JvmOverloads constructor(private val alexandriaMar
         val path = documentTarget(documentUUID).path(ResourcePaths.DOCUMENTS_QUERY)
         val entity = Entity.entity(query, UTF8MediaType.TEXT_PLAIN)
         val responseSupplier = anonymousPost(path, entity)
-        val requester: RestRequester<JsonNode> = RestRequester.Companion.withResponseSupplier<JsonNode>(responseSupplier)
+        val requester: RestRequester<JsonNode> = RestRequester.withResponseSupplier(responseSupplier)
         return requester
                 .onStatus(Response.Status.OK) { response: Response -> toJsonObjectRestResult(response) }
                 .result
@@ -151,15 +151,15 @@ class AlexandriaMarkupClient @JvmOverloads constructor(private val alexandriaMar
     }
 
     private fun toStringRestResult(response: Response): RestResult<String> {
-        return toEntityRestResult<String>(response, String::class.java)
+        return toEntityRestResult(response, String::class.java)
     }
 
     private fun toAboutInfoRestResult(response: Response): RestResult<AppInfo> {
-        return toEntityRestResult<AppInfo>(response, AppInfo::class.java)
+        return toEntityRestResult(response, AppInfo::class.java)
     }
 
     private fun toJsonObjectRestResult(response: Response): RestResult<JsonNode> {
-        return toEntityRestResult<JsonNode>(response, JsonNode::class.java)
+        return toEntityRestResult(response, JsonNode::class.java)
     }
 
     private fun <E> toEntityRestResult(
@@ -217,7 +217,7 @@ class AlexandriaMarkupClient @JvmOverloads constructor(private val alexandriaMar
 
     private fun stringResult(path: WebTarget): RestResult<String> {
         val responseSupplier = anonymousGet(path)
-        val requester: RestRequester<String> = RestRequester.Companion.withResponseSupplier<String>(responseSupplier)
+        val requester: RestRequester<String> = RestRequester.withResponseSupplier(responseSupplier)
         return requester.onStatus(Response.Status.OK) { response: Response -> toStringRestResult(response) }.result
     }
 

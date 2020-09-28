@@ -35,15 +35,15 @@ class CLIContextTest {
     @Throws(IOException::class)
     fun testSerialization() {
         val watchedFiles: Set<String> = setOf("transcriptions/transcription-1.tagml", "views/view-1.json")
-        val watchedFilesMap: Map<String, FileInfo> = watchedFiles.stream()
-                .collect(Collectors.toMap({ f: String? -> f }, { f: String? -> FileInfo().setLastCommit(Instant.now()) }) { a: FileInfo, b: FileInfo -> b })
+        val watchedFilesMap: MutableMap<String, FileInfo> = watchedFiles.stream()
+                .collect(Collectors.toMap({ f: String? -> f }, { f: String? -> FileInfo().withLastCommit(Instant.now()) }) { a: FileInfo, b: FileInfo -> b })
         val tagViewDefinitionMap: MutableMap<String, TAGViewDefinition> = HashMap()
         val excludeALayer = TAGViewDefinition().withExcludeLayers(HashSet(listOf("a")))
         tagViewDefinitionMap["exclude-a-layer"] = excludeALayer
         val cliContext = CLIContext()
-                .setTagViewDefinitions(tagViewDefinitionMap)
-                .setActiveView("view-1")
-                .setWatchedFiles(watchedFilesMap)
+                .withTagViewDefinitions(tagViewDefinitionMap)
+                .withActiveView("view-1")
+                .withWatchedFiles(watchedFilesMap)
         val json = mapper.writeValueAsString(cliContext)
         assertThat(json).isNotEmpty
 

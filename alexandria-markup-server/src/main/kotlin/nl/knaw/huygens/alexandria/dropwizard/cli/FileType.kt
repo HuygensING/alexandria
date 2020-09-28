@@ -1,8 +1,8 @@
-package nl.knaw.huygens.alexandria.markup.client
+package nl.knaw.huygens.alexandria.dropwizard.cli
 
-/*
+/*-
  * #%L
- * alexandria-markup-client
+ * alexandria-markup-server
  * =======
  * Copyright (C) 2015 - 2020 Huygens ING (KNAW)
  * =======
@@ -20,12 +20,6 @@ package nl.knaw.huygens.alexandria.markup.client
  * #L%
  */
 
-class AlexandriaException : RuntimeException {
-    constructor() : super()
-
-    constructor(message: String) : super(message)
-
-    companion object {
-        private const val serialVersionUID = 1L
-    }
+enum class FileType {
+    VIEW_DEFINITION, TAGML_SOURCE, OTHER
 }

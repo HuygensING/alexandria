@@ -80,7 +80,7 @@ Uncommitted changes:
         runCheckoutCommand(viewName)
         success = cli!!.run(command)
         val cliContext2 = readCLIContext()
-        val lastCommit = cliContext2.watchedFiles[tagFilename]!!.lastCommit
+        val lastCommit = cliContext2.watchedFiles[tagFilename]!!.lastCommit!!
         val lastModified = Files.getLastModifiedTime(workFilePath(tagFilename)).toInstant()
         assertThat(lastCommit.isAfter(lastModified))
         softlyAssertSucceedsWithStdoutContaining(success, "Active view: l\n")

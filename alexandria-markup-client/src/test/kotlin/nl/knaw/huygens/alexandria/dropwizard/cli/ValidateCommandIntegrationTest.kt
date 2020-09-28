@@ -29,7 +29,7 @@ class ValidateCommandIntegrationTest : CommandIntegrationTest() {
     fun testCommandWithMissingDocument() {
         runInitCommand()
         val success = cli!!.run(command, "transcription")
-        val expectedOutput = ""
+//        val expectedOutput = ""
         val expectedError = """
             ERROR: No document 'transcription' was registered.
             Registered documents:
@@ -75,8 +75,8 @@ to the tagml sourcefile."""
 
         // create sourcefile
         val tagFilename = createTagmlFileName("transcription")
-        val schemaLocationURL = Companion.schemaLocationURL(schemaFile)
-        val tagml = Companion.schemaLocationElement(schemaFile) + "[tagml>[l>test [w>word<w]<l]<tagml]"
+        val schemaLocationURL = schemaLocationURL(schemaFile)
+        val tagml = schemaLocationElement(schemaFile) + "[tagml>[l>test [w>word<w]<l]<tagml]"
         val tagPath = createFile(tagFilename, tagml)
         runAddCommand(tagPath)
         runCommitAllCommand()
@@ -104,8 +104,8 @@ according to the schema defined in $schemaLocationURL"""
 
         // create sourcefile
         val tagFilename = createTagmlFileName("transcription")
-        val schemaLocationURL = Companion.schemaLocationURL(schemaFile)
-        val tagml = Companion.schemaLocationElement(schemaFile) + "[a>[aa>test [aaa>word<aaa]<aa]<a]"
+        val schemaLocationURL = schemaLocationURL(schemaFile)
+        val tagml = schemaLocationElement(schemaFile) + "[a>[aa>test [aaa>word<aaa]<aa]<a]"
         val tagPath = createFile(tagFilename, tagml)
         runAddCommand(tagPath)
         runCommitAllCommand()
@@ -134,8 +134,8 @@ according to the schema defined in $schemaLocationURL"""
 
         // create sourcefile
         val tagFilename = createTagmlFileName("transcription")
-        val schemaLocationURL = Companion.schemaLocationURL(schemaFile)
-        val tagml = Companion.schemaLocationElement(schemaFile) + "[a>[aa>test [aaa>word<aaa]<aa]<a]"
+        val schemaLocationURL = schemaLocationURL(schemaFile)
+        val tagml = schemaLocationElement(schemaFile) + "[a>[aa>test [aaa>word<aaa]<aa]<a]"
         val tagPath = createFile(tagFilename, tagml)
         runAddCommand(tagPath)
         runCommitAllCommand()

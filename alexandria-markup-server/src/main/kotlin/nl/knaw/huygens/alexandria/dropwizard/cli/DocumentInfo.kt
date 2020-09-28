@@ -1,8 +1,8 @@
-package nl.knaw.huygens.alexandria.markup.client
+package nl.knaw.huygens.alexandria.dropwizard.cli
 
-/*
+/*-
  * #%L
- * alexandria-markup-client
+ * alexandria-markup-server
  * =======
  * Copyright (C) 2015 - 2020 Huygens ING (KNAW)
  * =======
@@ -20,12 +20,28 @@ package nl.knaw.huygens.alexandria.markup.client
  * #L%
  */
 
-class AlexandriaException : RuntimeException {
-    constructor() : super()
+class DocumentInfo {
+    var documentName: String? = null
+        private set
 
-    constructor(message: String) : super(message)
+    var sourceFile: String? = null
+        private set
 
-    companion object {
-        private const val serialVersionUID = 1L
+    var dbId: Long? = null
+        private set
+
+    fun withDocumentName(documentName: String): DocumentInfo {
+        this.documentName = documentName
+        return this
+    }
+
+    fun withSourceFile(sourceFile: String): DocumentInfo {
+        this.sourceFile = sourceFile
+        return this
+    }
+
+    fun withDbId(dbId: Long): DocumentInfo {
+        this.dbId = dbId
+        return this
     }
 }
