@@ -1,4 +1,4 @@
-package nl.knaw.huygens.alexandria.markup.api;
+package nl.knaw.huygens.alexandria.markup.api
 
 /*
  * #%L
@@ -20,65 +20,47 @@ package nl.knaw.huygens.alexandria.markup.api;
  * #L%
  */
 
-public class AppInfo {
-  private String appName;
-  private String startedAt;
-  private String version;
-  private String buildDate;
-  private String commitId;
-  private String scmBranch;
+class AppInfo {
+    var appName: String? = null
+        private set
+    var startedAt: String? = null
+        private set
+    var version: String? = null
+        private set
+    var buildDate: String? = null
+        private set
+    var commitId: String? = null
+        private set
+    var scmBranch: String? = null
+        private set
 
-  public AppInfo setAppName(String appName) {
-    this.appName = appName;
-    return this;
-  }
+    fun setAppName(appName: String): AppInfo {
+        this.appName = appName
+        return this
+    }
 
-  public String getAppName() {
-    return appName;
-  }
+    fun setStartedAt(startedAt: String): AppInfo {
+        this.startedAt = startedAt
+        return this
+    }
 
-  public AppInfo setStartedAt(String startedAt) {
-    this.startedAt = startedAt;
-    return this;
-  }
+    fun setVersion(version: String): AppInfo {
+        this.version = version
+        return this
+    }
 
-  public String getStartedAt() {
-    return startedAt;
-  }
+    fun setBuildDate(buildDate: String): AppInfo {
+        this.buildDate = buildDate
+        return this
+    }
 
-  public AppInfo setVersion(String version) {
-    this.version = version;
-    return this;
-  }
+    fun setCommitId(commitId: String): AppInfo {
+        this.commitId = commitId
+        return this
+    }
 
-  public String getVersion() {
-    return version;
-  }
-
-  public AppInfo setBuildDate(final String buildDate) {
-    this.buildDate = buildDate;
-    return this;
-  }
-
-  public String getBuildDate() {
-    return buildDate;
-  }
-
-  public AppInfo setCommitId(final String commitId) {
-    this.commitId = commitId;
-    return this;
-  }
-
-  public String getCommitId() {
-    return commitId;
-  }
-
-  public AppInfo setScmBranch(final String scmBranch) {
-    this.scmBranch = scmBranch;
-    return this;
-  }
-
-  public String getScmBranch() {
-    return scmBranch;
-  }
+    fun setScmBranch(scmBranch: String): AppInfo {
+        this.scmBranch = scmBranch
+        return this
+    }
 }

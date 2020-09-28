@@ -1,4 +1,4 @@
-package nl.knaw.huygens.alexandria.markup.api;
+package nl.knaw.huygens.alexandria.markup.api
 
 /*-
  * #%L
@@ -19,6 +19,7 @@ package nl.knaw.huygens.alexandria.markup.api;
  * limitations under the License.
  * #L%
  */
-public class AlexandriaProperties {
-  public static final String WORKDIR = "alexandria.app.workdir";
+
+object AlexandriaProperties {
+    const val WORKDIR = "alexandria.app.workdir"
 }

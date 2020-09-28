@@ -93,7 +93,7 @@ public class DocumentService {
   }
 
   private static DocumentInfo newDocumentInfo(UUID uuid) {
-    return new DocumentInfo(uuid, baseURI).setCreated(Instant.now()).setModified(Instant.now());
+    return new DocumentInfo(uuid, baseURI).withCreated(Instant.now()).withModified(Instant.now());
   }
 
   public Collection<UUID> getDocumentUUIDs() {

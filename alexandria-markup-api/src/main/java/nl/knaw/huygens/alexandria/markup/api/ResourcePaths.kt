@@ -1,4 +1,4 @@
-package nl.knaw.huygens.alexandria.markup.api;
+package nl.knaw.huygens.alexandria.markup.api
 
 /*
  * #%L
@@ -20,14 +20,13 @@ package nl.knaw.huygens.alexandria.markup.api;
  * #L%
  */
 
-public class ResourcePaths {
-  public static final String ABOUT = "about";
-
-  public static final String DOCUMENTS = "documents";
-  public static final String DOCUMENTS_TAGML = "tagml";
-  public static final String DOCUMENTS_LATEX = "latex";
-  public static final String DOCUMENTS_MARKUPDEPTH = "markupdepth";
-  public static final String DOCUMENTS_MATRIX = "matrix";
-  public static final String DOCUMENTS_KDTREE = "kdtree";
-  public static final String DOCUMENTS_QUERY = "query";
+object ResourcePaths {
+    const val ABOUT = "about"
+    const val DOCUMENTS = "documents"
+    const val DOCUMENTS_TAGML = "tagml"
+    const val DOCUMENTS_LATEX = "latex"
+    const val DOCUMENTS_MARKUPDEPTH = "markupdepth"
+    const val DOCUMENTS_MATRIX = "matrix"
+    const val DOCUMENTS_KDTREE = "kdtree"
+    const val DOCUMENTS_QUERY = "query"
 }
