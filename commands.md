@@ -46,7 +46,7 @@ Go to the directory that you unpacked the zip into. The zip contained three subd
 
 * `alexandria status`
 
-  This will show the the active view, and the names of the files that have been changed since the last commit.
+  This will show the active view, and the names of the files that have been changed since the last commit.
 
 * `alexandria export-dot frost-quote`  
   or  
@@ -71,11 +71,16 @@ Go to the directory that you unpacked the zip into. The zip contained three subd
 
 * `alexandria export-xml frost-quote`  
   or  
-  `alexandria export-xml frost-quote -o fq.xml`
+  `alexandria export-xml frost-quote -o fq.xml`  
   
   This will export document `frost-quote` as xml, to stdout or file fq.xml.  
   [Trojan Horse markup](http://www.balisage.net/Proceedings/vol21/html/Sperberg-McQueen01/BalisageVol21-Sperberg-McQueen01.html) is used to deal with overlapping hierarchies.  
   If a view is active, this view will be used for the export.
+  When the (view of the) document has multiple overlapping layers, the default layer hierarchy will determine the xml hierarchy, the markup from the other layers will be exported as Trojan Horse milestones.  
+  Use the `-l` option to indicate an alternative layer to use as the leading layer.:  
+  
+  `alexandria export-xml frost-quote -l A`
+
   
 * `alexandria help`
   
@@ -86,7 +91,7 @@ Go to the directory that you unpacked the zip into. The zip contained three subd
   This will execute the `markup-count` SPARQL query on the knowledge graph of document `frost-quote`
 
 #### NOTE:
-- In all of the previous commands with multiple parameters, those parameters are order independent, so   
+- In all the previous commands with multiple parameters, those parameters are order independent, so   
   `alexandria export-xml frost-quote -o fq.xml`  
   will give the same result as  
   `alexandria export-xml -o fq.xml frost-quote`
