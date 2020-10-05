@@ -3,7 +3,7 @@
 ## What is it?
 In short: _Alexandria_ is a text repository system in which you can store and edit documents. It is the reference implementation of [TAG](https://huygensing.github.io/TAG/) (Text-as-Graph), a flexible graph data model for text. TAG and _Alexandria_ are under active development at the [Research & Development group](https://huc.knaw.nl/research/infrastructure-rd/) of the Humanities Cluster.
 
-You may wonder, why use _Alexandria_ if you already have a text editing tool? Well, if you'd like to carry out advanced text analysis and you don't mind a little command-line work, _Alexandria_ is the tool for you. If you're used to working with XML, you'll find it especially enlightening to work with a data model like TAG in which you can easily model overlapping structures, discontinuous elements, and nonlinear text without having to resort to workarounds.
+You may wonder, why use _Alexandria_ if you already have a text editing tool? Well, if you'd like to carry out advanced text analysis, and you don't mind a little command-line work, _Alexandria_ is the tool for you. If you're used to working with XML, you'll find it especially enlightening to work with a data model like TAG in which you can easily model overlapping structures, discontinuous elements, and nonlinear text without having to resort to workarounds.
 
 ## News
 
@@ -105,7 +105,7 @@ in your terminal window. It should return something like the following, with the
 #### 2c.
 If you don't want to change your path, you can create a softlink.
 
-A softlink (also known as a symbolic link or symlink) consists of a special type of file that serves as a reference to another file or directory. You can create them on your command line: 
+A soft link (also known as a symbolic link or symlink) consists of a special type of file that serves as a reference to another file or directory. You can create them on your command line: 
 ```
 $ ln -s {source-filename} {symbolic-filename}
 ```
