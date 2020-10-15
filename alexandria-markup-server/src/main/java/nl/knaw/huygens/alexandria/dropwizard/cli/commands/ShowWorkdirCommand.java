@@ -35,8 +35,7 @@ public class ShowWorkdirCommand extends AlexandriaCommand {
   }
 
   @Override
-  public void configure(Subparser subparser) {
-  }
+  public void configure(Subparser subparser) {}
 
   @Override
   public void run(Bootstrap<?> bootstrap, Namespace namespace) throws IOException {
@@ -44,9 +43,8 @@ public class ShowWorkdirCommand extends AlexandriaCommand {
     if (workingDirectory.isPresent()) {
       System.out.println(workingDirectory.get());
     } else {
-      System.err.println("No " + ALEXANDRIA_DIR + " directory found in this directory or any of its ancestors.");
+      System.err.println(
+          "No " + ALEXANDRIA_DIR + " directory found in this directory or any of its ancestors.");
     }
   }
-
 }
-

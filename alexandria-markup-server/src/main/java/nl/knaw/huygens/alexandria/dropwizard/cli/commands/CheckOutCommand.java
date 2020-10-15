@@ -39,11 +39,12 @@ public class CheckOutCommand extends AlexandriaCommand {
 
   @Override
   public void configure(Subparser subparser) {
-    subparser.addArgument("view")//
+    subparser
+        .addArgument("view")
         .metavar("<view>")
-        .dest(VIEW)//
-        .type(String.class)//
-        .required(true)//
+        .dest(VIEW)
+        .type(String.class)
+        .required(true)
         .help("The name of the view to use");
   }
 
@@ -67,6 +68,4 @@ public class CheckOutCommand extends AlexandriaCommand {
       throw new AlexandriaCommandException(message);
     }
   }
-
 }
-

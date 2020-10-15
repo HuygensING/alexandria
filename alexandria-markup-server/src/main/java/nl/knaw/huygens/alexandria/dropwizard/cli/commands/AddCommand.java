@@ -29,11 +29,8 @@ import nl.knaw.huygens.alexandria.dropwizard.cli.FileInfo;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.time.Instant;
 import java.util.List;
 import java.util.Map;
-
-import static java.time.temporal.ChronoUnit.DAYS;
 
 public class AddCommand extends AlexandriaCommand {
 
@@ -43,12 +40,13 @@ public class AddCommand extends AlexandriaCommand {
 
   @Override
   public void configure(Subparser subparser) {
-    subparser.addArgument(ARG_FILE)//
+    subparser
+        .addArgument(ARG_FILE)
         .metavar("<file>")
-        .dest(FILE)//
-        .type(String.class)//
+        .dest(FILE)
+        .type(String.class)
         .nargs("+")
-        .required(true)//
+        .required(true)
         .help("the files to watch");
   }
 
@@ -64,9 +62,7 @@ public class AddCommand extends AlexandriaCommand {
       if (filePath.toFile().exists()) {
         try {
           if (Files.isRegularFile(filePath)) {
-            Instant lastModifiedInstant = Files.getLastModifiedTime(filePath).toInstant();
-            Instant lastCommit = lastModifiedInstant.minus(365L, DAYS); // set lastCommit to instant sooner than lastModifiedInstant
-            FileInfo fileInfo = new FileInfo().setLastCommit(lastCommit);
+            FileInfo fileInfo = makeFileInfo(filePath);
             watchedFiles.put(file, fileInfo);
           } else if (Files.isDirectory(filePath)) {
             cliContext.getWatchedDirectories().add(file);

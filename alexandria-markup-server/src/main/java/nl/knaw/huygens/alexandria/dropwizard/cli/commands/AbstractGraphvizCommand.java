@@ -37,19 +37,20 @@ abstract class AbstractGraphvizCommand extends AlexandriaCommand {
 
   @Override
   public void configure(Subparser subparser) {
-    subparser.addArgument("DOCUMENT")//
+    subparser
+        .addArgument("DOCUMENT")
         .metavar("<document>")
-        .dest(DOCUMENT)//
-        .type(String.class)//
-        .required(true)//
+        .dest(DOCUMENT)
+        .type(String.class)
+        .required(true)
         .help("The name of the document to export.");
-    subparser.addArgument("-o", "--outputfile")//
-        .dest(OUTPUTFILE)//
+    subparser
+        .addArgument("-o", "--outputfile")
+        .dest(OUTPUTFILE)
         .metavar("<file>")
-        .type(String.class)//
-        .required(false)//
+        .type(String.class)
+        .required(false)
         .help("The file to export to.");
-
   }
 
   @Override
@@ -59,23 +60,24 @@ abstract class AbstractGraphvizCommand extends AlexandriaCommand {
     String fileName = namespace.getString(OUTPUTFILE);
     Long docId = getIdForExistingDocument(docName);
     try (TAGStore store = getTAGStore()) {
-      store.runInTransaction(() -> {
-        TAGDocument document = store.getDocument(docId);
-        DotFactory dotFactory = new DotFactory(); // TODO: add option to export using view
-        String dot = dotFactory.toDot(document, "");
-        if (fileName != null) {
-          System.out.printf("exporting to %s...", fileName);
-          try {
-            renderToFile(dot, fileName);
-          } catch (IOException e) {
-            throw new RuntimeException(e);
-          }
-          System.out.println();
-          System.out.println("done!");
-        } else {
-          renderToStdOut(dot);
-        }
-      });
+      store.runInTransaction(
+          () -> {
+            TAGDocument document = store.getDocument(docId);
+            DotFactory dotFactory = new DotFactory(); // TODO: add option to export using view
+            String dot = dotFactory.toDot(document, "");
+            if (fileName != null) {
+              System.out.printf("exporting to %s...", fileName);
+              try {
+                renderToFile(dot, fileName);
+              } catch (IOException e) {
+                throw new RuntimeException(e);
+              }
+              System.out.println();
+              System.out.println("done!");
+            } else {
+              renderToStdOut(dot);
+            }
+          });
     }
   }
 
@@ -84,5 +86,4 @@ abstract class AbstractGraphvizCommand extends AlexandriaCommand {
   protected abstract void renderToFile(final String dot, final String fileName) throws IOException;
 
   protected abstract void renderToStdOut(final String dot);
-
 }

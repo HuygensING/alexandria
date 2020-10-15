@@ -44,9 +44,8 @@ public class DocumentService {
     store = config.getStore();
   }
 
-  static final Cache<UUID, TAGDocumentDTO> documentCache = CacheBuilder.newBuilder()//
-      .maximumSize(100)//
-      .build();
+  static final Cache<UUID, TAGDocumentDTO> documentCache =
+      CacheBuilder.newBuilder().maximumSize(100).build();
 
   public Optional<TAGDocument> getDocument(UUID uuid) {
     if (uuids.contains(uuid)) {
@@ -67,17 +66,15 @@ public class DocumentService {
   public void setDocument(UUID docId, TAGDocument document) {
     documentCache.put(docId, document.getDTO());
 
-    DocumentInfo docInfo = getDocumentInfo(docId)//
-        .orElseGet(() -> newDocumentInfo(docId));
+    DocumentInfo docInfo = getDocumentInfo(docId).orElseGet(() -> newDocumentInfo(docId));
     docInfo.setModified(Instant.now());
     documentInfoCache.put(docId, docInfo);
 
     uuids.add(docId);
   }
 
-  static final Cache<UUID, DocumentInfo> documentInfoCache = CacheBuilder.newBuilder()//
-      .maximumSize(100)//
-      .build();
+  static final Cache<UUID, DocumentInfo> documentInfoCache =
+      CacheBuilder.newBuilder().maximumSize(100).build();
 
   public Optional<DocumentInfo> getDocumentInfo(UUID uuid) {
     if (uuids.contains(uuid)) {
@@ -96,13 +93,10 @@ public class DocumentService {
   }
 
   private static DocumentInfo newDocumentInfo(UUID uuid) {
-    return new DocumentInfo(uuid, baseURI)//
-        .setCreated(Instant.now())//
-        .setModified(Instant.now());
+    return new DocumentInfo(uuid, baseURI).withCreated(Instant.now()).withModified(Instant.now());
   }
 
   public Collection<UUID> getDocumentUUIDs() {
     return uuids;
   }
-
 }

@@ -40,15 +40,17 @@ public class QueryCommand extends AlexandriaCommand {
 
   @Override
   public void configure(Subparser subparser) {
-    subparser.addArgument("-d", "--document")//
-        .dest(DOCUMENT)//
-        .type(String.class)//
-        .required(true)//
+    subparser
+        .addArgument("-d", "--document")
+        .dest(DOCUMENT)
+        .type(String.class)
+        .required(true)
         .help("The name of the document to query.");
-    subparser.addArgument("-q", "--query")//
+    subparser
+        .addArgument("-q", "--query")
         .dest(QUERY)
-        .type(String.class)//
-        .required(true)//
+        .type(String.class)
+        .required(true)
         .help("The TAGQL query.");
   }
 
@@ -59,19 +61,20 @@ public class QueryCommand extends AlexandriaCommand {
     String statement = namespace.getString(QUERY);
     Long docId = getIdForExistingDocument(docName);
     try (TAGStore store = getTAGStore()) {
-      store.runInTransaction(() -> {
-        System.out.printf("document: %s%n", docName);
-        System.out.printf("query: %s%n", statement);
-        TAGDocument document = store.getDocument(docId);
-        TAGQLQueryHandler h = new TAGQLQueryHandler(document);
-        TAGQLResult result = h.execute(statement);
-        System.out.printf("result:%n%s%n", result.getValues().stream()
-            .map(Object::toString)
-            .collect(joining("\n")));
-        if (!result.isOk()) {
-          System.out.printf("errors: %s%n", result.getErrors());
-        }
-      });
+      store.runInTransaction(
+          () -> {
+            System.out.printf("document: %s%n", docName);
+            System.out.printf("query: %s%n", statement);
+            TAGDocument document = store.getDocument(docId);
+            TAGQLQueryHandler h = new TAGQLQueryHandler(document);
+            TAGQLResult result = h.execute(statement);
+            System.out.printf(
+                "result:%n%s%n",
+                result.getValues().stream().map(Object::toString).collect(joining("\n")));
+            if (!result.isOk()) {
+              System.out.printf("errors: %s%n", result.getErrors());
+            }
+          });
     }
   }
 }

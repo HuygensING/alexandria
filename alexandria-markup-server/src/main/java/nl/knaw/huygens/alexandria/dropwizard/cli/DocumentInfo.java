@@ -19,6 +19,7 @@ package nl.knaw.huygens.alexandria.dropwizard.cli;
  * limitations under the License.
  * #L%
  */
+
 public class DocumentInfo {
   private String documentName;
   private String sourceFile;

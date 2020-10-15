@@ -9,9 +9,9 @@ package nl.knaw.huygens.alexandria.dropwizard;
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -52,7 +52,7 @@ public class ServerApplication extends Application<ServerConfiguration> {
   private static final String PROPERTIES_FILE = "about.properties";
   private final Logger LOG = LoggerFactory.getLogger(getClass());
 
-  private AppInfo appInfo = getAppInfo();
+  private final AppInfo appInfo = getAppInfo();
 
   public static void main(String[] args) throws Exception {
     new ServerApplication().run(args);
@@ -77,16 +77,17 @@ public class ServerApplication extends Application<ServerConfiguration> {
   @Override
   public void initialize(Bootstrap<ServerConfiguration> bootstrap) {
     // Enable variable substitution with environment variables
-    bootstrap.setConfigurationSourceProvider(//
-        new SubstitutingSourceProvider(//
-            bootstrap.getConfigurationSourceProvider(), //
-            new EnvironmentVariableSubstitutor()));
-    bootstrap.addBundle(new SwaggerBundle<ServerConfiguration>() {
-      @Override
-      protected SwaggerBundleConfiguration getSwaggerBundleConfiguration(ServerConfiguration configuration) {
-        return configuration.swaggerBundleConfiguration;
-      }
-    });
+    bootstrap.setConfigurationSourceProvider(
+        new SubstitutingSourceProvider(
+            bootstrap.getConfigurationSourceProvider(), new EnvironmentVariableSubstitutor()));
+    bootstrap.addBundle(
+        new SwaggerBundle<ServerConfiguration>() {
+          @Override
+          protected SwaggerBundleConfiguration getSwaggerBundleConfiguration(
+              ServerConfiguration configuration) {
+            return configuration.swaggerBundleConfiguration;
+          }
+        });
     addCommands(bootstrap, appInfo);
   }
 
@@ -105,7 +106,8 @@ public class ServerApplication extends Application<ServerConfiguration> {
     bootstrap.addCommand(new ExportRenderedDotCommand("png"));
     bootstrap.addCommand(new ExportXmlCommand());
     bootstrap.addCommand(new SPARQLQueryCommand());
-//    bootstrap.addCommand(new ShowWorkdirCommand());
+    //    bootstrap.addCommand(new ValidateCommand());
+    //    bootstrap.addCommand(new ShowWorkdirCommand());
   }
 
   @Override
@@ -119,20 +121,28 @@ public class ServerApplication extends Application<ServerConfiguration> {
 
     environment.jersey().register(new HomePageResource());
     environment.jersey().register(new AboutResource(appInfo));
-    environment.jersey().register(new DocumentsResource(documentService, tagmlImporter, texMECSImporter, tagmlExporter, configuration));
+    environment
+        .jersey()
+        .register(
+            new DocumentsResource(
+                documentService, tagmlImporter, texMECSImporter, tagmlExporter, configuration));
 
     environment.healthChecks().register("server", new ServerHealthCheck());
 
     SortedMap<String, Result> results = environment.healthChecks().runHealthChecks();
     AtomicBoolean healthy = new AtomicBoolean(true);
     LOG.info("Healthchecks:");
-    results.forEach((name, result) -> {
-      LOG.info("{}: {}, message='{}'", name, result.isHealthy() ? "healthy" : "unhealthy", result.getMessage());
-      healthy.set(healthy.get() && result.isHealthy());
-    });
+    results.forEach(
+        (name, result) -> {
+          LOG.info(
+              "{}: {}, message='{}'",
+              name,
+              result.isHealthy() ? "healthy" : "unhealthy",
+              result.getMessage());
+          healthy.set(healthy.get() && result.isHealthy());
+        });
     if (!healthy.get()) {
       throw new RuntimeException("Failing health check(s)");
     }
-
   }
 }

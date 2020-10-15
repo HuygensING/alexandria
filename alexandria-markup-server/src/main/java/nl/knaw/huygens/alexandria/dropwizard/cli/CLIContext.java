@@ -77,11 +77,9 @@ public class CLIContext {
   }
 
   public Optional<String> getDocumentName(final String fileName) {
-    return documentInfo.values()
-        .stream()
+    return documentInfo.values().stream()
         .filter(di -> di.getSourceFile().equals(fileName))
         .findFirst()
         .map(DocumentInfo::getDocumentName);
   }
-
 }

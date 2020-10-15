@@ -45,17 +45,19 @@ public class SPARQLQueryCommand extends AlexandriaCommand {
 
   @Override
   public void configure(Subparser subparser) {
-    subparser.addArgument("DOCUMENT")//
+    subparser
+        .addArgument("DOCUMENT")
         .metavar("<document>")
-        .dest(DOCUMENT)//
-        .type(String.class)//
-        .required(true)//
+        .dest(DOCUMENT)
+        .type(String.class)
+        .required(true)
         .help("The name of the document to query.");
-    subparser.addArgument("-q", "--query")//
+    subparser
+        .addArgument("-q", "--query")
         .metavar("<sparql-file>")
         .dest(QUERY)
-        .type(String.class)//
-        .required(true)//
+        .type(String.class)
+        .required(true)
         .help("The file containing the SPARQL query.");
   }
 
@@ -71,19 +73,20 @@ public class SPARQLQueryCommand extends AlexandriaCommand {
         String sparqlQuery = FileUtils.readFileToString(file, Charsets.UTF_8);
         Long docId = getIdForExistingDocument(docName);
         try (TAGStore store = getTAGStore()) {
-          store.runInTransaction(() -> {
-            System.out.printf("document: %s%n%n", docName);
-            System.out.printf("query:%n  %s%n%n", sparqlQuery.replaceAll("\\n", "\n  "));
-            TAGDocument document = store.getDocument(docId);
-            SPARQLQueryHandler h = new SPARQLQueryHandler(document);
-            SPARQLResult result = h.execute(sparqlQuery);
-            System.out.printf("result:%n%s%n", result.getValues().stream()
-                .map(Object::toString)
-                .collect(joining("\n")));
-            if (!result.isOk()) {
-              System.out.printf("errors: %s%n", result.getErrors());
-            }
-          });
+          store.runInTransaction(
+              () -> {
+                System.out.printf("document: %s%n%n", docName);
+                System.out.printf("query:%n  %s%n%n", sparqlQuery.replaceAll("\\n", "\n  "));
+                TAGDocument document = store.getDocument(docId);
+                SPARQLQueryHandler h = new SPARQLQueryHandler(document);
+                SPARQLResult result = h.execute(sparqlQuery);
+                System.out.printf(
+                    "result:%n%s%n",
+                    result.getValues().stream().map(Object::toString).collect(joining("\n")));
+                if (!result.isOk()) {
+                  System.out.printf("errors: %s%n", result.getErrors());
+                }
+              });
         }
       } catch (IOException e) {
         throw new RuntimeException(e);

@@ -27,8 +27,7 @@ import nl.knaw.huygens.alexandria.storage.TAGStore;
 import org.hibernate.validator.constraints.NotEmpty;
 
 public class ServerConfiguration extends Configuration {
-  @NotEmpty
-  private String baseURI;
+  @NotEmpty private String baseURI;
   private TAGStore store;
   private String dbDir;
 
@@ -58,5 +57,4 @@ public class ServerConfiguration extends Configuration {
   public String getDbDir() {
     return dbDir;
   }
-
 }

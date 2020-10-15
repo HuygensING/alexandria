@@ -33,15 +33,12 @@ public class HelpCommand extends AlexandriaCommand {
   }
 
   @Override
-  public void configure(Subparser subparser) {
-
-  }
+  public void configure(Subparser subparser) {}
 
   @Override
   public void run(Bootstrap<?> bootstrap, Namespace namespace) {
-    System.out.println("usage: alexandria [-h] <command> [<args>]\n" +
-        "\n" +
-        "Available commands:\n");
+    System.out.println(
+        "usage: alexandria [-h] <command> [<args>]\n" + "\n" + "Available commands:\n");
     bootstrap.getCommands().stream()
         .sorted(comparing(Command::getName))
         .map(this::toCommandHelpLine)

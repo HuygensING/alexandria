@@ -20,5 +20,7 @@ package nl.knaw.huygens.alexandria.dropwizard.cli;
  * #L%
  */
 public enum FileType {
-  viewDefinition, tagmlSource, other
+  viewDefinition,
+  tagmlSource,
+  other
 }

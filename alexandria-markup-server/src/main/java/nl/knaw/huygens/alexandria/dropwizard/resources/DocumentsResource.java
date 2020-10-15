@@ -66,7 +66,12 @@ public class DocumentsResource {
   private final TexMECSImporter texMECSImporter;
   private final TAGStore store;
 
-  public DocumentsResource(DocumentService documentService, TAGMLImporter tagmlImporter, TexMECSImporter texMECSImporter, TAGMLExporter tagmlExporter, ServerConfiguration configuration) {
+  public DocumentsResource(
+      DocumentService documentService,
+      TAGMLImporter tagmlImporter,
+      TexMECSImporter texMECSImporter,
+      TAGMLExporter tagmlExporter,
+      ServerConfiguration configuration) {
     this.documentService = documentService;
     this.tagmlImporter = tagmlImporter;
     this.texMECSImporter = texMECSImporter;
@@ -79,9 +84,8 @@ public class DocumentsResource {
   @Timed
   @ApiOperation(value = "List all document URIs")
   public List<URI> getDocumentURIs() {
-    return documentService.getDocumentUUIDs()//
-        .stream()//
-        .map(this::documentURI)//
+    return documentService.getDocumentUUIDs().stream()
+        .map(this::documentURI)
         .collect(Collectors.toList());
   }
 
@@ -90,8 +94,7 @@ public class DocumentsResource {
   @Path("tagml")
   @Timed
   @ApiOperation(value = "Create a new document from a TAGML text")
-  public Response addDocumentFromTAGML(
-      @ApiParam(APIPARAM_TAGML) @NotNull @Valid String tagml) {
+  public Response addDocumentFromTAGML(@ApiParam(APIPARAM_TAGML) @NotNull @Valid String tagml) {
     UUID documentId = UUID.randomUUID();
     try {
       processAndStoreTAGML(tagml, documentId);
@@ -127,7 +130,7 @@ public class DocumentsResource {
   @Timed
   @ApiOperation(value = "Update an existing document from a TAGML text")
   public Response setDocumentFromTAGML(
-      @ApiParam(APIPARAM_UUID) @PathParam("uuid") final UUID uuid,//
+      @ApiParam(APIPARAM_UUID) @PathParam("uuid") final UUID uuid,
       @ApiParam(APIPARAM_TAGML) @NotNull String tagml) {
     try {
       processAndStoreTAGML(tagml, uuid);
@@ -143,7 +146,7 @@ public class DocumentsResource {
   @Timed
   @ApiOperation(value = "Update an existing document from a TexMECS text")
   public Response setDocumentFromTexMECS(
-      @ApiParam(APIPARAM_UUID) @PathParam("uuid") final UUID uuid,//
+      @ApiParam(APIPARAM_UUID) @PathParam("uuid") final UUID uuid,
       @ApiParam(APIPARAM_TEXMECS) @NotNull String texMECS) {
     try {
       processAndStoreTexMECS(texMECS, uuid);
@@ -158,10 +161,9 @@ public class DocumentsResource {
   @Path("{uuid}")
   @Timed
   @ApiOperation(value = "Get info about a document")
-  public Response getDocumentInfo(
-      @ApiParam(APIPARAM_UUID) @PathParam("uuid") final UUID uuid) {
-    DocumentInfo documentInfo = documentService.getDocumentInfo(uuid)//
-        .orElseThrow(NotFoundException::new);
+  public Response getDocumentInfo(@ApiParam(APIPARAM_UUID) @PathParam("uuid") final UUID uuid) {
+    DocumentInfo documentInfo =
+        documentService.getDocumentInfo(uuid).orElseThrow(NotFoundException::new);
     return Response.ok(documentInfo).build();
   }
 
@@ -170,8 +172,7 @@ public class DocumentsResource {
   @Timed
   @Produces(UTF8MediaType.TEXT_PLAIN)
   @ApiOperation(value = "Get a TAGML representation of the document")
-  public Response getTAGML(
-      @ApiParam(APIPARAM_UUID) @PathParam("uuid") final UUID uuid) {
+  public Response getTAGML(@ApiParam(APIPARAM_UUID) @PathParam("uuid") final UUID uuid) {
     TAGDocument document = getExistingDocument(uuid);
     String tagml = tagmlExporter.asTAGML(document);
     return Response.ok(tagml).build();
@@ -181,7 +182,9 @@ public class DocumentsResource {
   @Path("{uuid}/" + ResourcePaths.DOCUMENTS_LATEX)
   @Timed
   @Produces(UTF8MediaType.TEXT_PLAIN)
-  @ApiOperation(value = "Get a LaTeX visualization of the main layer of a document as text nodes and markup nodes")
+  @ApiOperation(
+      value =
+          "Get a LaTeX visualization of the main layer of a document as text nodes and markup nodes")
   public Response getLaTeXVisualization(
       @ApiParam(APIPARAM_UUID) @PathParam("uuid") final UUID uuid) {
     TAGDocument document = getExistingDocument(uuid);
@@ -194,7 +197,9 @@ public class DocumentsResource {
   @Path("{uuid}/" + ResourcePaths.DOCUMENTS_MARKUPDEPTH)
   @Timed
   @Produces(UTF8MediaType.TEXT_PLAIN)
-  @ApiOperation(value = "Get a LaTeX visualization of the main text nodes of a document, color-coded for the number of different markup nodes per text node")
+  @ApiOperation(
+      value =
+          "Get a LaTeX visualization of the main text nodes of a document, color-coded for the number of different markup nodes per text node")
   public Response getRangeOverlapVisualization(
       @ApiParam(APIPARAM_UUID) @PathParam("uuid") final UUID uuid) {
     TAGDocument document = getExistingDocument(uuid);
@@ -207,7 +212,8 @@ public class DocumentsResource {
   @Path("{uuid}/" + ResourcePaths.DOCUMENTS_MATRIX)
   @Timed
   @Produces(UTF8MediaType.TEXT_PLAIN)
-  @ApiOperation(value = "Get a LaTeX visualization of the optimized text node / markup matrix of a document")
+  @ApiOperation(
+      value = "Get a LaTeX visualization of the optimized text node / markup matrix of a document")
   public Response getMatrixVisualization(
       @ApiParam(APIPARAM_UUID) @PathParam("uuid") final UUID uuid) {
     TAGDocument document = getExistingDocument(uuid);
@@ -235,7 +241,7 @@ public class DocumentsResource {
   @Produces(UTF8MediaType.APPLICATION_JSON)
   @ApiOperation(value = "Run a TAGQL query on a document", response = TAGQLResult.class)
   public Response postTAGQLQuery(
-      @ApiParam(APIPARAM_UUID) @PathParam("uuid") final UUID uuid,//
+      @ApiParam(APIPARAM_UUID) @PathParam("uuid") final UUID uuid,
       @ApiParam("TAGQL query") String tagqlQuery) {
     TAGDocument document = getExistingDocument(uuid);
     TAGQLQueryHandler h = new TAGQLQueryHandler(document);
@@ -258,8 +264,6 @@ public class DocumentsResource {
   }
 
   private TAGDocument getExistingDocument(final UUID uuid) {
-    return documentService.getDocument(uuid)//
-        .orElseThrow(NotFoundException::new);
+    return documentService.getDocument(uuid).orElseThrow(NotFoundException::new);
   }
-
 }

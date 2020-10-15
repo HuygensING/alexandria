@@ -39,20 +39,22 @@ public class InitCommand extends AlexandriaCommand {
   }
 
   @Override
-  public void configure(Subparser subparser) {
-
-  }
+  public void configure(Subparser subparser) {}
 
   @Override
   public void run(Bootstrap<?> bootstrap, Namespace namespace) throws IOException {
     checkWeAreNotInUserHomeDir();
     CLIContext context = new CLIContext();
     initPaths(Paths.get("").toAbsolutePath());
-    context.getWatchedDirectories().add("");
+//    context.getWatchedDirectories().add("");
     System.out.println("initializing...");
-    System.out.println("  mkdir " + Paths.get(alexandriaDir));
+    Path alexandriaPath = Paths.get(alexandriaDir);
+    System.out.println("  mkdir " + alexandriaPath);
+    if (!new File(alexandriaDir).mkdir()) {
+      throw new AlexandriaCommandException(
+          "init failed: could not create directory " + alexandriaPath);
+    }
 
-    new File(alexandriaDir).mkdir();
     Path transcriptionsPath = Paths.get(workDir, SOURCE_DIR);
     System.out.println("  mkdir " + transcriptionsPath);
     mkdir(transcriptionsPath);
@@ -63,6 +65,11 @@ public class InitCommand extends AlexandriaCommand {
     mkdir(viewsPath);
     context.getWatchedDirectories().add(VIEWS_DIR);
 
+    Path sparqlPath = Paths.get(workDir, SPARQL_DIR);
+    System.out.println("  mkdir " + sparqlPath);
+    mkdir(sparqlPath);
+//    context.getWatchedDirectories().add(SPARQL_DIR);
+
     storeContext(context);
 
     System.out.println("done!");
@@ -72,7 +79,8 @@ public class InitCommand extends AlexandriaCommand {
     String homeDir = System.getProperty("user.home");
     String currentPath = Paths.get("").toAbsolutePath().toString();
     if (homeDir.equals(currentPath)) {
-      throw new AlexandriaCommandException("You are currently in your home directory, which can't be used as an alexandria directory. Please choose a different directory to initialize.");
+      throw new AlexandriaCommandException(
+          "You are currently in your home directory, which can't be used as an alexandria directory. Please choose a different directory to initialize.");
     }
   }
 

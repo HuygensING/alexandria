@@ -40,6 +40,7 @@ import nl.knaw.huygens.alexandria.view.TAGView;
 import nl.knaw.huygens.alexandria.view.TAGViewDefinition;
 import nl.knaw.huygens.alexandria.view.TAGViewFactory;
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang3.tuple.Pair;
 import org.fusesource.jansi.AnsiConsole;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -56,6 +57,7 @@ import java.util.*;
 import java.util.function.BiPredicate;
 
 import static java.lang.System.lineSeparator;
+import static java.time.temporal.ChronoUnit.DAYS;
 import static java.util.stream.Collectors.*;
 import static org.fusesource.jansi.Ansi.Color.RED;
 import static org.fusesource.jansi.Ansi.ansi;
@@ -67,6 +69,7 @@ public abstract class AlexandriaCommand extends Command {
 
   public static final String SOURCE_DIR = "tagml";
   public static final String VIEWS_DIR = "views";
+  public static final String SPARQL_DIR = "sparql";
 
   public static final String ARG_FILE = "file";
 
@@ -79,9 +82,8 @@ public abstract class AlexandriaCommand extends Command {
   String alexandriaDir;
   private File contextFile;
   String workDir;
-  static ObjectMapper mapper = new ObjectMapper()
-      .registerModule(new Jdk8Module())//
-      .registerModule(new JavaTimeModule());
+  static final ObjectMapper mapper =
+      new ObjectMapper().registerModule(new Jdk8Module()).registerModule(new JavaTimeModule());
 
   public AlexandriaCommand(String name, String description) {
     super(name, description);
@@ -111,22 +113,14 @@ public abstract class AlexandriaCommand extends Command {
 
   Map<String, TAGView> readViewMap(TAGStore store, final CLIContext context) {
     TAGViewFactory viewFactory = new TAGViewFactory(store);
-    return context.getTagViewDefinitions()
-        .entrySet()
-        .stream()
-        .collect(toMap(
-            Map.Entry::getKey,
-            e -> viewFactory.fromDefinition(e.getValue())
-        ));
+    return context.getTagViewDefinitions().entrySet().stream()
+        .collect(toMap(Map.Entry::getKey, e -> viewFactory.fromDefinition(e.getValue())));
   }
 
   void storeViewMap(Map<String, TAGView> viewMap, CLIContext context) {
-    Map<String, TAGViewDefinition> viewDefinitionMap = viewMap.entrySet()//
-        .stream()//
-        .collect(toMap(//
-            Map.Entry::getKey,//
-            e -> e.getValue().getDefinition()//
-        ));
+    Map<String, TAGViewDefinition> viewDefinitionMap =
+        viewMap.entrySet().stream()
+            .collect(toMap(Map.Entry::getKey, e -> e.getValue().getDefinition()));
     context.setTagViewDefinitions(viewDefinitionMap);
   }
 
@@ -140,7 +134,8 @@ public abstract class AlexandriaCommand extends Command {
 
   void checkAlexandriaIsInitialized() {
     if (!contextFile.exists()) {
-      System.out.println("This directory (or any of its parents) has not been initialized for alexandria, run ");
+      System.out.println(
+          "This directory (or any of its parents) has not been initialized for alexandria, run ");
       System.out.println("  alexandria init");
       System.out.println("first. (In this, or a parent directory)");
       throw new AlexandriaCommandException("not initialized");
@@ -167,13 +162,15 @@ public abstract class AlexandriaCommand extends Command {
     CLIContext context = readContext();
     Map<String, DocumentInfo> documentIndex = context.getDocumentInfo();
     if (!documentIndex.containsKey(docName)) {
-      final String registeredDocuments = context.getDocumentInfo()
-          .keySet()
-          .stream()
-          .sorted()
-          .map(d -> "  " + d)
-          .collect(joining(lineSeparator()));
-      String message = String.format("ERROR: No document '%s' was registered.\nRegistered documents:%n%s", docName, registeredDocuments);
+      final String registeredDocuments =
+          context.getDocumentInfo().keySet().stream()
+              .sorted()
+              .map(d -> "  " + d)
+              .collect(joining(lineSeparator()));
+      String message =
+          String.format(
+              "ERROR: No document '%s' was registered.\nRegistered documents:%n%s",
+              docName, registeredDocuments);
       throw new AlexandriaCommandException(message);
     }
     return documentIndex.get(docName).getDbId();
@@ -182,13 +179,12 @@ public abstract class AlexandriaCommand extends Command {
   TAGView getExistingView(String viewName, final TAGStore store, final CLIContext context) {
     Map<String, TAGView> viewMap = readViewMap(store, context);
     if (!viewMap.containsKey(viewName)) {
-      final String registeredViews = viewMap
-          .keySet()
-          .stream()
-          .sorted()
-          .map(v -> "  " + v)
-          .collect(joining(lineSeparator()));
-      String message = String.format("ERROR: No view '%s' was registered.\nRegistered views:%n%s", viewName, registeredViews);
+      final String registeredViews =
+          viewMap.keySet().stream().sorted().map(v -> "  " + v).collect(joining(lineSeparator()));
+      String message =
+          String.format(
+              "ERROR: No view '%s' was registered.\nRegistered views:%n%s",
+              viewName, registeredViews);
       throw new AlexandriaCommandException(message);
     }
     return viewMap.get(viewName);
@@ -222,12 +218,15 @@ public abstract class AlexandriaCommand extends Command {
     cli.getStdErr().println(e.getMessage());
   }
 
-  void exportTAGML(final CLIContext context, final TAGStore store, final TAGView tagView, final String fileName, final Long docId) {
+  void exportTAGML(
+      final CLIContext context,
+      final TAGStore store,
+      final TAGView tagView,
+      final String fileName,
+      final Long docId) {
     TAGDocument document = store.getDocument(docId);
     TAGMLExporter tagmlExporter = new TAGMLExporter(store, tagView);
-    String tagml = tagmlExporter.asTAGML(document)
-        .replaceAll("\n\\s*\n", "\n")
-        .trim();
+    String tagml = tagmlExporter.asTAGML(document).replaceAll("\n\\s*\n", "\n").trim();
     try {
       final File out = workFilePath(fileName).toFile();
       FileUtils.writeStringToFile(out, tagml, Charsets.UTF_8);
@@ -249,38 +248,56 @@ public abstract class AlexandriaCommand extends Command {
     try (TAGStore store = getTAGStore()) {
       CLIContext context = readContext();
       Map<String, FileInfo> watchedTranscriptions = new HashMap<>();
-      context.getWatchedFiles().entrySet()
-          .stream()
+      context.getWatchedFiles().entrySet().stream()
           .filter(e -> e.getValue().getFileType().equals(FileType.tagmlSource))
-          .forEach(e -> {
-            String fileName = e.getKey();
-            FileInfo fileInfo = e.getValue();
-            watchedTranscriptions.put(fileName, fileInfo);
-          });
+          .forEach(
+              e -> {
+                String fileName = e.getKey();
+                FileInfo fileInfo = e.getValue();
+                watchedTranscriptions.put(fileName, fileInfo);
+              });
 
       Map<String, DocumentInfo> documentIndex = context.getDocumentInfo();
-      store.runInTransaction(() -> {
-        TAGView tagView = showAll
-            ? TAGViews.getShowAllMarkupView(store)
-            : getExistingView(viewName, store, context);
+      store.runInTransaction(
+          () -> {
+            TAGView tagView =
+                showAll
+                    ? TAGViews.getShowAllMarkupView(store)
+                    : getExistingView(viewName, store, context);
 
-        watchedTranscriptions.keySet().stream().sorted().forEach(fileName -> {
-          FileInfo fileInfo = watchedTranscriptions.get(fileName);
-          System.out.printf("  updating %s...%n", fileName);
-          String documentName = fileInfo.getObjectName();
-          final Long docId = documentIndex.get(documentName).getDbId();
-          exportTAGML(context, store, tagView, fileName, docId);
-          try {
-            Instant lastModified = Files.getLastModifiedTime(workFilePath(fileName)).toInstant();
-            context.getWatchedFiles().get(fileName).setLastCommit(lastModified);
-          } catch (IOException e) {
-            throw new RuntimeException(e);
-          }
-        });
-      });
+            watchedTranscriptions.keySet().stream()
+                .sorted()
+                .forEach(
+                    fileName -> {
+                      FileInfo fileInfo = watchedTranscriptions.get(fileName);
+                      System.out.printf("  updating %s...%n", fileName);
+                      String documentName = fileInfo.getObjectName();
+                      final Long docId = documentIndex.get(documentName).getDbId();
+                      exportTAGML(context, store, tagView, fileName, docId);
+                      try {
+                        Instant lastModified =
+                            Files.getLastModifiedTime(workFilePath(fileName)).toInstant();
+                        context.getWatchedFiles().get(fileName).setLastCommit(lastModified);
+                      } catch (IOException e) {
+                        throw new RuntimeException(e);
+                      }
+                    });
+          });
       context.setActiveView(viewName);
       storeContext(context);
     }
+  }
+
+  protected String toViewName(String fileName) {
+    return fileName.replaceAll("^.*" + VIEWS_DIR + "/", "").replaceAll(".json", "");
+  }
+
+  protected FileInfo makeFileInfo(final Path filePath) throws IOException {
+    Instant lastModifiedInstant = Files.getLastModifiedTime(filePath).toInstant();
+    Instant lastCommit =
+        lastModifiedInstant.minus(
+            365L, DAYS); // set lastCommit to instant sooner than lastModifiedInstant
+    return new FileInfo().setLastCommit(lastCommit);
   }
 
   enum FileStatus {
@@ -294,11 +311,16 @@ public abstract class AlexandriaCommand extends Command {
   Multimap<FileStatus, String> readWorkDirStatus(CLIContext context) throws IOException {
     Multimap<FileStatus, String> fileStatusMap = ArrayListMultimap.create();
     Path workDir = workFilePath("");
+    addNewFilesFromWatchedDirs(context);
     Set<String> watchedFiles = new HashSet<>(context.getWatchedFiles().keySet());
-    BiPredicate<Path, BasicFileAttributes> matcher0 = (filePath, fileAttr) ->
-        isRelevantFile(workDir, filePath, fileAttr) || (fileAttr.isDirectory() && isNotDotDirectory(filePath));
-    BiPredicate<Path, BasicFileAttributes> matcher = (filePath, fileAttr) ->
-        isRelevantFile(workDir, filePath, fileAttr) || isRelevantDirectory(filePath, fileAttr, matcher0);
+    BiPredicate<Path, BasicFileAttributes> matcher0 =
+        (filePath, fileAttr) ->
+            isRelevantFile(workDir, filePath, fileAttr)
+                || (fileAttr.isDirectory() && isNotDotDirectory(filePath));
+    BiPredicate<Path, BasicFileAttributes> matcher =
+        (filePath, fileAttr) ->
+            isRelevantFile(workDir, filePath, fileAttr)
+                || isRelevantDirectory(filePath, fileAttr, matcher0);
 
     for (String p : context.getWatchedDirectories()) {
       Path absolutePath = Paths.get(this.workDir).resolve(p);
@@ -309,15 +331,46 @@ public abstract class AlexandriaCommand extends Command {
     return fileStatusMap;
   }
 
-  private boolean isRelevantFile(final Path workDir, final Path filePath, final BasicFileAttributes fileAttr) {
-    return fileAttr.isRegularFile() && (isTagmlFile(workDir, filePath) || isViewDefinition(workDir, filePath));
+  private void addNewFilesFromWatchedDirs(final CLIContext context) {
+    final Map<String, FileInfo> watchedFiles = context.getWatchedFiles();
+    Path workDirPath = workFilePath("");
+    context.getWatchedDirectories().stream()
+        .map(this::workFilePath)
+        .map(Path::toFile)
+        .map(File::listFiles)
+        .flatMap(Arrays::stream)
+        .filter(File::isFile)
+        .map(File::toPath)
+        //        .peek(p -> System.out.println(p))
+        .map(p -> Pair.of(p, relativeToWorkDir(workDirPath, p).toString().replaceAll("\\\\", "/")))
+        //        .peek(p -> System.out.println(p))
+        .filter(p -> !watchedFiles.containsKey(p.getRight()))
+        //        .peek(p -> System.out.println(p))
+        .forEach(
+            p -> {
+              try {
+                watchedFiles.put(p.getRight(), makeFileInfo(p.getLeft()));
+              } catch (IOException e) {
+                e.printStackTrace();
+              }
+            });
+    storeContext(context);
   }
 
-  private boolean isRelevantDirectory(final Path filePath, final BasicFileAttributes fileAttr, final BiPredicate<Path, BasicFileAttributes> matcher) {
+  private boolean isRelevantFile(
+      final Path workDir, final Path filePath, final BasicFileAttributes fileAttr) {
+    return fileAttr.isRegularFile()
+        && (isTagmlFile(workDir, filePath) || isViewDefinition(workDir, filePath));
+  }
+
+  private boolean isRelevantDirectory(
+      final Path filePath,
+      final BasicFileAttributes fileAttr,
+      final BiPredicate<Path, BasicFileAttributes> matcher) {
     try {
-      return fileAttr.isDirectory() &&
-          isNotDotDirectory(filePath) &&
-          Files.find(filePath, 1, matcher).count() > 1;
+      return fileAttr.isDirectory()
+          && isNotDotDirectory(filePath)
+          && Files.find(filePath, 1, matcher).count() > 1;
     } catch (IOException e) {
       return false;
     }
@@ -329,7 +382,7 @@ public abstract class AlexandriaCommand extends Command {
 
   private boolean isTagmlFile(final Path workDir, final Path filePath) {
     return /*relativeToWorkDir(workDir, filePath).startsWith(Paths.get(SOURCE_DIR))
-        && */fileType(filePath.toString()).equals(FileType.tagmlSource);
+           && */ fileType(filePath.toString()).equals(FileType.tagmlSource);
   }
 
   private Path relativeToWorkDir(final Path workDirPath, final Path filePath) {
@@ -338,20 +391,22 @@ public abstract class AlexandriaCommand extends Command {
 
   private boolean isViewDefinition(final Path workDir, final Path filePath) {
     return /*relativeToWorkDir(workDir, filePath).startsWith(Paths.get(VIEWS_DIR))
-        && */fileType(filePath.toString()).equals(FileType.viewDefinition);
+           && */ fileType(filePath.toString()).equals(FileType.viewDefinition);
   }
 
-  private void putFileStatus(Path workDir, Path filePath, Multimap<FileStatus, String> fileStatusMap, CLIContext context, Set<String> watchedFiles) {
-    String file = relativeToWorkDir(workDir, filePath)
-        .toString()
-        .replace("\\", "/");
+  private void putFileStatus(
+      Path workDir,
+      Path filePath,
+      Multimap<FileStatus, String> fileStatusMap,
+      CLIContext context,
+      Set<String> watchedFiles) {
+    String file = relativeToWorkDir(workDir, filePath).toString().replace("\\", "/");
     if (watchedFiles.contains(file)) {
       Instant lastCommit = context.getWatchedFiles().get(file).getLastCommit();
       try {
         Instant lastModified = Files.getLastModifiedTime(filePath).toInstant();
-        FileStatus fileStatus = lastModified.isAfter(lastCommit)
-            ? FileStatus.changed
-            : FileStatus.unchanged;
+        FileStatus fileStatus =
+            lastModified.isAfter(lastCommit) ? FileStatus.changed : FileStatus.unchanged;
         fileStatusMap.put(fileStatus, file);
       } catch (IOException e) {
         throw new RuntimeException(e);
@@ -370,36 +425,40 @@ public abstract class AlexandriaCommand extends Command {
     Path currentPath = Paths.get("").toAbsolutePath();
     Path workdirPath = Paths.get(workDir);
     if (!(changedFiles.isEmpty() && deletedFiles.isEmpty())) {
-      System.out.printf("Uncommitted changes:%n" +
-          "  (use \"alexandria commit <file>...\" to commit the selected changes)%n" +
-          "  (use \"alexandria commit -a\" to commit all changes)%n" +
-          "  (use \"alexandria revert <file>...\" to discard changes)%n%n");
+      System.out.printf(
+          "Uncommitted changes:%n"
+              + "  (use \"alexandria commit <file>...\" to commit the selected changes)%n"
+              + "  (use \"alexandria commit -a\" to commit all changes)%n"
+              + "  (use \"alexandria revert <file>...\" to discard changes)%n%n");
       Set<String> changedOrDeletedFiles = new TreeSet<>();
       changedOrDeletedFiles.addAll(changedFiles);
       changedOrDeletedFiles.addAll(deletedFiles);
-      changedOrDeletedFiles.forEach(file -> {
-            String status = changedFiles.contains(file)
-                ? "        modified: "
-                : "        deleted:  ";
+      changedOrDeletedFiles.forEach(
+          file -> {
+            String status =
+                changedFiles.contains(file) ? "        modified: " : "        deleted:  ";
             Path filePath = workdirPath.resolve(file);
             Path relativeToCurrentPath = relativeToWorkDir(currentPath, filePath);
             System.out.println(ansi().fg(RED).a(status).a(relativeToCurrentPath).reset());
-          }
-      );
+          });
     }
 
     System.out.println();
 
     Collection<String> createdFiles = fileStatusMap.get(FileStatus.created);
     if (!createdFiles.isEmpty()) {
-      System.out.printf("Untracked files:%n" +
-          "  (use \"alexandria add <file>...\" to start tracking this file.)%n%n");
-      createdFiles.stream().distinct().sorted().forEach(file -> {
-            Path filePath = workdirPath.resolve(file);
-            Path relativeToCurrentPath = relativeToWorkDir(currentPath, filePath);
-            System.out.println(ansi().fg(RED).a("        ").a(relativeToCurrentPath).reset());
-          }
-      );
+      System.out.printf(
+          "Untracked files:%n"
+              + "  (use \"alexandria add <file>...\" to start tracking this file.)%n%n");
+      createdFiles.stream()
+          .distinct()
+          .sorted()
+          .forEach(
+              file -> {
+                Path filePath = workdirPath.resolve(file);
+                Path relativeToCurrentPath = relativeToWorkDir(currentPath, filePath);
+                System.out.println(ansi().fg(RED).a("        ").a(relativeToCurrentPath).reset());
+              });
     }
 
     AnsiConsole.systemUninstall();
@@ -414,13 +473,10 @@ public abstract class AlexandriaCommand extends Command {
 
   private String relativeToWorkDir(final String pathString) {
     Path path = Paths.get(pathString);
-    Path absolutePath = path.isAbsolute()
-        ? path
-        : Paths.get("").toAbsolutePath().resolve(pathString);
-    return relativeToWorkDir(Paths.get(workDir)
-        .toAbsolutePath(), absolutePath)
+    Path absolutePath =
+        path.isAbsolute() ? path : Paths.get("").toAbsolutePath().resolve(pathString);
+    return relativeToWorkDir(Paths.get(workDir).toAbsolutePath(), absolutePath)
         .toString()
         .replaceAll("\\\\", "/");
   }
-
 }

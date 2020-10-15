@@ -39,14 +39,11 @@ public class AboutCommand extends AlexandriaCommand {
   }
 
   @Override
-  public void configure(Subparser subparser) {
-  }
+  public void configure(Subparser subparser) {}
 
   @Override
   public void run(Bootstrap<?> bootstrap, Namespace namespace) {
     System.out.printf("Alexandria version %s%n", appInfo.getVersion());
     System.out.printf("Build date: %s%n%n", appInfo.getBuildDate());
   }
-
 }
-

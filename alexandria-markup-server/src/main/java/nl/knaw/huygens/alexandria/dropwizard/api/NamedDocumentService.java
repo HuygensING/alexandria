@@ -34,9 +34,8 @@ public class NamedDocumentService {
     this.store = store;
   }
 
-  static final Cache<String, Long> documentIdCache = CacheBuilder.newBuilder()//
-      .maximumSize(100)//
-      .build();
+  static final Cache<String, Long> documentIdCache =
+      CacheBuilder.newBuilder().maximumSize(100).build();
 
   public void registerDocument(TAGDocument document, String docName) {
     documentIdCache.put(docName, document.getDbId());
