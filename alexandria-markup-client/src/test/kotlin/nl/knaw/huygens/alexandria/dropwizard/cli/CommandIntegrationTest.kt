@@ -69,6 +69,10 @@ abstract class CommandIntegrationTest {
         val appInfo: AppInfo = AppInfo().setVersion("\$version$").setBuildDate("\$buildDate$")
         serverApplication.addCommands(bootstrap, appInfo)
 
+        resetCli()
+    }
+
+    internal fun resetCli() {
         // Redirect stdout and stderr to our byte streams
         originalOut = System.out
         stdOut = ByteArrayOutputStream()
@@ -106,9 +110,9 @@ abstract class CommandIntegrationTest {
     }
 
     fun softlyAssertSucceedsWithStdoutContaining(
-            success: Boolean?, outputSubString: String?) {
-        val softly = SoftAssertions()
-        with(softly) {
+        success: Boolean?, outputSubString: String?
+    ) {
+        SoftAssertions().apply {
             assertThat(success).`as`("Exit success").isTrue
 
             //    String normalizedExpectedOutput = normalize(expectedOutput);
@@ -121,8 +125,7 @@ abstract class CommandIntegrationTest {
     }
 
     fun softlyAssertSucceedsWithExpectedStdout(success: Boolean?, expectedOutput: String) {
-        val softly = SoftAssertions()
-        with(softly) {
+        SoftAssertions().apply {
             assertThat(success).`as`("Exit success").isTrue
 
             val normalizedExpectedOutput = expectedOutput.normalized()
@@ -135,22 +138,23 @@ abstract class CommandIntegrationTest {
     }
 
     fun assertSucceedsWithExpectedStdout(success: Boolean?, expectedOutput: String) {
-        assertThat(success).`as`("Exit success").isTrue
+        SoftAssertions().apply {
+            assertThat(success).`as`("Exit success").isTrue
 
-        val normalizedExpectedOutput = expectedOutput.normalized()
-        val normalizedStdOut = stdOut.toString().normalized()
-        assertThat(normalizedStdOut).`as`("stdout").isEqualTo(normalizedExpectedOutput)
+            val normalizedExpectedOutput = expectedOutput.normalized()
+            val normalizedStdOut = stdOut.toString().normalized()
+            assertThat(normalizedStdOut).`as`("stdout").isEqualTo(normalizedExpectedOutput)
 
-        val normalizedErrors = stdErr.toString().trim { it <= ' ' }
-        assertThat(normalizedErrors).`as`("stderr").isEmpty()
-
+            val normalizedErrors = stdErr.toString().trim { it <= ' ' }
+            assertThat(normalizedErrors).`as`("stderr").isEmpty()
+            assertAll()
+        }
         resetStdOutErr()
     }
 
     fun softlyAssertFailsWithExpectedStderr(success: Boolean?, expectedError: String) {
         val normalizedExpectedError = expectedError.normalized()
-        val softly = SoftAssertions()
-        with(softly) {
+        SoftAssertions().apply {
             assertThat(success).`as`("Exit success").isFalse
             val normalizeStdErr = stdErr.toString().normalized()
             assertThat(normalizeStdErr).`as`("stderr").isEqualTo(normalizedExpectedError)
@@ -163,19 +167,21 @@ abstract class CommandIntegrationTest {
     }
 
     fun assertFailsWithExpectedStderr(success: Boolean?, expectedError: String) {
-        val normalizedExpectedError = expectedError.normalized()
-        assertThat(success).`as`("Exit success").isFalse
+        SoftAssertions().apply {
+            val normalizedExpectedError = expectedError.normalized()
+            assertThat(success).`as`("Exit success").isFalse
 
-        val normalizeStdErr = stdErr.toString().normalized()
-        assertThat(normalizeStdErr).`as`("stderr").isEqualTo(normalizedExpectedError)
-
+            val normalizeStdErr = stdErr.toString().normalized()
+            assertThat(normalizeStdErr).`as`("stderr").isEqualTo(normalizedExpectedError)
+            assertAll()
+        }
         resetStdOutErr()
     }
 
     fun assertFailsWithExpectedStdoutAndStderr(
-            success: Boolean,
-            expectedOutput: String,
-            expectedError: String
+        success: Boolean,
+        expectedOutput: String,
+        expectedError: String
     ) {
         assertThat(success).`as`("Exit success").isFalse
         val normalizedExpectedOutput = expectedOutput.normalized()
@@ -230,8 +236,7 @@ abstract class CommandIntegrationTest {
     fun runCommitAllCommand() {
         val throwable = cli!!.run(COMMIT, "-a")
         logger.info("stdOut={}", stdOut.toString())
-        val softly = SoftAssertions()
-        with(softly) {
+        SoftAssertions().apply {
             assertThat(throwable).overridingErrorMessage(stdErr.toString()).isTrue
             assertThat(cliStdErrAsString).isEmpty()
             assertAll()
@@ -242,8 +247,7 @@ abstract class CommandIntegrationTest {
     @Throws(Exception::class)
     fun runCheckoutCommand(viewName: String) {
         val throwable = cli!!.run(CHECKOUT, viewName)
-        val softly = SoftAssertions()
-        with(softly) {
+        SoftAssertions().apply {
             assertThat(throwable).overridingErrorMessage(stdErr.toString()).isTrue
             assertThat(cliStdErrAsString).isEmpty()
             assertThat(readCLIContext().activeView).isEqualTo(viewName)
@@ -255,11 +259,10 @@ abstract class CommandIntegrationTest {
     @Throws(Exception::class)
     fun assertCommandRunsInAnInitializedDirectory(vararg cliArguments: String) {
         val throwable = cli!!.run(*cliArguments)
-        val softly = SoftAssertions()
-        with(softly) {
+        SoftAssertions().apply {
             assertThat(throwable).isFalse
             assertThat(cliStdOutAsString)
-                    .contains("This directory (or any of its parents) has not been initialized")
+                .contains("This directory (or any of its parents) has not been initialized")
             assertThat(cliStdErrAsString.trim { it <= ' ' }).isEqualTo("not initialized")
             assertAll()
         }
@@ -328,15 +331,15 @@ abstract class CommandIntegrationTest {
         }
 
         fun String.normalized(): String = trim { it <= ' ' }
-                .replace(System.lineSeparator(), "\n")
+            .replace(System.lineSeparator(), "\n")
 
         fun workFilePath(relativePath: String): Path = workDirectory!!.resolve(relativePath)
 
         fun createViewFileName(viewName: String): String =
-                String.format("%s/%s.json", AlexandriaCommand.VIEWS_DIR, viewName)
+            String.format("%s/%s.json", AlexandriaCommand.VIEWS_DIR, viewName)
 
         fun createTagmlFileName(documentName: String): String =
-                String.format("%s/%s.tagml", AlexandriaCommand.SOURCE_DIR, documentName)
+            String.format("%s/%s.tagml", AlexandriaCommand.SOURCE_DIR, documentName)
 
     }
 

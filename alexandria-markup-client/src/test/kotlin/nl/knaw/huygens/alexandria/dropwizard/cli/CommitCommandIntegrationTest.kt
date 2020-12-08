@@ -1,6 +1,5 @@
 package nl.knaw.huygens.alexandria.dropwizard.cli
 
-
 /*-
 * #%L
  * alexandria-markup-client
@@ -29,29 +28,31 @@ import org.junit.Test
 class CommitCommandIntegrationTest : CommandIntegrationTest() {
     @Test
     @Throws(Exception::class)
-    fun testCommandWithBadViewDefinitionThrowsError() {
+    fun commit_with_bad_view_definition_throws_error() {
         runInitCommand()
         val viewFilename = createViewFileName("v1")
         val viewPath = createFile(viewFilename, "{\"idontknowwhatimdoing\":[\"huh?\"]}")
         runAddCommand(viewPath)
         val success = cli!!.run(command, "-a")
         softlyAssertFailsWithExpectedStderr(
-                success,
-                "Commit aborted: Invalid view definition in views/v1.json: none of the allowed options includeLayers, excludeLayers, includeMarkup or excludeMarkup was found.")
+            success,
+            "Commit aborted: Invalid view definition in views/v1.json: none of the allowed options includeLayers, excludeLayers, includeMarkup or excludeMarkup was found."
+        )
     }
 
     @Test
     @Throws(Exception::class)
-    fun testCommandWithoutFileThrowsError() {
+    fun commit_without_file_throws_error() {
         runInitCommand()
         val success = cli!!.run(command)
         softlyAssertFailsWithExpectedStderr(
-                success, "Commit aborted: no files specified. Use -a to commit all changed tracked files.")
+            success, "Commit aborted: no files specified. Use -a to commit all changed tracked files."
+        )
     }
 
     @Test
     @Throws(Exception::class)
-    fun testCommandWithFile() {
+    fun commit_file() {
         runInitCommand()
         val filename = "transcription1.tagml"
         val absolutePath = createFile(filename, "[tagml>test<tagml]")
@@ -61,14 +62,15 @@ class CommitCommandIntegrationTest : CommandIntegrationTest() {
         logger.info("{}", dateAfterAdd)
         val success = cli!!.run(command, absolutePath)
         softlyAssertSucceedsWithExpectedStdout(
-                success, "Parsing transcription1.tagml to document transcription1...\ndone!")
+            success, "Parsing transcription1.tagml to document transcription1...\ndone!"
+        )
         val dateAfterCommit = readLastCommittedInstant(filename)
         assertThat(dateAfterCommit).isAfter(dateAfterAdd)
     }
 
     @Test
     @Throws(Exception::class)
-    fun testCommandWithAllOption() {
+    fun commit_with_all_option() {
         runInitCommand()
         val tagFilename = createTagmlFileName("transcription1")
         val tagPath = createFile(tagFilename, "[tagml>[l>test<l]<tagml]")
@@ -81,12 +83,13 @@ class CommitCommandIntegrationTest : CommandIntegrationTest() {
         assertThat(viewDateAfterAdd).isNotNull
         val success = cli!!.run(command, "-a")
         softlyAssertSucceedsWithExpectedStdout(
-                success,
-                """
-                    Parsing tagml/transcription1.tagml to document transcription1...
-                    Parsing views/v1.json to view v1...
-                    done!
-                    """.trimIndent())
+            success,
+            """
+                Parsing tagml/transcription1.tagml to document transcription1...
+                Parsing views/v1.json to view v1...
+                done!
+                """.trimIndent()
+        )
         val tagDateAfterCommit = readLastCommittedInstant(tagFilename)
         assertThat(tagDateAfterCommit).isAfter(tagDateAfterAdd)
         val viewDateAfterCommit = readLastCommittedInstant(viewFilename)
@@ -96,7 +99,7 @@ class CommitCommandIntegrationTest : CommandIntegrationTest() {
     @Ignore("fails on jenkins")
     @Test
     @Throws(Exception::class)
-    fun testCommitWithActiveView() {
+    fun commit_with_active_view() {
         runInitCommand()
         val tagFilename = createTagmlFileName("transcription1")
         val tagPath = createFile(tagFilename, "[tagml>[l>test<l]<tagml]")
@@ -109,12 +112,13 @@ class CommitCommandIntegrationTest : CommandIntegrationTest() {
         assertThat(viewDateAfterAdd).isNotNull
         val success = cli!!.run(command, "-a")
         softlyAssertSucceedsWithExpectedStdout(
-                success,
-                """
-                    Parsing tagml/transcription1.tagml to document transcription1...
-                    Parsing views/v1.json to view v1...
-                    done!
-                    """.trimIndent())
+            success,
+            """
+                Parsing tagml/transcription1.tagml to document transcription1...
+                Parsing views/v1.json to view v1...
+                done!
+                """.trimIndent()
+        )
         val tagDateAfterCommit = readLastCommittedInstant(tagFilename)
         assertThat(tagDateAfterCommit).isAfter(tagDateAfterAdd)
         val viewDateAfterCommit = readLastCommittedInstant(viewFilename)
@@ -136,22 +140,25 @@ class CommitCommandIntegrationTest : CommandIntegrationTest() {
         //    assertSucceedsWithExpectedStdout(success2, "");
         val success3 = cli!!.run(command, "-a")
         assertFailsWithExpectedStdoutAndStderr(
-                success3,
-                """
+            success3,
+            """
                 Parsing tagml/transcription2.tagml to document transcription2...
                 Parsing views/v2.json to view v2...
                 """.trimIndent(),
-                """unable to commit tagml/transcription1.tagml
-View v1 is active. Currently, committing changes to existing documents is only allowed in the main view. Use:
-  alexandria revert tagml/transcription1.tagml
-  alexandria checkout -
-to undo those changes and return to the main view.
-some commits failed""")
+            """
+                |unable to commit tagml/transcription1.tagml
+                |View v1 is active. Currently, committing changes to existing documents is only allowed in the main view. Use:
+                |  alexandria revert tagml/transcription1.tagml
+                |  alexandria checkout -
+                |to undo those changes and return to the main view.
+                |some commits failed
+                |""".trimMargin()
+        )
     }
 
     @Test
     @Throws(Exception::class)
-    fun testCommittingANewViewDefinitionInAnOpenViewShouldWork() {
+    fun committing_a_new_view_definition_in_an_open_view_should_work() {
         runInitCommand()
 
         // setup: add a file and viewdefinition v1
@@ -183,7 +190,7 @@ some commits failed""")
 
     @Test
     @Throws(Exception::class)
-    fun testCommittingAModifiedViewDefinitionForTheCurrentlyOpenedViewShouldGiveAnError() {
+    fun committing_a_modified_view_definition_for_the_currently_opened_view_should_give_an_error() {
         runInitCommand()
 
         // setup: add a file and viewdefinition v1
@@ -202,44 +209,50 @@ some commits failed""")
         runAddCommand(absoluteViewPath)
         val success = cli!!.run(command, absoluteViewPath)
         assertFailsWithExpectedStderr(
-                success,
-                """You are trying to modify the definition file $viewFilename of the active view $viewName. This is not allowed.
-
-Use:
-  alexandria revert views/v1.json
-  alexandria checkout -
-to undo those changes and return to the main view.
-some commits failed""")
+            success,
+            """
+            |You are trying to modify the definition file $viewFilename of the active view $viewName. This is not allowed.
+            |
+            |Use:
+            |  alexandria revert views/v1.json
+            |  alexandria checkout -
+            |to undo those changes and return to the main view.
+            |some commits failed
+            |""".trimMargin()
+        )
         val cliContext = readCLIContext()
         assertThat(cliContext.tagViewDefinitions.keys).containsOnly(viewName)
     }
 
     @Test
     @Throws(Exception::class)
-    fun testCommandHelp() {
+    fun commit_help_has_expected_output() {
         val success = cli!!.run(command, "-h")
         assertSucceedsWithExpectedStdout(
-                success,
-                """usage: java -jar alexandria-app.jar
-       commit [-a] [-h] [<file> [<file> ...]]
-
-Record changes to the repository.
-
-positional arguments:
-  <file>                 the changed file(s)
-
-named arguments:
-  -a                     automatically  add  all  changed  files  (default:
-                         false)
-  -h, --help             show this help message and exit
-
-Warning: currently, committing tagml changes  is  only possible in the main
-view!""")
+            success,
+            """
+            |usage: java -jar alexandria-app.jar
+            |       commit [-a] [-h] [<file> [<file> ...]]
+            |
+            |Record changes to the repository.
+            |
+            |positional arguments:
+            |  <file>                 the changed file(s)
+            |
+            |named arguments:
+            |  -a                     automatically  add  all  changed  files  (default:
+            |                         false)
+            |  -h, --help             show this help message and exit
+            |
+            |Warning: currently, committing tagml changes  is  only possible in the main
+            |view!
+            |""".trimMargin()
+        )
     }
 
     @Test
     @Throws(Exception::class)
-    fun testCommandShouldBeRunInAnInitializedDirectory() {
+    fun commit_command_should_be_run_in_an_initialized_directory() {
         assertCommandRunsInAnInitializedDirectory(command, "-a")
     }
 

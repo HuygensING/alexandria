@@ -90,6 +90,11 @@ public class CommitCommand extends AlexandriaCommand {
           "Commit aborted: no files specified. Use -a to commit all changed tracked files.");
     }
 
+    doCommit(fileNames);
+    System.out.println("done!");
+  }
+
+  void doCommit(List<String> fileNames) {
     try (TAGStore store = getTAGStore()) {
       store.runInTransaction(
           () -> {
@@ -171,7 +176,6 @@ public class CommitCommand extends AlexandriaCommand {
             }
           });
     }
-    System.out.println("done!");
   }
 
   private void processTAGMLFile(
@@ -229,7 +233,7 @@ public class CommitCommand extends AlexandriaCommand {
     return fileName.replaceAll("^.*" + SOURCE_DIR + "/", "").replaceAll(".tag(ml)?", "");
   }
 
-  private List<String> getModifiedWatchedFileNames() {
+   List<String> getModifiedWatchedFileNames() {
     List<String> modifiedFiles = new ArrayList<>();
     CLIContext cliContext = readContext();
     cliContext

@@ -21,8 +21,10 @@ package nl.knaw.huygens.alexandria.dropwizard.cli
 */
 
 import nl.knaw.huygens.alexandria.dropwizard.cli.commands.ValidateCommand
+import org.junit.Ignore
 import org.junit.Test
 
+@Ignore()
 class ValidateCommandIntegrationTest : CommandIntegrationTest() {
     @Test
     @Throws(Exception::class)
@@ -162,8 +164,8 @@ expected alphabetic or numeric character, but found !(33)
     fun testCommandHelp() {
         val success = cli!!.run(command, "-h")
         assertSucceedsWithExpectedStdout(
-                success,
-                """usage: java -jar alexandria-app.jar
+            success,
+            """usage: java -jar alexandria-app.jar
        schema-validate [-h] <document>
 
 Validate a document against a TAG schema.
@@ -175,7 +177,8 @@ positional arguments:
                          the TAGML source file.
 
 named arguments:
-  -h, --help             show this help message and exit""")
+  -h, --help             show this help message and exit"""
+        )
     }
 
     companion object {

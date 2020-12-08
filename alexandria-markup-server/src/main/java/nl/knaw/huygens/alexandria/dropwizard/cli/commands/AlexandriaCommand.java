@@ -297,7 +297,11 @@ public abstract class AlexandriaCommand extends Command {
     Instant lastCommit =
         lastModifiedInstant.minus(
             365L, DAYS); // set lastCommit to instant sooner than lastModifiedInstant
-    return new FileInfo().setLastCommit(lastCommit);
+    FileType fileType = fileType(filePath.getFileName().toString());
+    return new FileInfo()
+        .setFileType(fileType)
+        .setObjectName("")
+        .setLastCommit(lastCommit);
   }
 
   enum FileStatus {
@@ -327,11 +331,25 @@ public abstract class AlexandriaCommand extends Command {
       Files.find(absolutePath, 1, matcher)
           .forEach(path -> putFileStatus(workDir, path, fileStatusMap, context, watchedFiles));
     }
-    watchedFiles.forEach(f -> fileStatusMap.put(FileStatus.deleted, f));
+    watchedFiles.forEach(f -> {
+      Path filePath = Paths.get(this.workDir).resolve(f);
+      FileStatus fileStatus = fileStatus(f, context, filePath);
+      fileStatusMap.put(fileStatus, f);
+    });
     return fileStatusMap;
   }
 
-  private void addNewFilesFromWatchedDirs(final CLIContext context) {
+  FileStatus fileStatus(String file, CLIContext context, Path filePath){
+    Instant lastCommit = context.getWatchedFiles().get(file).getLastCommit();
+    try {
+      Instant lastModified = Files.getLastModifiedTime(filePath).toInstant();
+      return lastModified.isAfter(lastCommit) ? FileStatus.changed : FileStatus.unchanged;
+    } catch (IOException e) {
+      throw new RuntimeException(e);
+    }
+  }
+
+  void addNewFilesFromWatchedDirs(final CLIContext context) {
     final Map<String, FileInfo> watchedFiles = context.getWatchedFiles();
     Path workDirPath = workFilePath("");
     context.getWatchedDirectories().stream()
@@ -399,7 +417,8 @@ public abstract class AlexandriaCommand extends Command {
       Path filePath,
       Multimap<FileStatus, String> fileStatusMap,
       CLIContext context,
-      Set<String> watchedFiles) {
+      Set<String> watchedFiles
+  ) {
     String file = relativeToWorkDir(workDir, filePath).toString().replace("\\", "/");
     if (watchedFiles.contains(file)) {
       Instant lastCommit = context.getWatchedFiles().get(file).getLastCommit();

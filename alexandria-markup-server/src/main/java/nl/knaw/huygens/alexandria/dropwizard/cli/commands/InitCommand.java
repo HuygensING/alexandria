@@ -31,6 +31,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.List;
 
 public class InitCommand extends AlexandriaCommand {
 
@@ -46,7 +47,7 @@ public class InitCommand extends AlexandriaCommand {
     checkWeAreNotInUserHomeDir();
     CLIContext context = new CLIContext();
     initPaths(Paths.get("").toAbsolutePath());
-//    context.getWatchedDirectories().add("");
+    //    context.getWatchedDirectories().add("");
     System.out.println("initializing...");
     Path alexandriaPath = Paths.get(alexandriaDir);
     System.out.println("  mkdir " + alexandriaPath);
@@ -68,9 +69,14 @@ public class InitCommand extends AlexandriaCommand {
     Path sparqlPath = Paths.get(workDir, SPARQL_DIR);
     System.out.println("  mkdir " + sparqlPath);
     mkdir(sparqlPath);
-//    context.getWatchedDirectories().add(SPARQL_DIR);
+    //    context.getWatchedDirectories().add(SPARQL_DIR);
 
     storeContext(context);
+
+    addNewFilesFromWatchedDirs(context);
+    CommitCommand commit = new CommitCommand();
+    List<String> modifiedWatchedFileNames = commit.getModifiedWatchedFileNames();
+    commit.doCommit(modifiedWatchedFileNames);
 
     System.out.println("done!");
   }

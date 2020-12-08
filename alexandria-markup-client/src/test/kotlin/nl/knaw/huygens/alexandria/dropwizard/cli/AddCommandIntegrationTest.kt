@@ -40,6 +40,8 @@ class AddCommandIntegrationTest : CommandIntegrationTest() {
         val cliContext = readCLIContext()
         assertThat(cliContext.watchedFiles.keys)
                 .containsExactlyInAnyOrder(filename1, filename2)
+        val fileInfo1 = cliContext.watchedFiles[filename1]!!
+        assertThat(fileInfo1.fileType).isEqualTo(FileType.tagmlSource)
     }
 
     @Test

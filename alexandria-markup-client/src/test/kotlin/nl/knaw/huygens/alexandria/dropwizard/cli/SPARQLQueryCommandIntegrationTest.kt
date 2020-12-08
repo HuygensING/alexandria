@@ -1,6 +1,5 @@
 package nl.knaw.huygens.alexandria.dropwizard.cli
 
-
 /*-
 * #%L
  * alexandria-markup-client
@@ -25,6 +24,7 @@ import nl.knaw.huygens.alexandria.dropwizard.cli.commands.SPARQLQueryCommand
 import org.junit.Test
 
 class SPARQLQueryCommandIntegrationTest : CommandIntegrationTest() {
+
     @Test
     @Throws(Exception::class)
     fun testCommand() {
@@ -48,19 +48,21 @@ class SPARQLQueryCommandIntegrationTest : CommandIntegrationTest() {
         runAddCommand(tagPath)
         runCommitAllCommand()
         val success = cli!!.run(command, "transcription", "-q", "query.sparql")
-        val expectedOutput = """document: transcription
-
-query:
-  prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> prefix tag: <https://huygensing.github.io/TAG/TAGML/ontology/tagml.ttl#> select ?markup (count(?markup) as ?count) where { [] tag:markup_name ?markup . } group by ?markup order by ?markup
-
-result:
--------------------
-| markup  | count |
-===================
-| "l"     | 1     |
-| "tagml" | 1     |
-| "w"     | 1     |
--------------------"""
+        val expectedOutput = """
+            %document: transcription
+            %
+            %query:
+            %  prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> prefix tag: <https://huygensing.github.io/TAG/TAGML/ontology/tagml.ttl#> select ?markup (count(?markup) as ?count) where { [] tag:markup_name ?markup . } group by ?markup order by ?markup
+            %
+            %result:
+            %-------------------
+            %| markup  | count |
+            %===================
+            %| "l"     | 1     |
+            %| "tagml" | 1     |
+            %| "w"     | 1     |
+            %-------------------
+            %""".trimMargin("%")
         //    softlyAssertSucceedsWithExpectedStdout(success, expectedOutput);
         assertSucceedsWithExpectedStdout(success, expectedOutput)
     }
@@ -70,19 +72,22 @@ result:
     fun testCommandHelp() {
         val success = cli!!.run(command, "-h")
         assertSucceedsWithExpectedStdout(
-                success,
-                """usage: java -jar alexandria-app.jar
-       query -q <sparql-file> [-h] <document>
-
-Query the document using SPARQL.
-
-positional arguments:
-  <document>             The name of the document to query.
-
-named arguments:
-  -q <sparql-file>, --query <sparql-file>
-                         The file containing the SPARQL query.
-  -h, --help             show this help message and exit""")
+            success,
+            """
+            |usage: java -jar alexandria-app.jar
+            |       query -q <sparql-file> [-h] <document>
+            |
+            |Query the document using SPARQL.
+            |
+            |positional arguments:
+            |  <document>             The name of the document to query.
+            |
+            |named arguments:
+            |  -q <sparql-file>, --query <sparql-file>
+            |                         The file containing the SPARQL query.
+            |  -h, --help             show this help message and exit
+            |""".trimMargin()
+        )
     }
 
     companion object {

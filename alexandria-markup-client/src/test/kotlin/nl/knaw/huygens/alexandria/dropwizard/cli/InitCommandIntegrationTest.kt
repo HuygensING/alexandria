@@ -21,33 +21,65 @@ package nl.knaw.huygens.alexandria.dropwizard.cli
 */
 
 import nl.knaw.huygens.alexandria.dropwizard.cli.commands.AlexandriaCommand
+import nl.knaw.huygens.alexandria.dropwizard.cli.commands.InitCommand
+import nl.knaw.huygens.alexandria.dropwizard.cli.commands.StatusCommand
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.Test
 
 class InitCommandIntegrationTest : CommandIntegrationTest() {
+
     @Test
     @Throws(Exception::class)
-    fun testCommandFailsWhenCurrentDirIsNotWritable() {
-        val workDirectoryFile = workDirectory!!.toFile()
-        val asFile = workDirectory!!.resolve(".alexandria").toFile().createNewFile()
-        assertThat(asFile).isTrue
+    fun init_command_autocommits_files_in_watched_dirs() {
+        createDirectory("tagml")
+        val tagFilename = createTagmlFileName("transcription1")
+        createFile(tagFilename, "[tagml>[l>test<l]<tagml]")
         val success = cli!!.run(command)
-        assertFailsWithExpectedStderr(
-                success, "init failed: could not create directory " + workDirectory!!.resolve(".alexandria"))
+        softlyAssertSucceedsWithExpectedStdout(
+            success,
+            """
+            |initializing...
+            |  mkdir ${workDirectory!!.resolve(".alexandria")}
+            |  mkdir ${workDirectory!!.resolve("tagml")}
+            |  mkdir ${workDirectory!!.resolve("views")}
+            |  mkdir ${workDirectory!!.resolve("sparql")}
+            |Parsing tagml/transcription1.tagml to document transcription1...
+            |done!
+            |""".trimMargin()
+        )
+        val status = cli!!.run(StatusCommand().name)
+        assertThat(status).isTrue
+        val normalizedStdOut = stdOut.toString().normalized()
+        assertThat(normalizedStdOut).contains("Documents:", "source: tagml/transcription1.tagml")
+        assertThat(normalizedStdOut).doesNotContain("commit", "Modified files")
     }
 
     @Test
     @Throws(Exception::class)
-    fun testCommand() {
+    fun init_command_fails_when_current_dir_is_not_writable() {
+        val asFile = workDirectory!!.resolve(".alexandria").toFile().createNewFile()
+        assertThat(asFile).isTrue
+        val success = cli!!.run(command)
+        assertFailsWithExpectedStderr(
+            success, "init failed: could not create directory " + workDirectory!!.resolve(".alexandria")
+        )
+    }
+
+    @Test
+    @Throws(Exception::class)
+    fun init_command_has_expected_result() {
         val success = cli!!.run(command)
         softlyAssertSucceedsWithExpectedStdout(
-                success,
-                """initializing...
-  mkdir ${workDirectory!!.resolve(".alexandria")}
-  mkdir ${workDirectory!!.resolve("tagml")}
-  mkdir ${workDirectory!!.resolve("views")}
-  mkdir ${workDirectory!!.resolve("sparql")}
-done!""")
+            success,
+            """
+            |initializing...
+            |  mkdir ${workDirectory!!.resolve(".alexandria")}
+            |  mkdir ${workDirectory!!.resolve("tagml")}
+            |  mkdir ${workDirectory!!.resolve("views")}
+            |  mkdir ${workDirectory!!.resolve("sparql")}
+            |done!
+            |""".trimMargin()
+        )
         val viewsDir = workFilePath(AlexandriaCommand.VIEWS_DIR)
         assertThat(viewsDir).isDirectory.isWritable
         val transcriptionsDir = workFilePath(AlexandriaCommand.SOURCE_DIR)
@@ -60,20 +92,23 @@ done!""")
 
     @Test
     @Throws(Exception::class)
-    fun testCommandHelp() {
+    fun init_command_help_has_expected_output() {
         val success = cli!!.run(command, "-h")
         assertSucceedsWithExpectedStdout(
-                success,
-                """usage: java -jar alexandria-app.jar
-       init [-h]
-
-Initializes current directory as an alexandria workspace.
-
-named arguments:
-  -h, --help             show this help message and exit""")
+            success,
+            """
+            |usage: java -jar alexandria-app.jar
+            |       init [-h]
+            |
+            |Initializes current directory as an alexandria workspace.
+            |
+            |named arguments:
+            |  -h, --help             show this help message and exit
+            |""".trimMargin()
+        )
     }
 
     companion object {
-        private const val command = "init"
+        private val command = InitCommand().name
     }
 }
