@@ -41,7 +41,7 @@
         <javax.json-api.version>1.1.4</javax.json-api.version>
         <javax.ws.rs-api.version>2.1.1</javax.ws.rs-api.version><!-- Should be same version as used by dropwizard -->
         <jaxb-api.version>2.4.0-b180830.0359</jaxb-api.version>
-        <jersey.version>2.29</jersey.version> <!-- Should be same version as used by dropwizard -->
+        <jersey.version>2.34</jersey.version> <!-- Should be same version as used by dropwizard -->
         <jool-java-8.version>0.9.14</jool-java-8.version>
         <junit-jupiter.version>5.7.0</junit-jupiter.version>
         <junit.version>4.13-beta-3</junit.version>
