@@ -1,5 +1,7 @@
 # _Alexandria_: A Command-line Application for Digital Text Editing
 
+![](https://github.com/HuygensING/alexandria/workflows/tests/badge.svg)
+
 ## What is it?
 In short: _Alexandria_ is a text repository system in which you can store and edit documents. It is the reference implementation of [TAG](https://huygensing.github.io/TAG/) (Text-as-Graph), a flexible graph data model for text. TAG and _Alexandria_ are under active development at the [Research & Development group](https://huc.knaw.nl/research/infrastructure-rd/) of the Humanities Cluster.
 
@@ -144,3 +146,4 @@ doi: `https://doi.org/10.4242 BalisageVol21.HaentjensDekker01.`
 	* Slides: <https://docs.google.com/presentation/d/1TpOtNJR_3FSKfMSzUvI4wuJBBbZcchVGFjG2qP4csck/edit?usp=sharing>
 
 * Bleeker, Elli, Bram Buitendijk, Ronald Haentjens Dekker, and Astrid Kulsdom. 2018. "Perspectives on Text. Synthesising Textual Knowledge". Presented at the international [Computational Methods for Literary-Historical Textual Scholarship](http://cts.dmu.ac.uk/events/CMLHTS/) conference at De Montfort University, July 4th 2018.
+
