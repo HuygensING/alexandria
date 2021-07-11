@@ -37,7 +37,7 @@
         <graphviz-wrapper.version>1.1</graphviz-wrapper.version>
         <jackson-annotations.version>2.10.0.pr3</jackson-annotations.version> <!-- Should be same version as used by dropwizard -->
         <jackson.version>2.12.3</jackson.version>
-        <jansi.version>1.17.1</jansi.version>
+        <jansi.version>1.18</jansi.version>
         <javax.json-api.version>1.1.4</javax.json-api.version>
         <javax.ws.rs-api.version>2.1.1</javax.ws.rs-api.version><!-- Should be same version as used by dropwizard -->
         <jaxb-api.version>2.4.0-b180830.0359</jaxb-api.version>
