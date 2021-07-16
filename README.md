@@ -20,7 +20,7 @@ You may wonder, why use _Alexandria_ if you already have a text editing tool? We
   This has been fixed: committing this view definition will not fail with an error message.    
 
 
-### Latest release: _Alexandria 2.2_ (July 2019)
+### Release: _Alexandria 2.2_ (July 2019)
 
 ###### [New/Changed commands for the command-line app](https://huygensing.github.io/alexandria/commands)
 - query
@@ -30,7 +30,7 @@ You may wonder, why use _Alexandria_ if you already have a text editing tool? We
 - After a revert, the reverted file is now no longer shown as modified.
 - It is now possible to run alexandria commands from any directory, provided one of its parent directories has been initialized.
 
-### Latest release: _Alexandria 2.1_ (December 2018)
+### Release: _Alexandria 2.1_ (December 2018)
 
 ##### New features:
 
