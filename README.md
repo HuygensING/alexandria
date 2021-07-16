@@ -52,7 +52,7 @@ You may wonder, why use _Alexandria_ if you already have a text editing tool? We
 - This means that this first markup tag must correspond with the last closing markup tag, and suspending/resuming of this markup is not allowed.
  
 
-### Upcoming presentation
+### Presentation
 Haentjens Dekker, Ronald. Invited talk at the Workshop on Scholarly Digital Editions, Graph Data-Models and Semantic Web Technologies, Université de Lausanne, 3 June 2019.
 
 ## Documentation
