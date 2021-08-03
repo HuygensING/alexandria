@@ -1,6 +1,7 @@
 # _Alexandria_: A Command-line Application for Digital Text Editing
 
-![](https://github.com/HuygensING/alexandria/workflows/tests/badge.svg)
+[![GitHub Actions](https://github.com/HuygensING/alexandria/workflows/tests/badge.svg)](https://github.com/HuygensING/alexandria/actions)
+[![Project Status: Inactive – The project has reached a stable, usable state but is no longer being actively developed; support/maintenance will be provided as time allows.](https://www.repostatus.org/badges/latest/inactive.svg)](https://www.repostatus.org/#inactive)
 
 ## What is it?
 In short: _Alexandria_ is a text repository system in which you can store and edit documents. It is the reference implementation of [TAG](https://huygensing.github.io/TAG/) (Text-as-Graph), a flexible graph data model for text. TAG and _Alexandria_ are under active development at the [Research & Development group](https://huc.knaw.nl/research/infrastructure-rd/) of the Humanities Cluster.
