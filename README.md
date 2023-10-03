@@ -70,7 +70,7 @@ Install [Sublime Text 3](http://www.sublimetext.com/), a cross-platform editor t
 ### 1. Installation
 
 #### 1a. Download
-An up-to-date version of _Alexandria_ can be downloaded from <https://cdn.huygens.knaw.nl/alexandria/alexandria-app.zip>
+An up-to-date version of _Alexandria_ can be downloaded from [<https://cdn.huygens.knaw.nl/alexandria/alexandria-app.zip>](https://github.com/HuygensING/alexandria/releases/tag/2.4)
 
 #### 1b. Build
 Alternatively, you can build it yourself with
