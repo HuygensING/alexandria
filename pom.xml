@@ -48,7 +48,7 @@
         <kotlin.compiler.incremental>true</kotlin.compiler.incremental>
         <kotlin.version>1.7.20</kotlin.version>
         <log.version>1.1.1</log.version>
-        <logback.version>1.4.0</logback.version> <!-- Should be same version as used by dropwizard -->
+        <logback.version>1.4.1</logback.version> <!-- Should be same version as used by dropwizard -->
         <maven-assembly-plugin.version>3.1.0</maven-assembly-plugin.version>
         <maven-compiler.version>3.7.0</maven-compiler.version>
         <maven-failsafe-plugin.version>3.0.0-M4</maven-failsafe-plugin.version>
